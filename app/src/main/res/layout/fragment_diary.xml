@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DiaryFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <ListView
+        android:id="@+id/lv_diaries"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="10dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="10.0sp"
+        android:layout_marginRight="10dp">
+    </ListView>
+    <TextView
+        android:id="@+id/tv_nothing"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Chưa có nhật kí"
+        android:textSize="24sp"
+        android:layout_width="wrap_content"/>
+
+</FrameLayout>

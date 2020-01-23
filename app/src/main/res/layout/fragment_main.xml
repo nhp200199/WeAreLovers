@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainFragment">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mình đã quen nhau được ..."
+        android:textColor="@color/textColor"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold"
+        android:textSize="24sp"
+        android:layout_marginTop="25dp"
+        />
+    <LinearLayout
+        android:id="@+id/main_frag_linear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="56sp"
+            android:id="@+id/tv_day_count"
+            android:text="this is Text"/>
+        <TextView
+            android:layout_marginLeft="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="36sp"
+            android:text="Days"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:maxWidth="135dp"
+            android:layout_marginTop="50dp"
+            android:orientation="vertical">
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/profile_image"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:src="@drawable/couple"
+                app:civ_border_width="2dp"
+                app:civ_border_color="#E75555"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@id/tv_yourName"
+                android:background="@drawable/edt_round"
+                android:padding="8dp"
+                android:maxWidth="100dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal"
+                android:text="sample Text"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="90dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="35dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:id="@+id/img_heart"
+                android:src="@drawable/heart_shape"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="50dp"
+            android:maxWidth="135dp"
+            android:orientation="vertical">
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/friend_profile_image"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:src="@drawable/couple"
+                app:civ_border_width="2dp"
+                app:civ_border_color="#FFE75555"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@id/tv_yourFrName"
+                android:background="@drawable/edt_round"
+                android:padding="8dp"
+                android:maxWidth="100dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal"
+                android:text="sample Text"/>
+        </LinearLayout>
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

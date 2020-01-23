@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/couple"
+    android:id="@+id/relative"
+    tools:context=".CreateDiaryActivity">
+    <include
+        layout="@layout/toolbar"
+        android:id="@+id/toolbar"/>
+    <EditText
+        android:id="@+id/edt_diary"
+        android:inputType="textMultiLine"
+        android:layout_marginRight="15dp"
+        android:padding="10dp"
+        android:layout_centerInParent="true"
+        android:gravity="top"
+        android:layout_marginLeft="15dp"
+        android:lines="8"
+        android:hint="Hãy viết điều bạn đang suy nghĩ nhé"
+        android:background="@drawable/edt_round"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lưu"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/btn_round"
+        android:layout_below="@+id/edt_diary"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

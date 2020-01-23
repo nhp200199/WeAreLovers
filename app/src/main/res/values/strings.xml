@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">We Are Lovers</string>
+    <string name="welcome">We Are Lovers</string>
+    <string name="your_name">Tên (hoặc biệt danh) của bạn</string>
+    <string name="your_friend_name">Tên (hoặc biệt danh) của người ấy</string>
+    <string name="date">Ngày mà hai bạn bắt đầu dính vô nhau</string>
+    <string name="create_diary">Viết nhật kí</string>
+    <string name="days">    DAYS</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

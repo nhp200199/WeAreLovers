@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:paddingLeft="20dp"
+    android:background="@drawable/edt_round">
+    <TextView
+        android:id="@+id/tv_date"
+        android:text="ngay thang"
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"/>
+    <TextView
+        android:id="@+id/tv_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxWidth="200dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="mot noi dung gif dodfdsfsdfsdfsdfsddfsafsdfsdafasfdfsfdsfsdfdf"/>
+</LinearLayout>
