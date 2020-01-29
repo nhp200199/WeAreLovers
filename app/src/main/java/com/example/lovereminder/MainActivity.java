@@ -26,6 +26,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,7 +40,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     public static final int REQ_CODE_CREATE_DIARY = 12;
 
-    private int flag =0;
+    private int flag =0; //used to check exit
 
     private String intentStr_YourName;
     private String intentStr_YourFrName;
@@ -51,20 +53,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SharedPreferences sharedPreferences1;
 
     private ViewPager pager;
-
-
-
-    @Override
-    protected void onDestroy() {
-        Log.d("Tag", "Destroyed");
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onStop() {
-        Log.d("Tag", "Stopped");
-        super.onStop();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,10 +145,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case 0:
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        intent.setType("image/*");
-                        startActivityForResult(Intent.createChooser(intent, "Chọn Ảnh"), 443);
+                        CropImage.activity()
+                                .setGuidelines(CropImageView.Guidelines.ON)
+                                .setActivityTitle("My Crop")
+                                .setCropShape(CropImageView.CropShape.RECTANGLE)
+                                .setCropMenuCropButtonTitle("Done")
+                                .setRequestedSize(400, 400)
+                                .start(MainActivity.this);
                         break;
                 }
 
@@ -171,17 +162,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == 443 && resultCode == RESULT_OK && data.getData() != null){
-            Uri uri = data.getData();
-            Glide.with(this)
-                    .load(uri)
-                    .into(img_background);
+        // handle result of CropImageActivity
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Glide.with(this)
+                        .load(result.getUri())
+                        .into(img_background);
 
 
-            SharedPreferences.Editor editor = sharedPreferences1.edit();
-            editor.putString("picture", uri.toString());
-            editor.apply();
+                SharedPreferences.Editor editor = sharedPreferences1.edit();
+                editor.putString("picture", result.getUri().toString());
+                editor.apply();
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Toast.makeText(MainActivity.this, "Cropping failed: " + result.getError(), Toast.LENGTH_LONG).show();
+            }
         }
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -192,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
         @Override
         public Fragment getItem(int position) {
@@ -207,6 +204,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return mainFragment;
                 case 1:
                     return new DiaryFragment();
+                case 2:
+                    return new PictureFragment();
             }
             return null;
         }

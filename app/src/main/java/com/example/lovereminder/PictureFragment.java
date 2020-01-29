@@ -92,7 +92,6 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
         linearLayout = v.findViewById(R.id.linear_layout);
         civ_insertPicture = v.findViewById(R.id.civ_insertPictures);
 
-
         sharedPreferences = getActivity().getSharedPreferences("picture", Context.MODE_PRIVATE);
 
         loadPictures();
@@ -131,7 +130,6 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
                     intent.putExtra("position", position);
                     intent.putExtra("uri", images.get(position));
                     startActivity(intent);
-                    Toast.makeText(getActivity(), position, Toast.LENGTH_LONG).show();
                 }
             }
         });

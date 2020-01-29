@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,8 +20,10 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -36,10 +39,12 @@ import java.util.Calendar;
 public class CreateDiaryActivity extends AppCompatActivity implements View.OnClickListener{
     private Button btnSave;
     private EditText edt_diary;
+    private ImageView img_background;
     private boolean isSaved = false;
     private ArrayList<Diary> lst_diary;
 
     private SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences1;
     private int page_number;
     int flag = 0;
 
@@ -51,6 +56,10 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
+
+        btnSave = findViewById(R.id.btn_save);
+        edt_diary = findViewById(R.id.edt_diary);
+        img_background = findViewById(R.id.img_background);
 
         page_number = getIntent().getIntExtra("page_number", 0);
         sharedPreferences = getSharedPreferences("lst_diary", MODE_PRIVATE);
