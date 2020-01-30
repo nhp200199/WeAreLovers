@@ -4,14 +4,20 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -25,6 +31,7 @@ public class FullScreenPicActivity extends AppCompatActivity {
     private PhotoView iv_FullPic;
 
     private SharedPreferences sharedPreferences;
+    private ArrayList<String> arrlst_pic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +44,23 @@ public class FullScreenPicActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("picture", MODE_PRIVATE);
 
-        iv_FullPic = findViewById(R.id.photo_view);
-
         Uri image = (Uri)getIntent().getExtras().get("uri");
 
-        Glide.with(this)
-                .load(image)
-                .into(iv_FullPic);
+        String lst_picture = sharedPreferences.getString("lst_picture", null);
+        arrlst_pic = new ArrayList<String>(Arrays.asList((lst_picture.split(","))));
+        for(int i = 0; i< arrlst_pic.size();i++){
+            Log.d("TAG", "[" + i +"]" + ": " + arrlst_pic.get(i));
+        }
+
+        ViewPager viewPager = (ViewPager) findViewById(R.id.photo_view);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(this, arrlst_pic);
+        viewPager.setAdapter(adapter);
+
+        //reverse the array
+        int i = arrlst_pic.size() - getIntent().getIntExtra("position", -1);
+        viewPager.setCurrentItem(i);
+        viewPager.setRotationY(180);
+
     }
 
     @Override
@@ -54,6 +71,12 @@ public class FullScreenPicActivity extends AppCompatActivity {
             default: return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        super.onBackPressed();
     }
 
     private void showConfirmPopUp() {
@@ -71,16 +94,16 @@ public class FullScreenPicActivity extends AppCompatActivity {
                         String lst_picture = sharedPreferences.getString("lst_picture", null);
                         ArrayList<String> arrlst_pic;
                         arrlst_pic = new ArrayList<String>(Arrays.asList((lst_picture.split(","))));
-                        arrlst_pic.remove(getIntent().getIntExtra("position", -1));
+                        arrlst_pic.remove(arrlst_pic.size()- getIntent().getIntExtra("position", -1));
 
                         StringBuilder builder1 = new StringBuilder();
-                        for (String i: arrlst_pic){
-                            if(i.equals(arrlst_pic.get(0))){
-                               builder1.append(i);
+                        for(int i =0; i < arrlst_pic.size(); i++){
+                            if(i==0){
+                                builder1.append(arrlst_pic.get(i));
                             }
                             else {
                                 builder1.append(",");
-                                builder1.append(i);
+                                builder1.append(arrlst_pic.get(i));
                             }
                         }
 
@@ -105,5 +128,45 @@ public class FullScreenPicActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.remove_item_listview, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+
+    private class ViewPagerAdapter extends PagerAdapter {
+        private Context context;
+        private ArrayList<String> imageUrls;
+
+        ViewPagerAdapter(Context context, ArrayList<String> imageUrls) {
+            this.context = context;
+            this.imageUrls = imageUrls;
+        }
+
+        @Override
+        public int getCount() {
+            return imageUrls.size();
+        }
+
+        @Override
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+            return view == object;
+        }
+
+        @NonNull
+        @Override
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+            PhotoView imageView = new PhotoView(context);
+            Glide.with(FullScreenPicActivity.this)
+                    .load(imageUrls.get(position))
+                    .into(imageView);
+            container.addView(imageView);
+            Log.d("TAG", String.valueOf(getIntent().getIntExtra("position", -1)));
+            imageView.setRotationY(180);
+
+            return imageView;
+        }
+
+        @Override
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+            container.removeView((View) object);
+        }
     }
 }

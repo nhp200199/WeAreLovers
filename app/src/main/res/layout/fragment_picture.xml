@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="10dp"
+    android:paddingBottom="10dp"
     tools:context=".PictureFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -16,10 +17,11 @@
         android:paddingLeft="5dp"
         android:numColumns="3"
         android:columnWidth="90dp"
-        android:horizontalSpacing="5dp"
-        android:verticalSpacing="5dp"
+        android:horizontalSpacing="2dp"
+        android:verticalSpacing="3dp"
         android:layout_gravity="center"
-        android:stretchMode="columnWidth">
+        android:stretchMode="columnWidth"
+        >
 
     </GridView>
 

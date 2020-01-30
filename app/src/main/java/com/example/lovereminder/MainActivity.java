@@ -13,6 +13,7 @@ import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -85,6 +86,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pager = (ViewPager) findViewById(R.id.pager);
         pager.setAdapter(sectionsPagerAdapter);
         tb_swipe.setupWithViewPager(pager);
+        tb_swipe.clearOnTabSelectedListeners();
+
+        //disable click on tab layout
+        for (View v : tb_swipe.getTouchables()) {
+            v.setEnabled(false);
+        }
 
         tv_title.setOnClickListener(this);
         img_background.setOnClickListener(this);
@@ -95,6 +102,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public static int getScreenWidth() {
+        return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+    public static int getScreenHeight() {
+        return Resources.getSystem().getDisplayMetrics().heightPixels;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -151,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 .setCropShape(CropImageView.CropShape.RECTANGLE)
                                 .setCropMenuCropButtonTitle("Done")
                                 .setRequestedSize(400, 400)
+                                .setMaxCropResultSize(1800, 5000)
                                 .start(MainActivity.this);
                         break;
                 }

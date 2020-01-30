@@ -49,6 +49,7 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
 
     private SharedPreferences sharedPreferences;
     private StringBuilder builder_lst_pictures;
+    private boolean checkPictrue;
 
     public PictureFragment() {
         // Required empty public constructor
@@ -68,7 +69,12 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onResume() {
-        Log.d("Tag", "Pic Frag Resumed");
+        loadPictures();
+
+        if(builder_lst_pictures.length() !=0)
+        {
+            linearLayout.setVisibility(View.INVISIBLE);
+        }
         super.onResume();
     }
 
@@ -94,14 +100,6 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
 
         sharedPreferences = getActivity().getSharedPreferences("picture", Context.MODE_PRIVATE);
 
-        loadPictures();
-
-        if(builder_lst_pictures.length() !=0)
-        {
-            linearLayout.setVisibility(View.INVISIBLE);
-        }
-
-
         /*
         if(images.size() == 0){
             linearLayout.setVisibility(View.VISIBLE);
@@ -116,13 +114,12 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
         gvPictures.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(position == images.size()-1)
+                if(position == 0)
                 {
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_GET_CONTENT);
                     intent.setType("image/*");
                     startActivityForResult(Intent.createChooser(intent, "Chọn Ảnh"), 443);
-                    images.remove(position);
                     adapter.notifyDataSetChanged();
                 }
                 else{
@@ -144,28 +141,30 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
             images = new ArrayList<Uri>();
             adapter = new ImageAdapter(getActivity(), images);
             gvPictures.setAdapter(adapter);
-
             String lst_picture = sharedPreferences.getString("lst_picture", null);
             ArrayList<String> arrlst_pic;
+
+            Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getResources().getResourcePackageName(R.drawable.couple) + '/' + getResources().getResourceTypeName(R.drawable.couple) + '/' + String.valueOf(R.drawable.couple) );
+            images.add(0,imageUri);
+
             arrlst_pic = new ArrayList<String>(Arrays.asList((lst_picture.split(","))));
             for (String i: arrlst_pic){
-                images.add(Uri.parse(i));
+                images.add(1,Uri.parse(i));
             }
+            adapter.notifyDataSetChanged();
 
             builder_lst_pictures = new StringBuilder();
-            for (String i: arrlst_pic){
-                if(i.equals(arrlst_pic.get(0))){
-                    builder_lst_pictures.append(i);
+            for(int i = images.size()-1; i >= 1; i--){
+                if(i==images.size()-1){
+                    builder_lst_pictures.append(images.get(i));
                 }
                 else {
                     builder_lst_pictures.append(",");
-                    builder_lst_pictures.append(i);
+                    builder_lst_pictures.append(images.get(i));
                 }
             }
 
-            Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getResources().getResourcePackageName(R.drawable.couple) + '/' + getResources().getResourceTypeName(R.drawable.couple) + '/' + String.valueOf(R.drawable.couple) );
-            images.add(imageUri);
-            adapter.notifyDataSetChanged();
+
         }
         else {
             builder_lst_pictures = new StringBuilder();
@@ -174,6 +173,9 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
             gvPictures.setAdapter(adapter);
         }
         Toast.makeText(getActivity(), "so luong anh " + images.size(), Toast.LENGTH_LONG).show();
+        for(int i = 0; i< images.size();i++){
+            Log.d("TAG2", "[" + i +"]" + ": " + images.get(i));
+        }
     }
 
     @Override
@@ -184,9 +186,6 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
             images.add(uri);
             saveImage(uri.toString());
 
-            Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getResources().getResourcePackageName(R.drawable.couple) + '/' + getResources().getResourceTypeName(R.drawable.couple) + '/' + String.valueOf(R.drawable.couple) );
-            images.add(imageUri);
-            adapter.notifyDataSetChanged();
         }
 
         else if(gvPictures.getChildCount() != 0){

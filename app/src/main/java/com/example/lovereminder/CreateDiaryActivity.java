@@ -27,6 +27,8 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,6 +65,14 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
 
         page_number = getIntent().getIntExtra("page_number", 0);
         sharedPreferences = getSharedPreferences("lst_diary", MODE_PRIVATE);
+        sharedPreferences1 = getSharedPreferences("background", MODE_PRIVATE);
+
+        if(sharedPreferences1.contains("picture"))
+        {
+            Glide.with(this)
+                    .load(Uri.parse(sharedPreferences1.getString("picture", null)))
+                    .into(img_background);
+        }
 
         btnSave = findViewById(R.id.btn_save);
         edt_diary = findViewById(R.id.edt_diary);
@@ -90,6 +100,7 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
         loadListDiary();
 
     }
+
 
     private void loadListDiary() {
         if(sharedPreferences.getString("lst_diary", null) != null){
