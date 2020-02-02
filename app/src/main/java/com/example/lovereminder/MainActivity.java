@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tv_title;
     private ImageView img_background;
     private TabLayout tb_swipe;
+    private Menu menu;
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences sharedPreferences1;
@@ -102,18 +103,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public static int getScreenWidth() {
-        return Resources.getSystem().getDisplayMetrics().widthPixels;
-    }
-
-    public static int getScreenHeight() {
-        return Resources.getSystem().getDisplayMetrics().heightPixels;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the app bar.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        this.menu = menu;
         return super.onCreateOptionsMenu(menu);
     }
     @Override
@@ -128,6 +122,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent);
                 finish();
                 return true;
+            case R.id.action_delete_picture:
+                return  false;
+            case R.id.action_cancel:
+                return false;
             default:
                 return super.onOptionsItemSelected(item);
         }

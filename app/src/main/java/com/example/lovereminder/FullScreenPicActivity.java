@@ -32,6 +32,7 @@ public class FullScreenPicActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
     private ArrayList<String> arrlst_pic;
+    private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +44,6 @@ public class FullScreenPicActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         sharedPreferences = getSharedPreferences("picture", MODE_PRIVATE);
-
-        Uri image = (Uri)getIntent().getExtras().get("uri");
 
         String lst_picture = sharedPreferences.getString("lst_picture", null);
         arrlst_pic = new ArrayList<String>(Arrays.asList((lst_picture.split(","))));
@@ -68,6 +67,10 @@ public class FullScreenPicActivity extends AppCompatActivity {
         switch (item.getItemId()){
             case R.id.action_remove_item:
                 showConfirmPopUp();
+                return true;
+            case android.R.id.home:
+                onBackPressed();
+                return true;
             default: return super.onOptionsItemSelected(item);
         }
 
@@ -75,7 +78,10 @@ public class FullScreenPicActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("position", 2);
+        startActivity(intent);
+        finish();
         super.onBackPressed();
     }
 

@@ -157,7 +157,6 @@ public class DiaryActivity extends AppCompatActivity{
                 edt_Content.setSelection(edt_Content.getText().length());
                 tv_Content.setVisibility(View.INVISIBLE);
 
-
                 menu.clear();
 
 

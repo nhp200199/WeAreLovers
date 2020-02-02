@@ -1,21 +1,30 @@
 package com.example.lovereminder;
 
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,6 +39,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -41,15 +51,16 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class PictureFragment extends Fragment implements View.OnClickListener{
 
     private static final int RESULT_OK = -1;
-    private ArrayList<Uri> images;
+    private ArrayList<Image> images;
     private GridView gvPictures;
     private ImageAdapter adapter;
     private LinearLayout linearLayout;
     private CircleImageView civ_insertPicture;
+    private Menu menu;
 
     private SharedPreferences sharedPreferences;
     private StringBuilder builder_lst_pictures;
-    private boolean checkPictrue;
+    private ArrayList<Integer> arr_ItemSelectedIdex;
 
     public PictureFragment() {
         // Required empty public constructor
@@ -69,12 +80,14 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onResume() {
+
         loadPictures();
 
         if(builder_lst_pictures.length() !=0)
         {
             linearLayout.setVisibility(View.INVISIBLE);
         }
+
         super.onResume();
     }
 
@@ -98,6 +111,8 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
         linearLayout = v.findViewById(R.id.linear_layout);
         civ_insertPicture = v.findViewById(R.id.civ_insertPictures);
 
+        arr_ItemSelectedIdex = new ArrayList<Integer>();
+
         sharedPreferences = getActivity().getSharedPreferences("picture", Context.MODE_PRIVATE);
 
         /*
@@ -116,18 +131,57 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if(position == 0)
                 {
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    intent.setType("image/*");
-                    startActivityForResult(Intent.createChooser(intent, "Chọn Ảnh"), 443);
-                    adapter.notifyDataSetChanged();
+                    chooseImagesFromGallery();
                 }
                 else{
                     Intent intent = new Intent(getActivity(), FullScreenPicActivity.class);
                     intent.putExtra("position", position);
-                    intent.putExtra("uri", images.get(position));
+                    intent.putExtra("uri", images.get(position).getUri());
+                    Toast.makeText(getActivity(), images.get(position).getUri().toString(), Toast.LENGTH_LONG).show();
                     startActivity(intent);
+
+                    getActivity().finish();
                 }
+            }
+        });
+
+        gvPictures.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                setHasOptionsMenu(true);
+
+                images.get(position).toggleChecked();
+                adapter.notifyDataSetChanged();
+
+                if(images.get(position).isChecked())
+                {
+                    arr_ItemSelectedIdex.add(position);
+                }
+                else{
+                    arr_ItemSelectedIdex.remove(arr_ItemSelectedIdex.indexOf(position));
+                }
+
+                adapter.getView(position, view, parent).setEnabled(false);
+
+                gvPictures.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                        images.get(position).toggleChecked();
+                        adapter.notifyDataSetChanged();
+
+                        if(images.get(position).isChecked())
+                        {
+                            arr_ItemSelectedIdex.add(position);
+                        }
+                        else{
+                            arr_ItemSelectedIdex.remove(arr_ItemSelectedIdex.indexOf(position));
+                        }
+
+                    }
+                });
+
+                return true;
             }
         });
 
@@ -136,31 +190,245 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
         return v;
     }
 
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+
+        inflater.inflate(R.menu.menu_remove, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_create_dairy:
+                return false;
+            case R.id.action_delete_picture:
+                String lst_picture = sharedPreferences.getString("lst_picture", null);
+                ArrayList<String> arrlst_pic;
+                arrlst_pic = new ArrayList<String>(Arrays.asList((lst_picture.split(","))));
+
+                boolean checked = false;
+                int y =0, z = 0;
+                Collections.sort(arr_ItemSelectedIdex);
+                for(Integer i: arr_ItemSelectedIdex){
+
+                    if(checked == false){
+                        images.remove(i.intValue());
+                        checked =true;
+                        y++;
+                    }
+                    else{
+                        images.remove(i.intValue() - y);
+                        y++;
+                    }
+
+
+                }
+                adapter.notifyDataSetChanged();
+
+                for(int i=0; i<arr_ItemSelectedIdex.size();i++){
+                    if(i == 0){
+                        arrlst_pic.remove(arrlst_pic.size() - arr_ItemSelectedIdex.get(i).intValue());
+                        z++;
+                    }
+                    else{
+                        arrlst_pic.remove(arrlst_pic.size() - arr_ItemSelectedIdex.get(i).intValue() +z);
+                        z++;
+                    }
+
+                }
+                arr_ItemSelectedIdex.clear();
+
+                StringBuilder builder1 = new StringBuilder();
+                for(int i =0; i < arrlst_pic.size(); i++){
+                    if(i==0){
+                        builder1.append(arrlst_pic.get(i));
+                    }
+                    else {
+                        builder1.append(",");
+                        builder1.append(arrlst_pic.get(i));
+                    }
+                }
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("lst_picture", builder1.toString());
+                editor.apply();
+
+                setHasOptionsMenu(false);
+                gvPictures.setOnItemClickListener(null);
+                gvPictures.setOnItemLongClickListener(null);
+
+                gvPictures.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        if(position == 0)
+                        {
+                            chooseImagesFromGallery();
+                        }
+                        else{
+                            Intent intent = new Intent(getActivity(), FullScreenPicActivity.class);
+                            intent.putExtra("position", position);
+                            intent.putExtra("uri", images.get(position).getUri());
+                            Toast.makeText(getActivity(), images.get(position).getUri().toString(), Toast.LENGTH_LONG).show();
+                            startActivity(intent);
+
+                            getActivity().finish();
+
+                        }
+                    }
+                });
+
+                gvPictures.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                        setHasOptionsMenu(true);
+
+                        images.get(position).toggleChecked();
+                        adapter.notifyDataSetChanged();
+
+                        if(images.get(position).isChecked())
+                        {
+                            arr_ItemSelectedIdex.add(position);
+                        }
+                        else{
+                            arr_ItemSelectedIdex.remove(arr_ItemSelectedIdex.indexOf(position));
+                        }
+
+                        adapter.getView(position, view, parent).setEnabled(false);
+
+
+                        gvPictures.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                                images.get(position).toggleChecked();
+                                adapter.notifyDataSetChanged();
+
+                                if(images.get(position).isChecked())
+                                {
+                                    arr_ItemSelectedIdex.add(position);
+                                }
+                                else{
+                                    arr_ItemSelectedIdex.remove(arr_ItemSelectedIdex.indexOf(position));
+                                }
+
+                            }
+                        });
+
+                        return true;
+                    }
+                });
+
+                loadPictures();
+
+
+
+                return  true;
+            case R.id.action_cancel:
+                setHasOptionsMenu(false);
+                gvPictures.setOnItemClickListener(null);
+                gvPictures.setOnItemLongClickListener(null);
+
+                gvPictures.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        if(position == 0)
+                        {
+                            chooseImagesFromGallery();
+                        }
+                        else{
+                            Intent intent = new Intent(getActivity(), FullScreenPicActivity.class);
+                            intent.putExtra("position", position);
+                            intent.putExtra("uri", images.get(position).getUri());
+                            Toast.makeText(getActivity(), images.get(position).getUri().toString(), Toast.LENGTH_LONG).show();
+                            startActivity(intent);
+
+                            getActivity().finish();
+                        }
+                    }
+                });
+
+                gvPictures.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                        setHasOptionsMenu(true);
+
+                        images.get(position).toggleChecked();
+                        adapter.notifyDataSetChanged();
+
+                        if(images.get(position).isChecked())
+                        {
+                            arr_ItemSelectedIdex.add(position);
+                        }
+                        else{
+                            arr_ItemSelectedIdex.remove(arr_ItemSelectedIdex.indexOf(position));
+                        }
+
+                        adapter.getView(position, view, parent).setEnabled(false);
+
+                        gvPictures.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                                images.get(position).toggleChecked();
+                                adapter.notifyDataSetChanged();
+
+                                if(images.get(position).isChecked())
+                                {
+                                    arr_ItemSelectedIdex.add(position);
+                                }
+                                else{
+                                    arr_ItemSelectedIdex.remove(arr_ItemSelectedIdex.indexOf(position));
+                                }
+
+                            }
+                        });
+
+                        return true;
+                    }
+                });
+                loadPictures();
+                adapter.notifyDataSetChanged();
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+
     private void loadPictures() {
+        arr_ItemSelectedIdex = new ArrayList<Integer>();
         if(sharedPreferences.getString("lst_picture", null)!= null){
-            images = new ArrayList<Uri>();
+            images = new ArrayList<Image>();
             adapter = new ImageAdapter(getActivity(), images);
             gvPictures.setAdapter(adapter);
             String lst_picture = sharedPreferences.getString("lst_picture", null);
             ArrayList<String> arrlst_pic;
 
             Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getResources().getResourcePackageName(R.drawable.couple) + '/' + getResources().getResourceTypeName(R.drawable.couple) + '/' + String.valueOf(R.drawable.couple) );
-            images.add(0,imageUri);
+            images.add(0,new Image());
+            images.get(0).setUri(imageUri);
 
             arrlst_pic = new ArrayList<String>(Arrays.asList((lst_picture.split(","))));
             for (String i: arrlst_pic){
-                images.add(1,Uri.parse(i));
+                Image image = new Image();
+                image.setUri(Uri.parse(i));
+                images.add(1,image);
             }
             adapter.notifyDataSetChanged();
 
             builder_lst_pictures = new StringBuilder();
             for(int i = images.size()-1; i >= 1; i--){
                 if(i==images.size()-1){
-                    builder_lst_pictures.append(images.get(i));
+                    builder_lst_pictures.append(images.get(i).getUri().toString());
                 }
                 else {
                     builder_lst_pictures.append(",");
-                    builder_lst_pictures.append(images.get(i));
+                    builder_lst_pictures.append(images.get(i).getUri().toString());
                 }
             }
 
@@ -168,7 +436,7 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
         }
         else {
             builder_lst_pictures = new StringBuilder();
-            images = new ArrayList<Uri>();
+            images = new ArrayList<Image>();
             adapter = new ImageAdapter(getActivity(), images);
             gvPictures.setAdapter(adapter);
         }
@@ -180,17 +448,38 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == 443 && resultCode == RESULT_OK && data.getData() != null){
+        if(requestCode == 443 && resultCode == RESULT_OK && data.getClipData() != null){
+            ClipData clipData = data.getClipData();
             linearLayout.setVisibility(View.INVISIBLE);
-            Uri uri = data.getData();
-            images.add(uri);
-            saveImage(uri.toString());
 
+            for(int i =0; i< clipData.getItemCount(); i++){
+                Uri uri = clipData.getItemAt(i).getUri();
+                Image image=  new Image();
+                image.setUri(uri);
+                images.add(image);
+
+                saveImage(uri.toString());
+            }
+            adapter.notifyDataSetChanged();
+
+
+        }
+        else if(data.getData()!=null){
+            linearLayout.setVisibility(View.INVISIBLE);
+
+            Uri uri = data.getData();
+            Image image=  new Image();
+            image.setUri(uri);
+            images.add(image);
+            saveImage(uri.toString());
+            adapter.notifyDataSetChanged();
         }
 
         else if(gvPictures.getChildCount() != 0){
             Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getResources().getResourcePackageName(R.drawable.couple) + '/' + getResources().getResourceTypeName(R.drawable.couple) + '/' + String.valueOf(R.drawable.couple) );
-            images.add(imageUri);
+            Image image=  new Image();
+            image.setUri(imageUri);
+            images.add(image);
             adapter.notifyDataSetChanged();
         }
         else {
@@ -221,10 +510,23 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.civ_insertPictures:
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(Intent.createChooser(intent, "Chọn Ảnh"), 443);
+                chooseImagesFromGallery();
         }
+    }
+
+    private void chooseImagesFromGallery() {
+        if(ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.READ_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},
+                    100);
+            return;
+        }
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Chọn Ảnh"), 443);
     }
 }
