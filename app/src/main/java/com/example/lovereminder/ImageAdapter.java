@@ -52,8 +52,10 @@ public class ImageAdapter extends BaseAdapter {
 
             Glide.with(context)
                     .load(images.get(position).getUri())
+                    .thumbnail(0.5f)
                     .into(imageView);
 
+            imageView.setBackgroundResource(R.drawable.view_border);
             return imageView;
         } else {
             ImageView imageView = new ImageView(context);

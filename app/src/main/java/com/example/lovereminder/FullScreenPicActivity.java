@@ -167,6 +167,7 @@ public class FullScreenPicActivity extends AppCompatActivity {
             Log.d("TAG", String.valueOf(getIntent().getIntExtra("position", -1)));
             imageView.setRotationY(180);
 
+
             return imageView;
         }
 

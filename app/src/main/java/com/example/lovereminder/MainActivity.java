@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ViewPager pager;
 
+    int height;
+    int width;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +68,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        height = displayMetrics.heightPixels;
+        width = displayMetrics.widthPixels;
 
         img_background = (ImageView) findViewById(R.id.img_background);
         tv_title = (TextView) findViewById(R.id.tv_title);
@@ -162,8 +171,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 .setActivityTitle("My Crop")
                                 .setCropShape(CropImageView.CropShape.RECTANGLE)
                                 .setCropMenuCropButtonTitle("Done")
-                                .setRequestedSize(400, 400)
-                                .setMaxCropResultSize(1800, 5000)
+                                .setAspectRatio(width,height)
+                                .setFixAspectRatio(true)
+                                //.setFixAspectRatio(true)
                                 .start(MainActivity.this);
                         break;
                 }
