@@ -48,9 +48,9 @@ public class WelcomeScreen extends AppCompatActivity {
                     }
 
                     super.run();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
 
             }

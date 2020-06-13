@@ -63,5 +63,6 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/edt_date"
         android:background="@drawable/btn_round"
+        android:layout_marginTop="16dp"
         android:text="Xác nhận"/>
 </RelativeLayout>

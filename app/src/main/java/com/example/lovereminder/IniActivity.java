@@ -36,23 +36,9 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ini);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Hehe, khi em vào tới được đây rồi thì có nghĩa mình đã chính thức quen nhau được 1 năm rồi đó bé lùn tịt :))))")
-                .setPositiveButton("I love you", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        showDialog();
 
-        edt_yourName = findViewById(R.id.edt_yourName);
-        edt_yourFrName = findViewById(R.id.edt_yourFrName);
-        edt_date = findViewById(R.id.edt_date);
-        btn_confirm = findViewById(R.id.btn_confirm);
-        btn_confirm.setOnClickListener(this);
-        edt_date.setOnClickListener(this);
+        connectViews();
 
         sharedPreferences =  getSharedPreferences("userInfor", MODE_PRIVATE);
 
@@ -83,37 +69,37 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         edt_date.addTextChangedListener(textWatcher);
         edt_yourFrName.addTextChangedListener(textWatcher);
         edt_yourName.addTextChangedListener(textWatcher);
-        //disableBtnConfirm();
     }
 
-    private void disableBtnConfirm() {
-        while(edt_date.getText().toString().equals("") || edt_yourName.getText().toString().equals("") || edt_yourFrName.getText().toString().equals(""))
-        {
-            btn_confirm.setEnabled(false);
-        }
-        btn_confirm.setEnabled(true);
+    private void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Hehe, khi em vào tới được đây rồi thì có nghĩa mình đã chính thức quen nhau được 1 năm rồi đó bé lùn tịt :))))")
+                .setPositiveButton("I love you", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
+
+    private void connectViews() {
+        edt_yourName = findViewById(R.id.edt_yourName);
+        edt_yourFrName = findViewById(R.id.edt_yourFrName);
+        edt_date = findViewById(R.id.edt_date);
+        btn_confirm = findViewById(R.id.btn_confirm);
+        btn_confirm.setOnClickListener(this);
+        edt_date.setOnClickListener(this);
+    }
+
 
     private void collectInfor() {
-        if(edt_yourName.getText().toString().equals("") || edt_yourFrName.getText().toString().equals("") || edt_date.getText().toString().equals("Nhấn để chọn")){
-            if(edt_yourName.getText().toString().equals(""))
-                edt_yourName.setError("Chưa nhập");
-            if(edt_yourFrName.getText().toString().equals(""))
-                edt_yourName.setError("Chưa nhập");
-            if(edt_date.getText().toString().equals("Nhấn để chọn"))
-                edt_yourName.setError("Chưa nhập");
-        }
-        else {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("yourName", edt_yourName.getText().toString());
-            editor.putString("yourFrName", edt_yourFrName.getText().toString());
-            editor.putString("date", edt_date.getText().toString());
-            editor.apply();
-
-            Intent intent = new Intent (IniActivity.this, MainActivity.class);
-            startActivity(intent);
-        }
-
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("yourName", edt_yourName.getText().toString());
+        editor.putString("yourFrName", edt_yourFrName.getText().toString());
+        editor.putString("date", edt_date.getText().toString());
+        editor.apply();
     }
 
     @Override
@@ -121,6 +107,7 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         switch (v.getId()){
             case R.id.btn_confirm:
                 collectInfor();
+                startActivity(new Intent(IniActivity.this, MainActivity.class));
                 finish();
                 break;
             case R.id.edt_date:
