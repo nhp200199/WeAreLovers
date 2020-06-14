@@ -42,11 +42,13 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     public static final int REQ_CODE_CREATE_DIARY = 12;
 
-    private int flag =0; //used to check exit
+    private int flag; //used to check exit
 
     private String intentStr_YourName;
     private String intentStr_YourFrName;
     private String intentStr_Days;
+
+    private ViewPager pager;
     private TextView tv_title;
     private ImageView img_background;
     private TabLayout tb_swipe;
@@ -54,8 +56,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences sharedPreferences1;
-
-    private ViewPager pager;
 
     int height;
     int width;
@@ -74,10 +74,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
 
-        img_background = (ImageView) findViewById(R.id.img_background);
-        tv_title = (TextView) findViewById(R.id.tv_title);
-        tb_swipe = (TabLayout) findViewById(R.id.tl_swipe);
+        connectViews();
 
+        retrieveUserInfor();
+
+        setUpViewPager();
+    }
+
+    private void swipeViewPager(int position) {
+        pager.setCurrentItem(position);
+    }
+
+    private void retrieveUserInfor() {
         sharedPreferences1 = getSharedPreferences("background", MODE_PRIVATE);
         sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE);
 
@@ -88,28 +96,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .into(img_background);
         }
 
-        intentStr_YourName = sharedPreferences.getString("yourName", "");
-        intentStr_YourFrName = sharedPreferences.getString("yourFrName", "");
-        intentStr_Days = sharedPreferences.getString("date", "");
+        intentStr_YourName = sharedPreferences.getString("yourName", null);
+        intentStr_YourFrName = sharedPreferences.getString("yourFrName", null);
+        intentStr_Days = sharedPreferences.getString("date", null);
+    }
 
+    private void setUpViewPager() {
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        pager = (ViewPager) findViewById(R.id.pager);
         pager.setAdapter(sectionsPagerAdapter);
         tb_swipe.setupWithViewPager(pager);
-        tb_swipe.clearOnTabSelectedListeners();
+        //tb_swipe.clearOnTabSelectedListeners();
 
         //disable click on tab layout
         for (View v : tb_swipe.getTouchables()) {
             v.setEnabled(false);
         }
+    }
+
+    private void connectViews() {
+        img_background = (ImageView) findViewById(R.id.img_background);
+        tv_title = (TextView) findViewById(R.id.tv_title);
+        tb_swipe = (TabLayout) findViewById(R.id.tl_swipe);
+        pager = (ViewPager) findViewById(R.id.pager);
 
         tv_title.setOnClickListener(this);
-        img_background.setOnClickListener(this);
-        pager.setOnClickListener(this);
-
-        if(getIntent().hasExtra("position"))
-            pager.setCurrentItem(getIntent().getIntExtra("position", 0));
-
     }
 
     @Override
@@ -123,13 +133,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_create_dairy:
-        //Code to run when the Create Order item is clicked
+        //Code to run when the Create Diary item is clicked
                 Intent intent = new Intent(this, CreateDiaryActivity.class);
                 int PageNumber = pager.getCurrentItem();
                 intent.putExtra("page_number", PageNumber);
                 flag = 0;
                 startActivity(intent);
-                finish();
                 return true;
             case R.id.action_delete_picture:
                 return  false;
@@ -146,16 +155,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.tv_title:
                 showPopUpChangeBackGround();
                 break;
-            case R.id.img_background:
-                showPopUpChangeBackGround();
-
-                break;
         }
     }
     @Override
     public void onResume() {
         super.onResume();
-
+        if(getIntent().hasExtra("position"))
+            swipeViewPager(getIntent().getIntExtra("position", 0));
     }
 
     private void showPopUpChangeBackGround() {
