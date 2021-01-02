@@ -440,7 +440,8 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
             if(!lst_picture.equals("")){
                 ArrayList<String> arrlst_pic;
 
-                Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getResources().getResourcePackageName(R.drawable.couple) + '/' + getResources().getResourceTypeName(R.drawable.couple) + '/' + String.valueOf(R.drawable.couple) );
+                Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getResources()
+                        .getResourcePackageName(R.drawable.couple) + '/' + getResources().getResourceTypeName(R.drawable.couple) + '/' + String.valueOf(R.drawable.couple) );
                 images.add(0,new Image());
                 images.get(0).setUri(imageUri);
 

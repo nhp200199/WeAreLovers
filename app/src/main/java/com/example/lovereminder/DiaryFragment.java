@@ -75,7 +75,7 @@ public class DiaryFragment extends Fragment {
     @Override
     public void onResume() {
         Log.d("Tag", "Dia Frag Resumed");
-
+        checkSizeOfDiaryList();
 
         super.onResume();
     }
@@ -95,8 +95,7 @@ public class DiaryFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_diary, container, false);
-        lvDiaries = (ListView) v.findViewById(R.id.lv_diaries);
-        tvNothing = (TextView) v.findViewById(R.id.tv_nothing);
+        connectViews(v);
 
         sharedPreferences = getActivity().getSharedPreferences("lst_diary", Context.MODE_PRIVATE);
 
@@ -104,15 +103,22 @@ public class DiaryFragment extends Fragment {
         adapter = new DiaryAdapter(getActivity() ,1 , diaries);
         lvDiaries.setAdapter(adapter);
 
-        if(diaries.size()==0){
+        return v;
+    }
+
+    private void checkSizeOfDiaryList() {
+        if (diaries.size() == 0) {
             tvNothing.setVisibility(View.VISIBLE);
             lvDiaries.setVisibility(View.INVISIBLE);
-        }
-        else{
+        } else {
             tvNothing.setVisibility(View.INVISIBLE);
             lvDiaries.setVisibility(View.VISIBLE);
         }
+    }
 
+    private void connectViews(View v) {
+        lvDiaries = (ListView) v.findViewById(R.id.lv_diaries);
+        tvNothing = (TextView) v.findViewById(R.id.tv_nothing);
 
         lvDiaries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -145,14 +151,7 @@ public class DiaryFragment extends Fragment {
                                 editor.putString("lst_diary", json);
                                 editor.apply();
 
-                                if(diaries.size()==0){
-                                    tvNothing.setVisibility(View.VISIBLE);
-                                    lvDiaries.setVisibility(View.INVISIBLE);
-                                }
-                                else{
-                                    tvNothing.setVisibility(View.INVISIBLE);
-                                    lvDiaries.setVisibility(View.VISIBLE);
-                                }
+                                checkSizeOfDiaryList();
                                 return true;
                         }
                         return false;
@@ -162,8 +161,6 @@ public class DiaryFragment extends Fragment {
                 return true;
             }
         });
-
-        return v;
     }
 
     private void loadDiaries() {

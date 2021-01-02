@@ -30,29 +30,25 @@ public class WelcomeScreen extends AppCompatActivity {
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade);
         tvWelcome.setAnimation(animation);
 
-        Thread timer = new Thread(){
+        Thread timer = new Thread() {
             @Override
             public void run() {
                 try {
                     sleep(3000);
-                    if(sharedPreferences.getString("yourName", "") == "")
-                    {
+                    if (sharedPreferences.getString("yourName", "") == "") {
                         Intent intent = new Intent(getApplicationContext(), IniActivity.class);
                         startActivity(intent);
                         finish();
-                    }
-                    else {
+                    } else {
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                         finish();
                     }
 
                     super.run();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         };
         timer.start();

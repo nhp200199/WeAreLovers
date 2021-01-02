@@ -45,7 +45,7 @@ import static android.icu.text.DateTimePatternGenerator.PatternInfo.OK;
  * A simple {@link Fragment} subclass.
  */
 public class MainFragment extends Fragment implements DialogFragment.Listener, View.OnClickListener, ChangeDateDialog.Listener {
-    private int flag;
+    private int flag; // to distinguish you from your friend
     private TextView tv_yourName;
     private TextView tv_yourFrName;
     private TextView tv_Openning;
@@ -97,6 +97,34 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         // Inflate the layout for this fragment
 
         View v = inflater.inflate(R.layout.fragment_main, container, false);
+        connectViews(v);
+
+        sharedPreferences = getActivity().getSharedPreferences("userInfor", Context.MODE_PRIVATE);
+
+        String bundleStrYourName = getArguments().getString("yourName");
+        String bundleStrYourFrName = getArguments().getString("yourFrName");
+        String bundleStrDays = getArguments().getString("date");
+
+        loadUserData(bundleStrYourName, bundleStrYourFrName, bundleStrDays);
+
+        final Animation zoomin = AnimationUtils.loadAnimation(getActivity(), R.anim.zoom_in);
+        iv_heart.startAnimation(zoomin);
+
+        return  v;
+    }
+
+    private void loadUserData(String bundleStrYourName, String bundleStrYourFrName, String bundleStrDays) {
+        if(sharedPreferences.getString("yourImg","")!="")
+            loadUserImg();
+
+        try {
+            setInfor(bundleStrYourName, bundleStrYourFrName, bundleStrDays);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void connectViews(View v) {
         civ_yourPicture = (CircleImageView) v.findViewById(R.id.profile_image);
         civ_yourFrPicture = (CircleImageView) v.findViewById(R.id.friend_profile_image);
         tv_yourName = (TextView)v.findViewById(R.id.tv_yourName);
@@ -112,26 +140,6 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         tv_days.setOnClickListener(this);
         civ_yourFrPicture.setOnClickListener(this);
         civ_yourPicture.setOnClickListener(this);
-
-        sharedPreferences = getActivity().getSharedPreferences("userInfor", Context.MODE_PRIVATE);
-
-        String bundleStrYourName = getArguments().getString("yourName");
-        String bundleStrYourFrName = getArguments().getString("yourFrName");
-        String bundleStrDays = getArguments().getString("date");
-
-        if(sharedPreferences.getString("yourImg","")!="")
-            loadUserImg();
-
-        try {
-            setInfor(bundleStrYourName, bundleStrYourFrName, bundleStrDays);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        final Animation zoomin = AnimationUtils.loadAnimation(getActivity(), R.anim.zoom_in);
-        iv_heart.startAnimation(zoomin);
-
-        return  v;
     }
 
     private void loadUserImg() {

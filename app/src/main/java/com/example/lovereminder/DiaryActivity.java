@@ -63,11 +63,6 @@ public class DiaryActivity extends AppCompatActivity{
         edt_Content.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String text1 = edt_Content.getText().toString();
                 String text2 = tv_Content.getText().toString();
                 if(text1.equals(text2)){
@@ -77,6 +72,11 @@ public class DiaryActivity extends AppCompatActivity{
                     menu.clear();
                     getMenuInflater().inflate(R.menu.done, menu);
                 }
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
             }
 
             @Override
@@ -90,23 +90,16 @@ public class DiaryActivity extends AppCompatActivity{
     }
 
     public void backtoMainActivity(View view){
+        txtBeforeChanged = tv_Content.getText().toString();
+        txtAfterChanged = edt_Content.getText().toString();
 
-
-        if(menu.getItem(0).getTitle().equals("Viết nhật kí")){
+        if(txtAfterChanged.equals(txtBeforeChanged)){
             Intent intent = new Intent(DiaryActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
         else {
-            txtBeforeChanged = tv_Content.getText().toString();
-            txtAfterChanged = edt_Content.getText().toString();
-            if(!txtBeforeChanged.equals(txtAfterChanged))
-                showMessage();
-            else {
-                Intent intent = new Intent(DiaryActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
+            showMessage();
         }
 
 
