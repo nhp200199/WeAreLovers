@@ -61,6 +61,7 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     public MainFragment() {
         // Required empty public constructor
     }
+
     @Override
     public void onDestroy() {
         Log.d("Tag", "Main Frag Destroyed");
@@ -95,7 +96,6 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         connectViews(v);
 
@@ -110,11 +110,11 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         final Animation zoomin = AnimationUtils.loadAnimation(getActivity(), R.anim.zoom_in);
         iv_heart.startAnimation(zoomin);
 
-        return  v;
+        return v;
     }
 
     private void loadUserData(String bundleStrYourName, String bundleStrYourFrName, String bundleStrDays) {
-        if(sharedPreferences.getString("yourImg","")!="")
+        if (sharedPreferences.getString("yourImg", "") != "")
             loadUserImg();
 
         try {
@@ -127,10 +127,10 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     private void connectViews(View v) {
         civ_yourPicture = (CircleImageView) v.findViewById(R.id.profile_image);
         civ_yourFrPicture = (CircleImageView) v.findViewById(R.id.friend_profile_image);
-        tv_yourName = (TextView)v.findViewById(R.id.tv_yourName);
+        tv_yourName = (TextView) v.findViewById(R.id.tv_yourName);
         iv_heart = (ImageView) v.findViewById(R.id.img_heart);
         tv_yourFrName = (TextView) v.findViewById(R.id.tv_yourFrName);
-        tv_yourName  =(TextView) v.findViewById(R.id.tv_yourName);
+        tv_yourName = (TextView) v.findViewById(R.id.tv_yourName);
         tv_days = (TextView) v.findViewById(R.id.tv_day_count);
         mainFrag = (LinearLayout) v.findViewById(R.id.main_frag_linear);
 
@@ -143,7 +143,7 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     }
 
     private void loadUserImg() {
-        String yourImg  = sharedPreferences.getString("yourImg", "");
+        String yourImg = sharedPreferences.getString("yourImg", "");
         String yourFrImg = sharedPreferences.getString("yourFrImg", "");
         Uri yourUri = Uri.parse(yourImg);
         Uri yourFrUri = Uri.parse(yourFrImg);
@@ -158,7 +158,7 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
 
     private void setInfor(String yourName, String yourFrName, String Days) throws ParseException {
         Calendar calendar = Calendar.getInstance();
-        String date_start_string="";
+        String date_start_string = "";
         date_start_string = Days;
 
         tv_yourName.setText(yourName);
@@ -169,19 +169,15 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         Date date_end = simpleDateFormat.parse(date_end_string);
         long diff = date_end.getTime() - date_start.getTime();
         tv_days.setText(String.valueOf(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS)));
-
     }
 
     @Override
     public void ApplyChange(String username) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        if(flag ==0){
+        if (flag == 0) {
             tv_yourName.setText(username);
             editor.putString("yourName", username);
-
-        }
-
-        else {
+        } else {
             tv_yourFrName.setText(username);
             editor.putString("yourFrName", username);
         }
@@ -191,7 +187,7 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.profile_image:
                 changePicture();
                 flag = 0;
@@ -224,26 +220,25 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     private void ShowPopUpChangeName() {
         DialogFragment dialogFragment = new DialogFragment();
         Bundle bundle = new Bundle();
-        if(flag == 0)
+        if (flag == 0)
             bundle.putString("name", tv_yourName.getText().toString().trim());
         else bundle.putString("name", tv_yourFrName.getText().toString().trim());
 
         dialogFragment.setArguments(bundle);
         dialogFragment.setTargetFragment(MainFragment.this, 1);
         dialogFragment.show(getFragmentManager(), "custom dialog");
-
     }
 
-    private void changePicture(){
+    private void changePicture() {
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
                 .setActivityTitle("My Crop")
                 .setCropShape(CropImageView.CropShape.OVAL)
                 .setCropMenuCropButtonTitle("Done")
                 .setRequestedSize(400, 400)
-                .start(getContext(),this);
-
+                .start(getContext(), this);
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -251,26 +246,22 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                if(flag == 0){
+                if (flag == 0) {
                     civ_yourPicture.setImageURI(result.getUri());
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("yourImg", result.getUri().toString());
                     editor.apply();
-                }
-
-                else {
+                } else {
                     civ_yourFrPicture.setImageURI(result.getUri());
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("yourFrImg", result.getUri().toString());
                     editor.apply();
-
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Toast.makeText(getContext(), "Cropping failed: " + result.getError(), Toast.LENGTH_LONG).show();
             }
         }
     }
-
 
     @Override
     public void ApplyDateChange(String date) {
@@ -291,6 +282,5 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("date", date);
         editor.apply();
-
     }
 }

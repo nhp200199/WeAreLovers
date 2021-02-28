@@ -31,7 +31,6 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
 
     private SharedPreferences sharedPreferences;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +92,6 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         edt_date.setOnClickListener(this);
     }
 
-
     private void collectInfor() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("yourName", edt_yourName.getText().toString());
@@ -127,7 +125,9 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        //because the month is counted from 0
                         month = month+1;
+                        //TODO: reformat the text String.format
                         String date = dayOfMonth +"/" + month + "/" + year;
                         edt_date.setText(date);
                     }
@@ -135,5 +135,4 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         datePickerDialog.getDatePicker().setMaxDate(new Date().getTime());
         datePickerDialog.show();
     }
-
 }

@@ -38,13 +38,11 @@ public class WelcomeScreen extends AppCompatActivity {
                     if (sharedPreferences.getString("yourName", "") == "") {
                         Intent intent = new Intent(getApplicationContext(), IniActivity.class);
                         startActivity(intent);
-                        finish();
                     } else {
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
-                        finish();
                     }
-
+                    finish();
                     super.run();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -53,6 +51,4 @@ public class WelcomeScreen extends AppCompatActivity {
         };
         timer.start();
     }
-
-
 }
