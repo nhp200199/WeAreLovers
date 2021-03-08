@@ -1,29 +1,27 @@
 package com.example.lovereminder;
 
 
-import android.app.DatePickerDialog;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -38,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.app.Activity.RESULT_OK;
-import static android.icu.text.DateTimePatternGenerator.PatternInfo.OK;
 
 
 /**
@@ -282,5 +279,26 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("date", date);
         editor.apply();
+
+        //change the alarm
+        changeAlarm();
+    }
+
+    private void changeAlarm() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 9);
+
+        Intent intent = new Intent(requireActivity(), CoupleDateReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireActivity(),
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setInexactRepeating(AlarmManager.RTC,
+                calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent);
     }
 }

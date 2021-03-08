@@ -4,12 +4,17 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -23,7 +28,7 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.Date;
 
-public class IniActivity extends AppCompatActivity implements View.OnClickListener{
+public class IniActivity extends AppCompatActivity implements View.OnClickListener {
     private EditText edt_yourName;
     private EditText edt_yourFrName;
     private TextView edt_date;
@@ -39,7 +44,7 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
 
         connectViews();
 
-        sharedPreferences =  getSharedPreferences("userInfor", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE);
 
         btn_confirm.setEnabled(false);
         TextWatcher textWatcher = new TextWatcher() {
@@ -54,10 +59,9 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
                 String yourName = edt_yourName.getText().toString().trim();
                 String yourFrName = edt_yourFrName.getText().toString().trim();
 
-                if(date.equals("Nhấn để chọn") || yourFrName.isEmpty() || yourName.isEmpty()){
+                if (date.equals("Nhấn để chọn") || yourFrName.isEmpty() || yourName.isEmpty()) {
                     btn_confirm.setEnabled(false);
-                }
-                else  btn_confirm.setEnabled(true);
+                } else btn_confirm.setEnabled(true);
             }
 
             @Override
@@ -98,11 +102,40 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         editor.putString("yourFrName", edt_yourFrName.getText().toString());
         editor.putString("date", edt_date.getText().toString());
         editor.apply();
+
+        //setting the alarm
+        setAlarm();
+    }
+
+    private void setAlarm() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 9);
+
+        Intent intent = new Intent(this, CoupleDateReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setInexactRepeating(AlarmManager.RTC,
+                calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent);
+
+        //persist alarm when system restarts
+        ComponentName receiver = new ComponentName(this, SystemBootReceiver.class);
+        PackageManager pm = this.getPackageManager();
+
+        pm.setComponentEnabledSetting(receiver,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP);
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.btn_confirm:
                 collectInfor();
                 startActivity(new Intent(IniActivity.this, MainActivity.class));
@@ -126,9 +159,9 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         //because the month is counted from 0
-                        month = month+1;
+                        month = month + 1;
                         //TODO: reformat the text String.format
-                        String date = dayOfMonth +"/" + month + "/" + year;
+                        String date = dayOfMonth + "/" + month + "/" + year;
                         edt_date.setText(date);
                     }
                 }, year, month, day);
