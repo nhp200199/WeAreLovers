@@ -3,15 +3,15 @@ package com.example.lovereminder;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.solver.GoalRow;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,14 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONObject;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
+import android.widget.Toast;
 
 public class DiaryActivity extends AppCompatActivity{
     private TextView tv_Date;
@@ -34,19 +27,17 @@ public class DiaryActivity extends AppCompatActivity{
     private EditText edt_Content;
     private Menu menu;
     private ImageButton imb_back;
-    private ArrayList<Diary> diaries;
 
     private String txtBeforeChanged="";
     private String txtAfterChanged="";
-
-    private SharedPreferences sharedPreferences;
-    private Gson gson;
-    private int position;
+    private DiaryDao mDiaryDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary);
+        mDiaryDao = AppDatabase.getInstance(this).getDiaryDao();
+
         tv_Content = findViewById(R.id.tv_content);
         tv_Date = findViewById(R.id.tv_date);
         imb_back = findViewById(R.id.img_back);
@@ -54,8 +45,6 @@ public class DiaryActivity extends AppCompatActivity{
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        sharedPreferences = getSharedPreferences("lst_diary", MODE_PRIVATE);
 
         tv_Date.setText(getIntent().getStringExtra("date"));
         tv_Content.setText(getIntent().getStringExtra("content"));
@@ -159,7 +148,7 @@ public class DiaryActivity extends AppCompatActivity{
                 tv_Content.setVisibility(View.VISIBLE);
                 edt_Content.setVisibility(View.INVISIBLE);
 
-                saveDiary();
+                updateDiary();
 
                 menu.clear();
                 getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -170,26 +159,39 @@ public class DiaryActivity extends AppCompatActivity{
         }
     }
 
-    private void saveDiary() {
+    private void updateDiary() {
         txtBeforeChanged = tv_Content.getText().toString();
         txtAfterChanged = tv_Content.getText().toString();
 
-        position = getIntent().getIntExtra("lst_position", 0);
+        Diary diary = new Diary();
+        diary.setId(getIntent().getIntExtra("id", -1));
+        diary.setDate(getIntent().getStringExtra("date"));
+        diary.setContent(edt_Content.getText().toString().trim());
 
-        gson = new Gson();
-        String json1 = sharedPreferences.getString("lst_diary", null);
-        Type type =  new TypeToken<ArrayList<Diary>>(){}.getType();
-        diaries = gson.fromJson(json1, type);
-        diaries.get(position).setContent(edt_Content.getText().toString().trim());
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        String json = gson.toJson(diaries);
-        editor.putString("lst_diary", json);
-        editor.apply();
+        new UpdateDiaryAsync(mDiaryDao).execute(diary);
     }
 
     @Override
     public void onBackPressed() {
         backtoMainActivity(imb_back);
+    }
+
+    private static class UpdateDiaryAsync extends AsyncTask<Diary, Void, Integer>{
+        private DiaryDao mDiaryDao;
+
+        public UpdateDiaryAsync(DiaryDao diaryDao) {
+            mDiaryDao = diaryDao;
+        }
+
+        @Override
+        protected Integer doInBackground(Diary... diaries) {
+            return mDiaryDao.updateDiary(diaries[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Integer updatedDiaryId) {
+            super.onPostExecute(updatedDiaryId);
+            Log.d("Tag", String.valueOf(updatedDiaryId));
+        }
     }
 }

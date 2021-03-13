@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,13 +43,13 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
     private Button btnSave;
     private EditText edt_diary;
     private ImageView img_background;
-    private boolean isSaved = false;
-    private ArrayList<Diary> lst_diary;
 
-    private SharedPreferences sharedPreferences;
+    private boolean isSaved = false;
     private SharedPreferences sharedPreferences1;
     private int page_number;
     int flag = 0;
+
+    private DiaryDao mDiaryDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +65,6 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
         img_background = findViewById(R.id.img_background);
 
         page_number = getIntent().getIntExtra("page_number", 0);
-        sharedPreferences = getSharedPreferences("lst_diary", MODE_PRIVATE);
         sharedPreferences1 = getSharedPreferences("background", MODE_PRIVATE);
 
         if(sharedPreferences1.contains("picture"))
@@ -73,9 +73,6 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
                     .load(Uri.parse(sharedPreferences1.getString("picture", null)))
                     .into(img_background);
         }
-
-        btnSave = findViewById(R.id.btn_save);
-        edt_diary = findViewById(R.id.edt_diary);
 
         btnSave.setEnabled(false);
         btnSave.setOnClickListener(this);
@@ -97,66 +94,38 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
 
             }
         });
-        loadListDiary();
 
-    }
-
-
-    private void loadListDiary() {
-        if(sharedPreferences.getString("lst_diary", null) != null){
-            Gson gson = new Gson();
-            String json = sharedPreferences.getString("lst_diary", null);
-            Type type =  new TypeToken<ArrayList<Diary>>(){}.getType();
-            lst_diary = gson.fromJson(json, type);
-        }
-        else{
-            lst_diary=  new ArrayList<Diary>();
-        }
+        mDiaryDao = AppDatabase.getInstance(this).getDiaryDao();
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn_save:
-                flag =1;
-                Calendar calendar = Calendar.getInstance();
-                String day = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
-                String month = String.valueOf(calendar.get(Calendar.MONTH) +1);
-                String year = String.valueOf(calendar.get(Calendar.YEAR));
-                final String content = edt_diary.getText().toString();
-                final String date = "Ngày "+ day + " Tháng " + month + " Năm " + year;
-
-                page_number = getIntent().getIntExtra("page_number", page_number);
-
-                lst_diary.add(new Diary(date, content));
-                saveListDiary();
-
-                Snackbar snackbar = Snackbar.make(findViewById(R.id.relative), "Đã lưu nhật kí", Snackbar.LENGTH_LONG);
-                snackbar.setAction("Xem", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getApplicationContext(), DiaryActivity.class);
-                        intent.putExtra("date", date);
-                        intent.putExtra("content",content);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-                snackbar.show();
-                edt_diary.setText("");
-                hideKeyboard(this);
+                saveDiary();
                 break;
-
-
         }
     }
 
-    private void saveListDiary() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(lst_diary);
-        editor.putString("lst_diary", json);
-        editor.apply();
+    private void saveDiary() {
+        flag =1;
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int year = calendar.get(Calendar.YEAR);
+        String content = edt_diary.getText().toString();
+        String date = String.format("%d-%d-%d", year, month, day);
+
+        Diary diary = new Diary();
+        diary.setDate(date);
+        diary.setContent(content);
+
+        new InsertDiaryAsync(mDiaryDao).execute(diary);
+
+        page_number = getIntent().getIntExtra("page_number", page_number);
+
+        edt_diary.setText("");
+        hideKeyboard(this);
     }
 
     @Override
@@ -210,5 +179,17 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
             view = new View(activity);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+    private static class InsertDiaryAsync extends AsyncTask<Diary, Void, Void>{
+        private DiaryDao mDiaryDao;
+
+        public InsertDiaryAsync(DiaryDao diaryDao) {
+            mDiaryDao = diaryDao;
+        }
+
+        @Override
+        protected Void doInBackground(Diary... diaries) {
+            return mDiaryDao.insestDiary(diaries[0]);
+        }
     }
 }

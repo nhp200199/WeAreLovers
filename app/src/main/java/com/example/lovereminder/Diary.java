@@ -1,6 +1,12 @@
 package com.example.lovereminder;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "diaries")
 public class Diary {
+    @PrimaryKey(autoGenerate = true)
+    private int id;
     private String date;
     private String content;
 
@@ -25,5 +31,13 @@ public class Diary {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

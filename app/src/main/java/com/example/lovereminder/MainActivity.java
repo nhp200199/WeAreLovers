@@ -123,33 +123,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the app bar.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        this.menu = menu;
-        return super.onCreateOptionsMenu(menu);
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_create_dairy:
-        //Code to run when the Create Diary item is clicked
-                Intent intent = new Intent(this, CreateDiaryActivity.class);
-                int PageNumber = pager.getCurrentItem();
-                intent.putExtra("page_number", PageNumber);
-                flag = 0;
-                startActivity(intent);
-                return true;
-            case R.id.action_delete_picture:
-                return  false;
-            case R.id.action_cancel:
-                return false;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.tv_title:

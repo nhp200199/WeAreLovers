@@ -1,41 +1,104 @@
 package com.example.lovereminder;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
-public class DiaryAdapter extends ArrayAdapter<Diary> {
+public class DiaryAdapter extends ListAdapter<Diary, DiaryAdapter.DiaryViewHolder> {
+    interface Listener{
+        void onDiaryLongClickListener(Diary diary, View v);
+        void onDiaryClickListener(Diary diary);
+    }
 
+    public void setListener(Listener listener) {
+        mListener = listener;
+    }
 
-    private Activity context;
+    private Listener mListener;
+    private Context mContext;
+
+    protected DiaryAdapter(Context context) {
+        super(DIFF_CALLBACK);
+        mContext = context;
+    }
+
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.diary_item, null,
-                    false);
+    public DiaryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View convertView = LayoutInflater.from(mContext).inflate(R.layout.diary_item, null,
+                false);
+        return new DiaryViewHolder(convertView);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull final DiaryViewHolder holder, int position) {
+        final Diary diary = getItem(position);
+        //transform the date retrieved from database
+        String dateToBeParse = diary.getDate();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date parsedDate = null;
+        try {
+            parsedDate = simpleDateFormat.parse(dateToBeParse);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
-        Diary diary = getItem(position);
-        TextView tv_date = (TextView) convertView.findViewById(R.id.tv_date);
-        TextView tv_content = (TextView) convertView.findViewById(R.id.tv_content);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(parsedDate);
+        String formattedString = String.format("ngày %d tháng %d năm %d",
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.YEAR));
 
-        tv_date.setText(diary.getDate());
-        tv_content.setText(diary.getContent());
-        return convertView;
+        holder.tv_date.setText(formattedString);
+        holder.tv_content.setText(diary.getContent());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null)
+                    mListener.onDiaryClickListener(diary);
+            }
+        });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mListener != null)
+                    mListener.onDiaryLongClickListener(diary, v);
+                return true;
+            }
+        });
     }
 
-    public DiaryAdapter(@NonNull Activity context, int resource, @NonNull List<Diary> objects) {
-        super(context, resource, objects);
-        this.context = context;
+     class DiaryViewHolder extends RecyclerView.ViewHolder {
+        TextView tv_date, tv_content;
+        public DiaryViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tv_date = (TextView) itemView.findViewById(R.id.tv_date);
+            tv_content = (TextView) itemView.findViewById(R.id.tv_content);
+        }
     }
+    private static DiffUtil.ItemCallback<Diary> DIFF_CALLBACK = new DiffUtil.ItemCallback<Diary>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Diary oldItem, @NonNull Diary newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Diary oldItem, @NonNull Diary newItem) {
+            return oldItem.getContent().equals(newItem.getContent());
+        }
+    };
 }
