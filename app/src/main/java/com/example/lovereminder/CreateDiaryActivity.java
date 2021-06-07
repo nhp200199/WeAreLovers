@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.lovereminder.databinding.ActivityCreateDiaryBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -54,15 +55,16 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_diary);
+        ActivityCreateDiaryBinding binding = ActivityCreateDiaryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
 
-        btnSave = findViewById(R.id.btn_save);
-        edt_diary = findViewById(R.id.edt_diary);
-        img_background = findViewById(R.id.img_background);
+        btnSave = binding.btnSave;
+        edt_diary = binding.edtDiary;
+        img_background = binding.imgBackground;
 
         page_number = getIntent().getIntExtra("page_number", 0);
         sharedPreferences1 = getSharedPreferences("background", MODE_PRIVATE);

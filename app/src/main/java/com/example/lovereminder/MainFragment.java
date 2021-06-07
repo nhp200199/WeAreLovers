@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.example.lovereminder.databinding.FragmentMainBinding;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -53,7 +54,7 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     private LinearLayout mainFrag;
 
     private SharedPreferences sharedPreferences;
-
+    private FragmentMainBinding binding;
 
     public MainFragment() {
         // Required empty public constructor
@@ -87,6 +88,7 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     public void onDestroyView() {
         Log.d("Tag", "Main Frag Destroyed View");
         super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -94,7 +96,8 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
-        connectViews(v);
+        binding = FragmentMainBinding.bind(v);
+        connectViews(binding);
 
         sharedPreferences = getActivity().getSharedPreferences("userInfor", Context.MODE_PRIVATE);
 
@@ -121,15 +124,14 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         }
     }
 
-    private void connectViews(View v) {
-        civ_yourPicture = (CircleImageView) v.findViewById(R.id.profile_image);
-        civ_yourFrPicture = (CircleImageView) v.findViewById(R.id.friend_profile_image);
-        tv_yourName = (TextView) v.findViewById(R.id.tv_yourName);
-        iv_heart = (ImageView) v.findViewById(R.id.img_heart);
-        tv_yourFrName = (TextView) v.findViewById(R.id.tv_yourFrName);
-        tv_yourName = (TextView) v.findViewById(R.id.tv_yourName);
-        tv_days = (TextView) v.findViewById(R.id.tv_day_count);
-        mainFrag = (LinearLayout) v.findViewById(R.id.main_frag_linear);
+    private void connectViews(FragmentMainBinding binding) {
+        civ_yourPicture = binding.profileImage;
+        civ_yourFrPicture = binding.friendProfileImage;
+        tv_yourName = binding.tvYourName;
+        iv_heart = binding.imgHeart;
+        tv_yourFrName = binding.tvYourFrName;
+        tv_days = binding.tvDayCount;
+        mainFrag = binding.mainFragLinear;
 
         mainFrag.setOnClickListener(this);
         tv_yourFrName.setOnClickListener(this);

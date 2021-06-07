@@ -21,6 +21,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.lovereminder.databinding.ActivityDiaryBinding;
+
 public class DiaryActivity extends AppCompatActivity{
     private TextView tv_Date;
     private TextView tv_Content;
@@ -35,13 +37,14 @@ public class DiaryActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_diary);
+        ActivityDiaryBinding binding = ActivityDiaryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         mDiaryDao = AppDatabase.getInstance(this).getDiaryDao();
 
-        tv_Content = findViewById(R.id.tv_content);
-        tv_Date = findViewById(R.id.tv_date);
-        imb_back = findViewById(R.id.img_back);
-        edt_Content = findViewById(R.id.edt_content);
+        tv_Content = binding.tvContent;
+        tv_Date = binding.tvDate;
+        imb_back = binding.toolbar.imgBack;
+        edt_Content = binding.edtContent;
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);

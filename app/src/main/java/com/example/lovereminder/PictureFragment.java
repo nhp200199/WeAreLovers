@@ -32,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.lovereminder.databinding.FragmentPictureBinding;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -61,6 +62,7 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
     private SharedPreferences sharedPreferences;
     private StringBuilder builder_lst_pictures;
     private ArrayList<Integer> arr_ItemSelectedIdex;
+    private FragmentPictureBinding binding;
     int pic_count = 0;
 
     public PictureFragment() {
@@ -97,15 +99,18 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
     public void onDestroyView() {
         Log.d("Tag", "Pic Frag Destroyed View");
         super.onDestroyView();
+        binding = null;
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_picture, container, false);
-        gvPictures = v.findViewById(R.id.gv_Pictures);
-        linearLayout = v.findViewById(R.id.linear_layout);
-        civ_insertPicture = v.findViewById(R.id.civ_insertPictures);
+        binding = FragmentPictureBinding.bind(v);
+
+        gvPictures = binding.gvPictures;
+        linearLayout = binding.linearLayout;
+        civ_insertPicture = binding.civInsertPictures;
         showPicturesSum = getActivity().findViewById(R.id.tv_title);
 
         sharedPreferences = getActivity().getSharedPreferences("picture", Context.MODE_PRIVATE);

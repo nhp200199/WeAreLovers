@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.lovereminder.databinding.ActivityMainBinding;
 import com.google.android.material.tabs.TabLayout;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -64,8 +65,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Tag", "Created");
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        Toolbar toolbar = binding.toolbar.tb;
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -74,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
 
-        connectViews();
+        connectViews(binding);
 
         retrieveUserInfor();
 
@@ -113,11 +115,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void connectViews() {
-        img_background = (ImageView) findViewById(R.id.img_background);
-        tv_title = (TextView) findViewById(R.id.tv_title);
-        tb_swipe = (TabLayout) findViewById(R.id.tl_swipe);
-        pager = (ViewPager) findViewById(R.id.pager);
+    private void connectViews(ActivityMainBinding binding) {
+        img_background = binding.imgBackground;
+        tv_title = binding.toolbar.tvTitle;
+        tb_swipe = binding.tlSwipe;
+        pager = binding.pager;
 
         tv_title.setOnClickListener(this);
     }
