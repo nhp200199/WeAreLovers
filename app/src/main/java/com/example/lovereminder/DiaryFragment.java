@@ -96,10 +96,7 @@ public class DiaryFragment extends Fragment {
             public void onDiaryClickListener(Diary diary) {
                 Intent intent = new Intent(getActivity(), DiaryActivity.class);
                 intent.putExtra("id", diary.getId());
-                intent.putExtra("date", diary.getDate());
-                intent.putExtra("content", diary.getContent());
                 startActivity(intent);
-                getActivity().finish();
             }
         });
         rcvDiaries.setAdapter(adapter);
