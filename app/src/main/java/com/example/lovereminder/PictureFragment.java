@@ -193,7 +193,7 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_create_dairy:
+            case R.id.action_edit_dairy:
                 return false;
             case R.id.action_delete_picture:
                 showPopUpConfirm();

@@ -1,5 +1,6 @@
 package com.example.lovereminder;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -8,6 +9,7 @@ public class Diary {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private long date;
+    @NonNull
     private String content;
 
     public Diary(){

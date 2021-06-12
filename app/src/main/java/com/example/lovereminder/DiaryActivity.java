@@ -24,6 +24,9 @@ import android.widget.Toast;
 
 import com.example.lovereminder.databinding.ActivityDiaryBinding;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class DiaryActivity extends AppCompatActivity{
     private TextView tv_Date;
     private TextView tv_Content;
@@ -71,7 +74,9 @@ public class DiaryActivity extends AppCompatActivity{
             currentDiary = diary;
             originalText = currentDiary.getContent();
             tv_Content.setText(diary.getContent());
-            tv_Date.setText(diary.getDate());
+            SimpleDateFormat sdf = new SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy");
+            String formattedDateString = sdf.format(new Date(diary.getDate()));
+            tv_Date.setText(formattedDateString);
         });
     }
 

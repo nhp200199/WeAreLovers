@@ -51,18 +51,6 @@ public class DiaryAdapter extends ListAdapter<Diary, DiaryAdapter.DiaryViewHolde
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
         Date dateObject = new Date(dateToBeFormat);
         String formattedDateString = simpleDateFormat.format(dateObject);
-//        Date parsedDate = null;
-//        try {
-//            parsedDate = simpleDateFormat.parse(dateToBeFormat);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(parsedDate);
-//        String formattedString = String.format("ngày %d tháng %d năm %d",
-//                calendar.get(Calendar.DAY_OF_MONTH),
-//                calendar.get(Calendar.MONTH) + 1,
-//                calendar.get(Calendar.YEAR));
 
         holder.tv_date.setText(formattedDateString);
         holder.tv_content.setText(diary.getContent());
