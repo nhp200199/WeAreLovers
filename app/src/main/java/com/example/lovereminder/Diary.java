@@ -7,21 +7,21 @@ import androidx.room.PrimaryKey;
 public class Diary {
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private String date;
+    private long date;
     private String content;
 
     public Diary(){
 
     }
-    public Diary(String date, String content){
+    public Diary(long date, String content){
         this.date = date;
         this.content = content;
     }
-    public String getDate() {
+    public long getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(long date) {
         this.date = date;
     }
 

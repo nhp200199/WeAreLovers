@@ -38,7 +38,7 @@ public class DiaryAdapter extends ListAdapter<Diary, DiaryAdapter.DiaryViewHolde
     @NonNull
     @Override
     public DiaryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View convertView = LayoutInflater.from(mContext).inflate(R.layout.diary_item, null,
+        View convertView = LayoutInflater.from(mContext).inflate(R.layout.diary_item, parent,
                 false);
         return new DiaryViewHolder(convertView);
     }
@@ -47,22 +47,24 @@ public class DiaryAdapter extends ListAdapter<Diary, DiaryAdapter.DiaryViewHolde
     public void onBindViewHolder(@NonNull final DiaryViewHolder holder, int position) {
         final Diary diary = getItem(position);
         //transform the date retrieved from database
-        String dateToBeParse = diary.getDate();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date parsedDate = null;
-        try {
-            parsedDate = simpleDateFormat.parse(dateToBeParse);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(parsedDate);
-        String formattedString = String.format("ngày %d tháng %d năm %d",
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.MONTH) + 1,
-                calendar.get(Calendar.YEAR));
+        long dateToBeFormat = diary.getDate();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        Date dateObject = new Date(dateToBeFormat);
+        String formattedDateString = simpleDateFormat.format(dateObject);
+//        Date parsedDate = null;
+//        try {
+//            parsedDate = simpleDateFormat.parse(dateToBeFormat);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(parsedDate);
+//        String formattedString = String.format("ngày %d tháng %d năm %d",
+//                calendar.get(Calendar.DAY_OF_MONTH),
+//                calendar.get(Calendar.MONTH) + 1,
+//                calendar.get(Calendar.YEAR));
 
-        holder.tv_date.setText(formattedString);
+        holder.tv_date.setText(formattedDateString);
         holder.tv_content.setText(diary.getContent());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

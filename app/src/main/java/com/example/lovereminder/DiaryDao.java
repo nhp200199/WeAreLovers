@@ -11,11 +11,11 @@ import java.util.List;
 
 @Dao
 public interface DiaryDao {
-    @Query("select * from diaries")
+    @Query("select * from diaries order by date")
     LiveData<List<Diary>> getAllDiaries();
 
     @Insert
-    Void insestDiary(Diary diary);
+    Void insertDiary(Diary diary);
 
     @Delete
     void deleteDiary(Diary diary);

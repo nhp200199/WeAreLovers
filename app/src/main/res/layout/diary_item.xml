@@ -24,5 +24,5 @@
         android:layout_marginBottom="5dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="mot noi dung gif dodfdsfsdfsdfsdfsddfsafsdfsdafasfdfsfdsfsdfdf" />
+        android:text="mot noi dung g" />
 </LinearLayout>

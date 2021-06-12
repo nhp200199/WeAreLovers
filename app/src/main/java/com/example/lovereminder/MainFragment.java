@@ -296,7 +296,7 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setInexactRepeating(AlarmManager.RTC,
+        alarmManager.setRepeating(AlarmManager.RTC,
                 calendar.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent);

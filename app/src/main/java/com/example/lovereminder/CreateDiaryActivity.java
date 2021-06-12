@@ -36,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -46,8 +47,6 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
 
     private boolean isSaved = false;
     private SharedPreferences sharedPreferences1;
-    private int page_number;
-    int flag = 0;
 
     private DiaryDao mDiaryDao;
 
@@ -59,12 +58,13 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(view -> onBackPressed());
 
         btnSave = findViewById(R.id.btn_save);
         edt_diary = findViewById(R.id.edt_diary);
         img_background = findViewById(R.id.img_background);
 
-        page_number = getIntent().getIntExtra("page_number", 0);
         sharedPreferences1 = getSharedPreferences("background", MODE_PRIVATE);
 
         if(sharedPreferences1.contains("picture"))
@@ -108,21 +108,14 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void saveDiary() {
-        flag =1;
         Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int year = calendar.get(Calendar.YEAR);
         String content = edt_diary.getText().toString();
-        String date = String.format("%d-%d-%d", year, month, day);
 
         Diary diary = new Diary();
-        diary.setDate(date);
+        diary.setDate(calendar.getTimeInMillis());
         diary.setContent(content);
 
-        new InsertDiaryAsync(mDiaryDao).execute(diary);
-
-        page_number = getIntent().getIntExtra("page_number", page_number);
+        new InsertDiaryAsync(this, mDiaryDao).execute(diary);
 
         edt_diary.setText("");
         hideKeyboard(this);
@@ -130,45 +123,27 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onBackPressed() {
-        if(isSaved == false){
-            if(edt_diary.getText().toString().equals("")){
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("position", page_number);
-                startActivity(intent);
-                CreateDiaryActivity.super.onBackPressed();
-            }
-            else{
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("Chưa lưu đoạn nhật kí kìa ấy ơi. Bạn có muốn lưu lại không?")
-                        .setPositiveButton("Có", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        })
-                        .setNegativeButton("Không", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                intent.putExtra("position", page_number);
-                                startActivity(intent);
-                                CreateDiaryActivity.super.onBackPressed();
-                            }
-                        });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-            }
-
-
-        }
-        else if(isSaved)
-        {
-            finish();
+        if(edt_diary.getText().toString().equals(""))
             CreateDiaryActivity.super.onBackPressed();
+        else{
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Chưa lưu đoạn nhật kí kìa ấy ơi. Bạn có muốn lưu lại không?")
+                    .setPositiveButton("Có", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            saveDiary();
+                        }
+                    })
+                    .setNegativeButton("Không", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            finish();
+                        }
+                    });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
         }
-
-        
     }
     public static void hideKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -182,14 +157,22 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
     }
     private static class InsertDiaryAsync extends AsyncTask<Diary, Void, Void>{
         private DiaryDao mDiaryDao;
+        private Context context;
 
-        public InsertDiaryAsync(DiaryDao diaryDao) {
+        public InsertDiaryAsync(Context context, DiaryDao diaryDao) {
             mDiaryDao = diaryDao;
+            this.context = context;
         }
 
         @Override
         protected Void doInBackground(Diary... diaries) {
-            return mDiaryDao.insestDiary(diaries[0]);
+            return mDiaryDao.insertDiary(diaries[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            Toast.makeText(context, "Đã lưu", Toast.LENGTH_SHORT).show();
         }
     }
 }
