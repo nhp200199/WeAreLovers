@@ -1,8 +1,10 @@
 package com.example.lovereminder;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,83 +19,60 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.lovereminder.databinding.ActivityDiaryBinding;
 
 public class DiaryActivity extends AppCompatActivity{
     private TextView tv_Date;
     private TextView tv_Content;
     private EditText edt_Content;
     private Menu menu;
-    private ImageButton imb_back;
 
-    private String txtBeforeChanged="";
-    private String txtAfterChanged="";
+    private int diaryId;
+    String originalText;
+    private Diary currentDiary;
+    private DiaryViewModel viewModel;
     private DiaryDao mDiaryDao;
+    private boolean isEditing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_diary);
+        ActivityDiaryBinding binding = ActivityDiaryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         mDiaryDao = AppDatabase.getInstance(this).getDiaryDao();
+        viewModel = new ViewModelProvider(this).get(DiaryViewModel.class);
 
-        tv_Content = findViewById(R.id.tv_content);
-        tv_Date = findViewById(R.id.tv_date);
-        imb_back = findViewById(R.id.img_back);
-        edt_Content = findViewById(R.id.edt_content);
+        tv_Content = binding.tvContent;
+        tv_Date = binding.tvDate;
+        edt_Content = binding.edtContent;
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ActionBar supportActionBar = getSupportActionBar();
+        supportActionBar.setDisplayShowTitleEnabled(false);
+        supportActionBar.setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(view -> onBackPressed());
 
-        tv_Date.setText(getIntent().getStringExtra("date"));
-        tv_Content.setText(getIntent().getStringExtra("content"));
-
-        edt_Content.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                String text1 = edt_Content.getText().toString();
-                String text2 = tv_Content.getText().toString();
-                if(text1.equals(text2)){
-                    menu.clear();
-                }
-                else {
-                    menu.clear();
-                    getMenuInflater().inflate(R.menu.done, menu);
-                }
+        if (savedInstanceState != null){
+            isEditing = savedInstanceState.getBoolean("isEditing");
+            if (isEditing){
+                edt_Content.setVisibility(View.VISIBLE);
+                tv_Content.setVisibility(View.GONE);
             }
+        }
+        if (getIntent().hasExtra("id")){
+            diaryId = getIntent().getIntExtra("id", 0);
+        }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
+        viewModel.setDiaryId(diaryId);
+        viewModel.getDiary().observe(this, diary -> {
+            currentDiary = diary;
+            originalText = currentDiary.getContent();
+            tv_Content.setText(diary.getContent());
+            tv_Date.setText(diary.getDate());
         });
-
-        imb_back.setVisibility(View.VISIBLE);
-
-    }
-
-    public void backtoMainActivity(View view){
-        txtBeforeChanged = tv_Content.getText().toString();
-        txtAfterChanged = edt_Content.getText().toString();
-
-        if(txtAfterChanged.equals(txtBeforeChanged)){
-            Intent intent = new Intent(DiaryActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        else {
-            showMessage();
-        }
-
-
-
-
     }
 
     private void showMessage() {
@@ -102,15 +81,14 @@ public class DiaryActivity extends AppCompatActivity{
                 .setPositiveButton("Có", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
+                        updateDiary();
+                        finish();
                     }
                 })
                 .setNegativeButton("Không", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(DiaryActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
+                        DiaryActivity.super.onBackPressed();
                     }
                 });
         AlertDialog alertDialog = builder.create();
@@ -120,16 +98,35 @@ public class DiaryActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the app bar.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_edit_diary, menu);
         this.menu = menu;
         return super.onCreateOptionsMenu(menu);
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("isEditing", isEditing);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (isEditing){
+            menu.findItem(R.id.action_edit_dairy).setVisible(false);
+            menu.setGroupVisible(R.id.group_rewrite_diary_status, true);
+        }
+        else{
+            menu.findItem(R.id.action_edit_dairy).setVisible(true);
+            menu.setGroupVisible(R.id.group_rewrite_diary_status, false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_create_dairy:
-                txtBeforeChanged = tv_Content.getText().toString();
-                txtAfterChanged = tv_Content.getText().toString();
+            case R.id.action_edit_dairy:
+                isEditing = true;
 
                 edt_Content.setVisibility(View.VISIBLE);
                 edt_Content.setText(tv_Content.getText().toString());
@@ -139,20 +136,26 @@ public class DiaryActivity extends AppCompatActivity{
                 edt_Content.setSelection(edt_Content.getText().length());
                 tv_Content.setVisibility(View.INVISIBLE);
 
-                menu.clear();
-
-
+                invalidateOptionsMenu();
                 return true;
             case R.id.action_done_rewrite_diary:
-                tv_Content.setText(edt_Content.getText().toString().trim());
+                if (originalText.equals(edt_Content.getText().toString().trim())){
+                    Toast.makeText(this, "Bạn chưa thay đổi nội dung nhật kí", Toast.LENGTH_SHORT).show();
+                    return  true;
+                }
+                isEditing = false;
                 tv_Content.setVisibility(View.VISIBLE);
                 edt_Content.setVisibility(View.INVISIBLE);
 
                 updateDiary();
 
-                menu.clear();
-                getMenuInflater().inflate(R.menu.menu_main, menu);
-
+                invalidateOptionsMenu();
+                return true;
+            case R.id.action_cancel_rewrite_diary:
+                isEditing = false;
+                tv_Content.setVisibility(View.VISIBLE);
+                edt_Content.setVisibility(View.INVISIBLE);
+                invalidateOptionsMenu();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -160,20 +163,15 @@ public class DiaryActivity extends AppCompatActivity{
     }
 
     private void updateDiary() {
-        txtBeforeChanged = tv_Content.getText().toString();
-        txtAfterChanged = tv_Content.getText().toString();
-
-        Diary diary = new Diary();
-        diary.setId(getIntent().getIntExtra("id", -1));
-        diary.setDate(getIntent().getStringExtra("date"));
-        diary.setContent(edt_Content.getText().toString().trim());
-
-        new UpdateDiaryAsync(mDiaryDao).execute(diary);
+        currentDiary.setContent(edt_Content.getText().toString().trim());
+        new UpdateDiaryAsync(mDiaryDao).execute(currentDiary);
     }
 
     @Override
     public void onBackPressed() {
-        backtoMainActivity(imb_back);
+        if (!originalText.equals(edt_Content.getText().toString().trim()) && isEditing)
+            showMessage();
+        else super.onBackPressed();
     }
 
     private static class UpdateDiaryAsync extends AsyncTask<Diary, Void, Integer>{

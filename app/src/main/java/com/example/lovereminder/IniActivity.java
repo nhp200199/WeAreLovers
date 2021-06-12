@@ -25,6 +25,8 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.lovereminder.databinding.ActivityIniBinding;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -39,10 +41,11 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ini);
+        ActivityIniBinding binding = ActivityIniBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         showDialog();
 
-        connectViews();
+        connectViews(binding);
 
         sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE);
 
@@ -87,11 +90,11 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         dialog.show();
     }
 
-    private void connectViews() {
-        edt_yourName = findViewById(R.id.edt_yourName);
-        edt_yourFrName = findViewById(R.id.edt_yourFrName);
-        edt_date = findViewById(R.id.edt_date);
-        btn_confirm = findViewById(R.id.btn_confirm);
+    private void connectViews(ActivityIniBinding binding) {
+        edt_yourName = binding.edtYourName;
+        edt_yourFrName = binding.edtYourFrName;
+        edt_date = binding.edtDate;
+        btn_confirm = binding.btnConfirm;
         btn_confirm.setOnClickListener(this);
         edt_date.setOnClickListener(this);
     }

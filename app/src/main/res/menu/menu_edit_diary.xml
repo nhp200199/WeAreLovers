@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_edit_dairy"
+        android:title="@string/create_diary"
+        android:icon="@drawable/ic_create_24px"
+        android:orderInCategory="1"
+        app:showAsAction="ifRoom" />
+    <group
+        android:id="@+id/group_rewrite_diary_status"
+        android:visible="false">
+        <item
+            android:id="@+id/action_done_rewrite_diary"
+            android:icon="@drawable/ic_check_24px"
+            android:title="Xong"
+            android:orderInCategory="2"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/action_cancel_rewrite_diary"
+            android:icon="@drawable/ic_cancel_24px"
+            android:title="Hủy"
+            app:showAsAction="always" />
+    </group>
+</menu>

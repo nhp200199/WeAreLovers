@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import com.example.lovereminder.databinding.ChangeDateBinding;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class ChangeDateDialog extends AppCompatDialogFragment {
     private EditText editTextDate;
     private ChangeDateDialog.Listener listener;
+    private ChangeDateBinding binding;
     private static final String TAG = "MyCustomDialog";
     @Override
     public void onAttach(Context context) {
@@ -39,7 +42,8 @@ public class ChangeDateDialog extends AppCompatDialogFragment {
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.change_date, null);
-        editTextDate = view.findViewById(R.id.edt_date);
+        binding = ChangeDateBinding.bind(view);
+        editTextDate = binding.edtDate;
 
         builder.setView(view)
                 .setTitle("Sửa ngày tháng bắt đầu")

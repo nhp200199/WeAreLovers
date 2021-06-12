@@ -22,4 +22,7 @@ public interface DiaryDao {
 
     @Update
     int updateDiary(Diary diary);
+
+    @Query("select * from diaries where id = :id")
+    LiveData<Diary> getDiaryById(int id);
 }

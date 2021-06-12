@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.lovereminder.databinding.FragmentDiaryBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class DiaryFragment extends Fragment {
     private FloatingActionButton fabAddDiary;
 
     private DiaryDao mDiaryDao;
+    private FragmentDiaryBinding binding;
 
     public DiaryFragment() {
         // Required empty public constructor
@@ -55,22 +57,24 @@ public class DiaryFragment extends Fragment {
     public void onDestroyView() {
         Log.d("Tag", "Dia Frag Destroyed View");
         super.onDestroyView();
+        binding = null;
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_diary, container, false);
-        connectViews(v);
+        binding = FragmentDiaryBinding.bind(v);
+        connectViews(binding);
 
         loadDiaries();
         return v;
     }
 
-    private void connectViews(View v) {
-        rcvDiaries = (RecyclerView) v.findViewById(R.id.rcv_diaries);
-        tvNothing = (TextView) v.findViewById(R.id.tv_nothing);
-        fabAddDiary = (FloatingActionButton) v.findViewById(R.id.fabAddDiary);
+    private void connectViews(FragmentDiaryBinding binding) {
+        rcvDiaries = binding.rcvDiaries;
+        tvNothing = binding.tvNothing;
+        fabAddDiary = binding.fabAddDiary;
 
         adapter = new DiaryAdapter(getActivity());
         adapter.setListener(new DiaryAdapter.Listener() {
@@ -92,10 +96,7 @@ public class DiaryFragment extends Fragment {
             public void onDiaryClickListener(Diary diary) {
                 Intent intent = new Intent(getActivity(), DiaryActivity.class);
                 intent.putExtra("id", diary.getId());
-                intent.putExtra("date", diary.getDate());
-                intent.putExtra("content", diary.getContent());
                 startActivity(intent);
-                getActivity().finish();
             }
         });
         rcvDiaries.setAdapter(adapter);
