@@ -32,7 +32,6 @@ public class FullScreenPicActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
     private ArrayList<String> arrlst_pic;
-    private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,21 +67,9 @@ public class FullScreenPicActivity extends AppCompatActivity {
             case R.id.action_remove_item:
                 showConfirmPopUp();
                 return true;
-            case android.R.id.home:
-                onBackPressed();
-                return true;
             default: return super.onOptionsItemSelected(item);
         }
 
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.putExtra("position", 2);
-        startActivity(intent);
-        finish();
-        super.onBackPressed();
     }
 
     private void showConfirmPopUp() {
