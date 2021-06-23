@@ -17,9 +17,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -47,7 +51,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PictureFragment extends Fragment implements View.OnClickListener{
+public class PictureFragment extends Fragment implements View.OnClickListener {
 
     private static final int RESULT_OK = -1;
     public static final int READ_EXTERNAL_STORAGE_REQ = 100;
@@ -59,9 +63,19 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
 
     private ArrayList<Image> images = new ArrayList<Image>();
     private FragmentPictureBinding binding;
+    private PictureViewModel pictureViewModel;
+    private int numOfPicturesTobeDeleted;
 
     public PictureFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        //workaround for saving adapter's state
+        adapter = new ImageAdapter(requireActivity(), images);
     }
 
     @Override
@@ -70,6 +84,7 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
         super.onDestroyView();
         binding = null;
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -77,133 +92,178 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
         View v = inflater.inflate(R.layout.fragment_picture, container, false);
         binding = FragmentPictureBinding.bind(v);
 
+        pictureViewModel = new ViewModelProvider(requireActivity()).get(PictureViewModel.class);
+
         gvPictures = binding.gvPictures;
         linearLayout = binding.linearLayout;
         fabAddImage = binding.fabAddImage;
 
-        adapter = new ImageAdapter(requireActivity(), images);
-
         gvPictures.setAdapter(adapter);
-        gvPictures.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        pictureViewModel.getImages().observe(getViewLifecycleOwner(), new Observer<List<Image>>() {
+            @Override
+            public void onChanged(List<Image> images) {
+                if (images.size() == 0) {
+                    linearLayout.setVisibility(View.VISIBLE);
+                    gvPictures.setVisibility(View.GONE);
+                } else {
+                    linearLayout.setVisibility(View.GONE);
+                    gvPictures.setVisibility(View.VISIBLE);
+
+                    adapter.setImages(images);
+                }
+            }
+        });
+
+        AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), FullScreenPicActivity.class);
-                intent.putExtra("position", position);
-                intent.putExtra("uri", images.get(position).getUri());
-                startActivity(intent);
+                if (numOfPicturesTobeDeleted == 0) {
+                    Intent intent = new Intent(getActivity(), FullScreenPicActivity.class);
+                    intent.putExtra("position", position);
+                    intent.putExtra("uri", images.get(position).getUri());
+                    startActivity(intent);
+                } else {
+                    if (adapter.toggleImagePositionToDelete(position))
+                        numOfPicturesTobeDeleted++;
+                    else {
+                        numOfPicturesTobeDeleted--;
+                        //if numOfPicturesTobeDeleted ==0 -> hide menu action
+                        if (numOfPicturesTobeDeleted == 0)
+                            requireActivity().invalidateOptionsMenu();
+                    }
+                }
+            }
+        };
+        gvPictures.setOnItemClickListener(onItemClickListener);
+        gvPictures.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (numOfPicturesTobeDeleted == 0) {
+                    numOfPicturesTobeDeleted++;
+                    adapter.toggleImagePositionToDelete(position);
+                    requireActivity().invalidateOptionsMenu();
+                } else {
+                    //toggle image selection for each long click event
+                    if (adapter.toggleImagePositionToDelete(position))
+                        numOfPicturesTobeDeleted++;
+                    else {
+                        numOfPicturesTobeDeleted--;
+                        //if numOfPicturesTobeDeleted ==0 -> hide menu action
+                        if (numOfPicturesTobeDeleted == 0) {
+                            requireActivity().invalidateOptionsMenu();
+                        }
+                    }
+                }
+                return true;
             }
         });
         fabAddImage.setOnClickListener(this);
         return v;
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull @NotNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (numOfPicturesTobeDeleted > 0) {
+            outState.putInt("num_of_pictures_to_be_deleted", numOfPicturesTobeDeleted);
+        }
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
-
         inflater.inflate(R.menu.menu_remove, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
+    public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
+        MenuItem deleteMenuItem = menu.findItem(R.id.action_delete_picture);
+        MenuItem cancelMenuItem = menu.findItem(R.id.action_cancel);
+        super.onPrepareOptionsMenu(menu);
+        if (numOfPicturesTobeDeleted == 0) {
+            deleteMenuItem.setVisible(false);
+            cancelMenuItem.setVisible(false);
+        } else {
+            deleteMenuItem.setVisible(true);
+            cancelMenuItem.setVisible(true);
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_edit_dairy:
-                return false;
             case R.id.action_delete_picture:
-                return  true;
+                showPopupConfirmDeletion();
+                return true;
             case R.id.action_cancel:
+                numOfPicturesTobeDeleted = 0;
+                getActivity().invalidateOptionsMenu();
+                //remove selection's effect on selected items
+                adapter.resetTracker();
+                adapter.notifyDataSetChanged();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-//    private void loadPictures() {
-//        arr_ItemSelectedIdex = new ArrayList<Integer>();
-//        if(sharedPreferences.getString("lst_picture", null)!= null){
-//            images = new ArrayList<Image>();
-//            adapter = new ImageAdapter(getActivity(), images);
-//            gvPictures.setAdapter(adapter);
-//            String lst_picture = sharedPreferences.getString("lst_picture", null);
-//
-//            if(!lst_picture.equals("")){
-//                ArrayList<String> arrlst_pic;
-//
-//                Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getResources()
-//                        .getResourcePackageName(R.drawable.couple) + '/' + getResources().getResourceTypeName(R.drawable.couple) + '/' + String.valueOf(R.drawable.couple) );
-//                images.add(0,new Image());
-//                images.get(0).setUri(imageUri);
-//
-//                arrlst_pic = new ArrayList<String>(Arrays.asList((lst_picture.split(","))));
-//                //if(arrlst_pic.size())
-//                for (String i: arrlst_pic){
-//                    Image image = new Image();
-//                    image.setUri(Uri.parse(i));
-//                    images.add(1,image);
-//                }
-//                adapter.notifyDataSetChanged();
-//                if(images.size() ==1)
-//                {
-//                    images.clear();
-//                    linearLayout.setVisibility(View.VISIBLE);
-//                    gvPictures.setVisibility(View.INVISIBLE);
-//                }
-//                else {
-//                    linearLayout.setVisibility(View.INVISIBLE);
-//                    gvPictures.setVisibility(View.VISIBLE);
-//                }
-//
-//                builder_lst_pictures = new StringBuilder();
-//                for(int i = images.size()-1; i >= 1; i--){
-//                    if(i==images.size()-1){
-//                        builder_lst_pictures.append(images.get(i).getUri().toString());
-//                    }
-//                    else {
-//                        builder_lst_pictures.append(",");
-//                        builder_lst_pictures.append(images.get(i).getUri().toString());
-//                    }
-//                }
-//            }
-//
-//        }
-//        else {
-//            builder_lst_pictures = new StringBuilder();
-//            images = new ArrayList<Image>();
-//            adapter = new ImageAdapter(getActivity(), images);
-//            gvPictures.setAdapter(adapter);
-//        }
-//        Toast.makeText(getActivity(), "so luong anh " + images.size(), Toast.LENGTH_LONG).show();
-//        for(int i = 0; i< images.size();i++){
-//            Log.d("TAG2", "[" + i +"]" + ": " + images.get(i));
-//        }
-//        Log.d("Tag", "Reloaded");
-//    }
+    private void showPopupConfirmDeletion() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(String.format("Bạn muốn xóa %d ảnh đã chọn?", numOfPicturesTobeDeleted))
+                .setPositiveButton("Có", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        //delete the selected pictures
+                        removePic();
+                        //reset deletion-related things and update menu actions
+                        numOfPicturesTobeDeleted = 0;
+                        adapter.resetTracker();
+                        getActivity().invalidateOptionsMenu();
+                    }
+
+                    private void removePic() {
+                        SparseBooleanArray indexesOfImagesToDelete = adapter.getImagesToDelete();
+                        for (int i = indexesOfImagesToDelete.size() - 1; i >= 0; i--) {
+                            //To handle ArrayIndexOutOfBound, we delete the image with higher index first
+                            images.remove(indexesOfImagesToDelete.keyAt(i));
+                        }
+                        pictureViewModel.setImages(images);
+                    }
+                })
+                .setNegativeButton("Không", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == REQUEST_CHOOSE_IMAGE && resultCode == RESULT_OK){
+        if (requestCode == REQUEST_CHOOSE_IMAGE && resultCode == RESULT_OK) {
             //when user selects multiple images, data.getClipData will not null
-            if (data.getClipData() != null){
+            if (data.getClipData() != null) {
                 ClipData clipData = data.getClipData();
-                for(int i =0; i< clipData.getItemCount(); i++){
+                for (int i = 0; i < clipData.getItemCount(); i++) {
                     //TODO: load image's thumbnail, not the whole image
                     Uri uri = clipData.getItemAt(i).getUri();
-                    Image image=  new Image();
+                    Image image = new Image();
                     image.setUri(uri);
                     images.add(image);
                 }
-            } else if (data.getData() != null){
+            } else if (data.getData() != null) {
                 //TODO: load image's thumbnail, not the whole image
                 Uri uri = data.getData();
-                Image image=  new Image();
+                Image image = new Image();
                 image.setUri(uri);
                 images.add(image);
             }
-            adapter.notifyDataSetChanged();
-        }
-        else {
+            pictureViewModel.setImages(images);
+        } else {
             gvPictures.setVisibility(View.INVISIBLE);
             linearLayout.setVisibility(View.VISIBLE);
         }
@@ -212,9 +272,13 @@ public class PictureFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.fabAddImage:
-                chooseImagesFromGallery();
+                if (numOfPicturesTobeDeleted == 0)
+                    chooseImagesFromGallery();
+                else
+                    Toast.makeText(requireContext(), "Vui lòng hoàn thành thao tác khác trước", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
