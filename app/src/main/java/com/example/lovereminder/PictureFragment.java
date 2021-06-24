@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -21,6 +22,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -40,8 +43,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,12 +64,14 @@ public class PictureFragment extends Fragment implements View.OnClickListener {
     private static final int RESULT_OK = -1;
     public static final int READ_EXTERNAL_STORAGE_REQ = 100;
     public static final int REQUEST_CHOOSE_IMAGE = 443;
+    public static final String LOG_TAG = "PictureFragment";
+    public static final String PICTURES_FOLDER_NAME = "saved-pictures";
     private GridView gvPictures;
     private ImageAdapter adapter;
     private LinearLayout linearLayout;
     private FloatingActionButton fabAddImage;
 
-    private ArrayList<Image> images = new ArrayList<Image>();
+    private List<Image> images = new ArrayList<Image>();
     private FragmentPictureBinding binding;
     private PictureViewModel pictureViewModel;
     private int numOfPicturesTobeDeleted;
@@ -103,6 +113,7 @@ public class PictureFragment extends Fragment implements View.OnClickListener {
         pictureViewModel.getImages().observe(getViewLifecycleOwner(), new Observer<List<Image>>() {
             @Override
             public void onChanged(List<Image> images) {
+                PictureFragment.this.images = images;
                 if (images.size() == 0) {
                     linearLayout.setVisibility(View.VISIBLE);
                     gvPictures.setVisibility(View.GONE);
@@ -225,10 +236,18 @@ public class PictureFragment extends Fragment implements View.OnClickListener {
 
                     private void removePic() {
                         SparseBooleanArray indexesOfImagesToDelete = adapter.getImagesToDelete();
+                        File pictureFolder = new File(getContext().getExternalFilesDir(
+                                Environment.DIRECTORY_PICTURES), PICTURES_FOLDER_NAME);
                         for (int i = indexesOfImagesToDelete.size() - 1; i >= 0; i--) {
                             //To handle ArrayIndexOutOfBound, we delete the image with higher index first
-                            images.remove(indexesOfImagesToDelete.keyAt(i));
+                            int indexInImageList = indexesOfImagesToDelete.keyAt(i);
+                            String filePathName = images.get(indexInImageList).getUri().getLastPathSegment();
+                            images.remove(indexInImageList);
+                            //delete file in external dir
+                            File fileToBeDeleted = new File(pictureFolder, filePathName);
+                            fileToBeDeleted.delete();
                         }
+                        Toast.makeText(getContext(), "Đã xóa", Toast.LENGTH_SHORT).show();
                         pictureViewModel.setImages(images);
                     }
                 })
@@ -253,21 +272,45 @@ public class PictureFragment extends Fragment implements View.OnClickListener {
                     Uri uri = clipData.getItemAt(i).getUri();
                     Image image = new Image();
                     image.setUri(uri);
-                    images.add(image);
+                    images.add(0, image);
+
+                    saveImageToExternalDir(uri);
                 }
             } else if (data.getData() != null) {
                 //TODO: load image's thumbnail, not the whole image
                 Uri uri = data.getData();
                 Image image = new Image();
                 image.setUri(uri);
-                images.add(image);
+                images.add(0, image);
+
+                saveImageToExternalDir(uri);
             }
             pictureViewModel.setImages(images);
-        } else {
-            gvPictures.setVisibility(View.INVISIBLE);
-            linearLayout.setVisibility(View.VISIBLE);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void saveImageToExternalDir(Uri uri) {
+        //saved the selected picture to external app-specific files
+        Calendar calendar = Calendar.getInstance();
+        long createdTime = calendar.getTimeInMillis(); //make each file unique
+        File file = new File(getContext().getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES), PICTURES_FOLDER_NAME);
+        if (!file.exists() && !file.mkdir())
+            Log.e(LOG_TAG, "Directory not created");
+        else {
+            File imageFileToSave = new File(file, createdTime + ".png");
+            try {
+                if (imageFileToSave.createNewFile()) {
+                    OutputStream outputStream = new FileOutputStream(imageFileToSave);
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), uri);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
