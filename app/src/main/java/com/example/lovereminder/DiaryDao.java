@@ -9,19 +9,22 @@ import androidx.room.Update;
 
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.Single;
+
 @Dao
 public interface DiaryDao {
     @Query("select * from diaries order by date desc")
     LiveData<List<Diary>> getAllDiaries();
 
     @Insert
-    Void insertDiary(Diary diary);
+    Completable insertDiary(Diary diary);
 
     @Delete
-    void deleteDiary(Diary diary);
+    Completable deleteDiary(Diary diary);
 
     @Update
-    int updateDiary(Diary diary);
+    Completable updateDiary(Diary diary);
 
     @Query("select * from diaries where id = :id")
     LiveData<Diary> getDiaryById(int id);

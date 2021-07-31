@@ -54,6 +54,14 @@ import java.util.Collections;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -291,26 +299,41 @@ public class PictureFragment extends Fragment implements View.OnClickListener {
     }
 
     private void saveImageToExternalDir(Uri uri) {
-        //saved the selected picture to external app-specific files
-        Calendar calendar = Calendar.getInstance();
-        long createdTime = calendar.getTimeInMillis(); //make each file unique
-        File file = new File(getContext().getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES), PICTURES_FOLDER_NAME);
-        if (!file.exists() && !file.mkdir())
-            Log.e(LOG_TAG, "Directory not created");
-        else {
-            File imageFileToSave = new File(file, createdTime + ".png");
-            try {
-                if (imageFileToSave.createNewFile()) {
-                    OutputStream outputStream = new FileOutputStream(imageFileToSave);
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), uri);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                    outputStream.close();
+        Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(@NotNull ObservableEmitter<Boolean> emitter) {
+                try {
+                    //saved the selected picture to external app-specific files
+                    Calendar calendar = Calendar.getInstance();
+                    long createdTime = calendar.getTimeInMillis(); //make each file unique
+                    File file = new File(getContext().getExternalFilesDir(
+                            Environment.DIRECTORY_PICTURES), PICTURES_FOLDER_NAME);
+                    if (!file.exists() && !file.mkdir()) {
+                        Log.e(LOG_TAG, "Directory not created");
+                        emitter.onError(new Throwable("ERROR"));
+                    } else {
+                        File imageFileToSave = new File(file, createdTime + ".png");
+                        try {
+                            if (imageFileToSave.createNewFile()) {
+                                OutputStream outputStream = new FileOutputStream(imageFileToSave);
+                                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), uri);
+                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                                outputStream.close();
+                                emitter.onComplete();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            emitter.onError(e);
+                        }
+                    }
+                } catch (Exception e) {
+                    emitter.onError(e);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> Log.d(LOG_TAG, result.toString()));
     }
 
     @Override

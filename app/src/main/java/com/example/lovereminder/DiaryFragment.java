@@ -21,18 +21,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.lovereminder.databinding.FragmentDiaryBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.CompletableObserver;
+import io.reactivex.Scheduler;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class DiaryFragment extends Fragment {
+    public static final String TAG = DiaryFragment.class.getSimpleName();
 
     private DiaryAdapter adapter;
     private RecyclerView rcvDiaries;
@@ -85,7 +96,32 @@ public class DiaryFragment extends Fragment {
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        new DeleteDiaryAsync(mDiaryDao).execute(diary);
+                        mDiaryDao.deleteDiary(diary)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new CompletableObserver() {
+                                    @Override
+                                    public void onSubscribe(@NotNull Disposable d) {
+                                        Log.d(TAG, "onSubscribe");
+                                    }
+
+//                                    @Override
+//                                    public void onSuccess(@NotNull Integer integer) {
+//                                        Log.d(TAG, "onComplete " + integer);
+//                                        Toast.makeText(requireContext(), "Deleted", Toast.LENGTH_SHORT).show();
+//                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        Log.d(TAG, "onComplete");
+                                        Toast.makeText(requireContext(), "Deleted", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onError(@NotNull Throwable e) {
+                                        Log.d(TAG, "onError");
+                                    }
+                                });
                         return true;
                     }
                 });
@@ -137,19 +173,5 @@ public class DiaryFragment extends Fragment {
                 }
             }
         });
-    }
-
-    private static class DeleteDiaryAsync extends AsyncTask<Diary, Void, Void>{
-        DiaryDao mDiaryDao;
-
-        public DeleteDiaryAsync(DiaryDao diaryDao) {
-            mDiaryDao = diaryDao;
-        }
-
-        @Override
-        protected Void doInBackground(Diary... diaries) {
-            mDiaryDao.deleteDiary(diaries[0]);
-            return null;
-        }
     }
 }

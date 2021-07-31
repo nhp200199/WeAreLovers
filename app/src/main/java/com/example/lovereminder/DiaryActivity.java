@@ -24,8 +24,15 @@ import android.widget.Toast;
 
 import com.example.lovereminder.databinding.ActivityDiaryBinding;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import io.reactivex.CompletableObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class DiaryActivity extends AppCompatActivity{
     private TextView tv_Date;
@@ -169,7 +176,26 @@ public class DiaryActivity extends AppCompatActivity{
 
     private void updateDiary() {
         currentDiary.setContent(edt_Content.getText().toString().trim());
-        new UpdateDiaryAsync(mDiaryDao).execute(currentDiary);
+//        new UpdateDiaryAsync(mDiaryDao).execute(currentDiary);
+        mDiaryDao.updateDiary(currentDiary)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Toast.makeText(DiaryActivity.this, "Diary updated", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+
+                    }
+                });
     }
 
     @Override
@@ -179,22 +205,22 @@ public class DiaryActivity extends AppCompatActivity{
         else super.onBackPressed();
     }
 
-    private static class UpdateDiaryAsync extends AsyncTask<Diary, Void, Integer>{
-        private DiaryDao mDiaryDao;
-
-        public UpdateDiaryAsync(DiaryDao diaryDao) {
-            mDiaryDao = diaryDao;
-        }
-
-        @Override
-        protected Integer doInBackground(Diary... diaries) {
-            return mDiaryDao.updateDiary(diaries[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Integer updatedDiaryId) {
-            super.onPostExecute(updatedDiaryId);
-            Log.d("Tag", String.valueOf(updatedDiaryId));
-        }
-    }
+//    private static class UpdateDiaryAsync extends AsyncTask<Diary, Void, Integer>{
+//        private DiaryDao mDiaryDao;
+//
+//        public UpdateDiaryAsync(DiaryDao diaryDao) {
+//            mDiaryDao = diaryDao;
+//        }
+//
+//        @Override
+//        protected Integer doInBackground(Diary... diaries) {
+//            return mDiaryDao.updateDiary(diaries[0]);
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Integer updatedDiaryId) {
+//            super.onPostExecute(updatedDiaryId);
+//            Log.d("Tag", String.valueOf(updatedDiaryId));
+//        }
+//    }
 }

@@ -32,6 +32,7 @@ import com.google.gson.reflect.TypeToken;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +41,11 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import io.reactivex.CompletableObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class CreateDiaryActivity extends AppCompatActivity implements View.OnClickListener{
     private Button btnSave;
@@ -117,8 +123,26 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
         diary.setDate(calendar.getTimeInMillis());
         diary.setContent(content);
 
-        new InsertDiaryAsync(this, mDiaryDao).execute(diary);
+//        new InsertDiaryAsync(this, mDiaryDao).execute(diary);
+        mDiaryDao.insertDiary(diary)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
 
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Toast.makeText(CreateDiaryActivity.this, "Đã lưu", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+
+                    }
+                });
         edt_diary.setText("");
         hideKeyboard(this);
     }
@@ -157,24 +181,24 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
-    private static class InsertDiaryAsync extends AsyncTask<Diary, Void, Void>{
-        private DiaryDao mDiaryDao;
-        private Context context;
-
-        public InsertDiaryAsync(Context context, DiaryDao diaryDao) {
-            mDiaryDao = diaryDao;
-            this.context = context;
-        }
-
-        @Override
-        protected Void doInBackground(Diary... diaries) {
-            return mDiaryDao.insertDiary(diaries[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-            Toast.makeText(context, "Đã lưu", Toast.LENGTH_SHORT).show();
-        }
-    }
+//    private static class InsertDiaryAsync extends AsyncTask<Diary, Void, Void>{
+//        private DiaryDao mDiaryDao;
+//        private Context context;
+//
+//        public InsertDiaryAsync(Context context, DiaryDao diaryDao) {
+//            mDiaryDao = diaryDao;
+//            this.context = context;
+//        }
+//
+//        @Override
+//        protected Void doInBackground(Diary... diaries) {
+//            return mDiaryDao.insertDiary(diaries[0]);
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void unused) {
+//            super.onPostExecute(unused);
+//            Toast.makeText(context, "Đã lưu", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 }
