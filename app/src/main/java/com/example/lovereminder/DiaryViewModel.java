@@ -10,15 +10,23 @@ import androidx.lifecycle.Transformations;
 
 import org.jetbrains.annotations.NotNull;
 
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.Subject;
+
 public class DiaryViewModel extends AndroidViewModel {
     private DiaryDao mDiaryDao;
     private MutableLiveData<Integer> diaryId = new MutableLiveData<>();
     private LiveData<Diary> diary;
+    private Subject<Integer> diaryIdSubject;
+    private Observable<Diary> currentDiaryObservable;
 
     public DiaryViewModel(@NonNull @NotNull Application application) {
         super(application);
         mDiaryDao = AppDatabase.getInstance(application).getDiaryDao();
-        diary = Transformations.switchMap(diaryId, id -> mDiaryDao.getDiaryById(id));
+        //diary = Transformations.switchMap(diaryId, id -> mDiaryDao.getDiaryById(id));
+//        diaryIdSubject = BehaviorSubject.create();
+//        currentDiaryObservable = diaryIdSubject.switchMap(id -> mDiaryDao.getDiaryById(id));
     }
 
     public LiveData<Diary> getDiary() {
@@ -28,4 +36,12 @@ public class DiaryViewModel extends AndroidViewModel {
     public void setDiaryId(int diaryId) {
         this.diaryId.setValue(diaryId);
     }
+
+//    public void setCurrentDiaryId(int diaryId) {
+//        diaryIdSubject.onNext(diaryId);
+//    }
+//
+//    public Observable<Diary> getCurrentDiaryObservable() {
+//        return currentDiaryObservable;
+//    }
 }

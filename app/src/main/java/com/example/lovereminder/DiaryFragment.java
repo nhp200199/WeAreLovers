@@ -70,6 +70,7 @@ public class DiaryFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -159,19 +160,35 @@ public class DiaryFragment extends Fragment {
     }
 
     private void loadDiaries() {
-        mDiaryDao.getAllDiaries().observe(getViewLifecycleOwner(), new Observer<List<Diary>>() {
-            @Override
-            public void onChanged(List<Diary> diaries) {
-                if (diaries.size() == 0) {
-                    tvNothing.setVisibility(View.VISIBLE);
-                    rcvDiaries.setVisibility(View.INVISIBLE);
-                } else {
-                    tvNothing.setVisibility(View.INVISIBLE);
-                    rcvDiaries.setVisibility(View.VISIBLE);
+//        mDiaryDao.getAllDiaries().observe(getViewLifecycleOwner(), new Observer<List<Diary>>() {
+//            @Override
+//            public void onChanged(List<Diary> diaries) {
+//                if (diaries.size() == 0) {
+//                    tvNothing.setVisibility(View.VISIBLE);
+//                    rcvDiaries.setVisibility(View.INVISIBLE);
+//                } else {
+//                    tvNothing.setVisibility(View.INVISIBLE);
+//                    rcvDiaries.setVisibility(View.VISIBLE);
+//
+//                    adapter.submitList(diaries);
+//                }
+//            }
+//        });
 
-                    adapter.submitList(diaries);
-                }
-            }
-        });
+        mDiaryDao.getAllDiaries()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(diaries -> {
+                            if (diaries.size() == 0) {
+                                tvNothing.setVisibility(View.VISIBLE);
+                                rcvDiaries.setVisibility(View.INVISIBLE);
+                            } else {
+                                tvNothing.setVisibility(View.INVISIBLE);
+                                rcvDiaries.setVisibility(View.VISIBLE);
+
+                                adapter.submitList(diaries);
+                            }
+                        },
+                        error -> error.printStackTrace());
     }
 }

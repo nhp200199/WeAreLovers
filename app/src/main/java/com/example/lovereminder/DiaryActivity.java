@@ -76,15 +76,40 @@ public class DiaryActivity extends AppCompatActivity{
             diaryId = getIntent().getIntExtra("id", 0);
         }
 
-        viewModel.setDiaryId(diaryId);
-        viewModel.getDiary().observe(this, diary -> {
-            currentDiary = diary;
-            originalText = currentDiary.getContent();
-            tv_Content.setText(diary.getContent());
-            SimpleDateFormat sdf = new SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy");
-            String formattedDateString = sdf.format(new Date(diary.getDate()));
-            tv_Date.setText(formattedDateString);
-        });
+//        viewModel.setDiaryId(diaryId);
+//        viewModel.getDiary().observe(this, diary -> {
+//            currentDiary = diary;
+//            originalText = currentDiary.getContent();
+//            tv_Content.setText(diary.getContent());
+//            SimpleDateFormat sdf = new SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy");
+//            String formattedDateString = sdf.format(new Date(diary.getDate()));
+//            tv_Date.setText(formattedDateString);
+//        });
+
+//        viewModel.setCurrentDiaryId(diaryId);
+//        viewModel.getCurrentDiaryObservable()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(diary -> {
+//                    currentDiary = diary;
+//                    originalText = currentDiary.getContent();
+//                    tv_Content.setText(diary.getContent());
+//                    SimpleDateFormat sdf = new SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy");
+//                    String formattedDateString = sdf.format(new Date(diary.getDate()));
+//                    tv_Date.setText(formattedDateString);
+//                });
+
+        mDiaryDao.getDiaryById(diaryId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(diary -> {
+                    currentDiary = diary;
+                    originalText = currentDiary.getContent();
+                    tv_Content.setText(diary.getContent());
+                    SimpleDateFormat sdf = new SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy");
+                    String formattedDateString = sdf.format(new Date(diary.getDate()));
+                    tv_Date.setText(formattedDateString);
+                });
     }
 
     private void showMessage() {
@@ -175,7 +200,8 @@ public class DiaryActivity extends AppCompatActivity{
     }
 
     private void updateDiary() {
-        currentDiary.setContent(edt_Content.getText().toString().trim());
+        String updatedContent = edt_Content.getText().toString().trim();
+        currentDiary.setContent(updatedContent);
 //        new UpdateDiaryAsync(mDiaryDao).execute(currentDiary);
         mDiaryDao.updateDiary(currentDiary)
                 .subscribeOn(Schedulers.io())
@@ -188,6 +214,7 @@ public class DiaryActivity extends AppCompatActivity{
 
                     @Override
                     public void onComplete() {
+                        tv_Content.setText(updatedContent);
                         Toast.makeText(DiaryActivity.this, "Diary updated", Toast.LENGTH_SHORT).show();
                     }
 
