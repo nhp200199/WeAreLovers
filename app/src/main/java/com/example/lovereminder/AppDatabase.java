@@ -12,7 +12,9 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
-@Database(version = 2, entities = {Diary.class})
+import org.jetbrains.annotations.NotNull;
+
+@Database(version = 3, entities = {Diary.class, DiaryFTS.class})
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
 

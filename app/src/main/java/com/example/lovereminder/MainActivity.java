@@ -81,6 +81,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         retrieveUserInfor();
 
         setUpViewPager();
+
+        String exampleString = "Feb 5, 2021 11:46:00";
+        String result = formatDateTimeStringToTime(exampleString);
+        Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
+        Log.d("MainActivity", result);
+    }
+
+    private String formatDateTimeStringToTime(String exampleString) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
+        try {
+            Date parsedDateTime = sdf.parse(exampleString);
+            return sdf2.format(parsedDateTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
     private void swipeViewPager(int position) {
@@ -192,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
         @Override
         public Fragment getItem(int position) {
@@ -207,8 +224,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return mainFragment;
                 case 1:
                     return new DiaryFragment();
-                case 2:
-                    return new PictureFragment();
+//                case 2:
+//                    return new PictureFragment();
             }
             return null;
         }

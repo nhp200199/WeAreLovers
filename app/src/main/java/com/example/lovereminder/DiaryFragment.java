@@ -1,14 +1,17 @@
 package com.example.lovereminder;
 
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,9 +19,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +56,7 @@ public class DiaryFragment extends Fragment {
     private RecyclerView rcvDiaries;
     private TextView tvNothing;
     private FloatingActionButton fabAddDiary;
+    private androidx.appcompat.widget.SearchView svDiary;
 
     private DiaryDao mDiaryDao;
     private FragmentDiaryBinding binding;
@@ -60,6 +68,7 @@ public class DiaryFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mDiaryDao = AppDatabase.getInstance(requireContext()).getDiaryDao();
+        setHasOptionsMenu(true);
         Log.d("Tag", "Dia Frag created");
         super.onCreate(savedInstanceState);
     }
@@ -190,5 +199,33 @@ public class DiaryFragment extends Fragment {
                             }
                         },
                         error -> error.printStackTrace());
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull @NotNull Menu menu, @NonNull @NotNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search_diary, menu);
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) requireActivity().getSystemService(Context.SEARCH_SERVICE);
+        svDiary = (SearchView) menu.findItem(R.id.action_search_diary).getActionView();
+        svDiary.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().getComponentName()));
+        svDiary.setMaxWidth(Integer.MAX_VALUE);
+        //update the query in search view
+        svDiary.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+        //remove search icon
+        svDiary.setIconifiedByDefault(false);
+        svDiary.setIconified(false); // this is important to hide the search hint icon
+        ImageView icon = (ImageView) svDiary.findViewById(androidx.appcompat.R.id.search_mag_icon);
+//        icon.setVisibility(View.GONE);
+        icon.setImageDrawable(null);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search_diary:
+                return true;
+            default: return super.onOptionsItemSelected(item);
+        }
     }
 }

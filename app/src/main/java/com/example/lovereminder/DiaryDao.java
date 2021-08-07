@@ -32,4 +32,7 @@ public interface DiaryDao {
 //    LiveData<Diary> getDiaryById(int id);
 //    Observable<Diary> getDiaryById (int id);
     Single<Diary> getDiaryById(int id);
+
+    @Query("select * from diaries join diaries_fts on diaries_fts.content = diaries.content where diaries_fts match :query")
+    Single<List<Diary>> getDiariesBasedOnString(String query);
 }
