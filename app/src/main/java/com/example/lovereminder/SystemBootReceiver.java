@@ -5,15 +5,20 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.Calendar;
 
 public class SystemBootReceiver extends BroadcastReceiver {
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onReceive(Context context, Intent intent) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 9);
+        calendar.set(Calendar.MINUTE, 0);
 
         Intent intentForPending = new Intent(context, CoupleDateReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
@@ -22,9 +27,8 @@ public class SystemBootReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setInexactRepeating(AlarmManager.RTC,
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC,
                 calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY,
                 pendingIntent);
     }
 }

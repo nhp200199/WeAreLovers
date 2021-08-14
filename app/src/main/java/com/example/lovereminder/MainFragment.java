@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -262,6 +264,7 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void ApplyDateChange(String date) {
         Calendar calendar = Calendar.getInstance();
@@ -286,10 +289,12 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         changeAlarm();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void changeAlarm() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 9);
+        calendar.set(Calendar.MINUTE, 0);
 
         Intent intent = new Intent(requireActivity(), CoupleDateReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(requireActivity(),
@@ -298,9 +303,8 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC,
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC,
                 calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY,
                 pendingIntent);
     }
 }

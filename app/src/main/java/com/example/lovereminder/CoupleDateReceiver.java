@@ -1,12 +1,15 @@
 package com.example.lovereminder;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -32,8 +35,13 @@ public class CoupleDateReceiver extends BroadcastReceiver {
     private SharedPreferences mSharedPreferences;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.i("Receiver", "RECEIVED MESSAGE SCHEDULED FROM ALARM");
+        //reschedule the alarm
+        rescheduleAlarm(context);
+
         Calendar calendar = Calendar.getInstance();
         int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
         int currentMonth = calendar.get(Calendar.MONTH);
@@ -58,6 +66,26 @@ public class CoupleDateReceiver extends BroadcastReceiver {
             showNotification(context);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void rescheduleAlarm(Context context) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 9);
+        calendar.set(Calendar.MINUTE, 0);
+
+        Intent rescheduledIntent = new Intent(context, CoupleDateReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                0,
+                rescheduledIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC,
+                calendar.getTimeInMillis(),
+                pendingIntent);
+    }
+
     private void showNotification(Context context) {
         Intent intentActivity = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentActivity,0);
@@ -74,6 +102,7 @@ public class CoupleDateReceiver extends BroadcastReceiver {
 
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify(notificationId, builder.build());
+        Log.i("Receiver", "NOTIFICATION CREATED");
     }
 
     private String getRandomString(String[] listOfStrings) {

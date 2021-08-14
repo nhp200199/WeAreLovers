@@ -29,11 +29,13 @@ public class PictureViewModel extends AndroidViewModel {
         File file = new File(application.getExternalFilesDir(
                 Environment.DIRECTORY_PICTURES), PICTURES_FOLDER_NAME);
         File[] imagesFiles = file.listFiles();
-        for (File imagesFile : imagesFiles) {
-            imagesFile.listFiles();
-            Uri imageUri = Uri.fromFile(imagesFile);
-            Image image = new Image(imageUri, "");
-            imagesList.add(image);
+        if (imagesFiles != null) {
+            for (File imagesFile : imagesFiles) {
+                imagesFile.listFiles();
+                Uri imageUri = Uri.fromFile(imagesFile);
+                Image image = new Image(imageUri, "");
+                imagesList.add(image);
+            }
         }
         images = new MutableLiveData<List<Image>>(imagesList);
     }

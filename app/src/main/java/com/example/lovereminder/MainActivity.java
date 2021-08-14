@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
         @Override
         public Fragment getItem(int position) {
@@ -224,8 +224,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return mainFragment;
                 case 1:
                     return new DiaryFragment();
-//                case 2:
-//                    return new PictureFragment();
+                case 2:
+                    return new PictureFragment();
             }
             return null;
         }

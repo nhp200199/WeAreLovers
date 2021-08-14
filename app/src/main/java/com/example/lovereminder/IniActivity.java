@@ -1,5 +1,6 @@
 package com.example.lovereminder;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.Editable;
@@ -99,6 +101,7 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         edt_date.setOnClickListener(this);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void collectInfor() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("yourName", edt_yourName.getText().toString());
@@ -110,10 +113,12 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         setAlarm();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void setAlarm() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 9);
+        calendar.set(Calendar.MINUTE, 0);
 
         Intent intent = new Intent(this, CoupleDateReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
@@ -122,9 +127,8 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setInexactRepeating(AlarmManager.RTC,
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC,
                 calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY,
                 pendingIntent);
 
         //persist alarm when system restarts
@@ -136,6 +140,7 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
                 PackageManager.DONT_KILL_APP);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
