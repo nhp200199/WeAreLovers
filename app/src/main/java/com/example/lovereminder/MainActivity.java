@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -42,6 +43,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     public static final int REQ_CODE_CREATE_DIARY = 12;
+    private static final int TIME_TO_ACCEPT_CLOSE_APP = 5 * 1000;
 
     private int flag; //used to check exit
 
@@ -57,6 +59,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences sharedPreferences1;
+    private CustomCountDownTimer timer = new CustomCountDownTimer(TIME_TO_ACCEPT_CLOSE_APP, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            Log.d("TIMER", "Counting down: " + millisUntilFinished / 1000);
+            super.onTick(millisUntilFinished);
+        }
+
+        @Override
+        public void onFinish() {
+            Log.d("TIMER", "Finished");
+            super.onFinish();
+        }
+    };
 
     int height;
     int width;
@@ -81,23 +96,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         retrieveUserInfor();
 
         setUpViewPager();
-
-        String exampleString = "Feb 5, 2021 11:46:00";
-        String result = formatDateTimeStringToTime(exampleString);
-        Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
-        Log.d("MainActivity", result);
-    }
-
-    private String formatDateTimeStringToTime(String exampleString) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");
-        SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
-        try {
-            Date parsedDateTime = sdf.parse(exampleString);
-            return sdf2.format(parsedDateTime);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 
     private void swipeViewPager(int position) {
@@ -233,10 +231,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        flag++;
-        if(flag != 2)
-            Toast.makeText(this, "Nhấn lần nữa để thoát", Toast.LENGTH_SHORT).show();
-        else super.onBackPressed();
+        if (timer.isFinished) {
+            timer.start();
+        } else {
+            if (flag == 1) {
+                timer.cancel();
+                super.onBackPressed();
+            }
+            else {
+                flag = 1;
+                Toast.makeText(this, "Nhấn lần nữa để thoát", Toast.LENGTH_SHORT).show();
+                timer.start();
+            }
+        }
+    }
 
+    private class CustomCountDownTimer extends CountDownTimer {
+        private boolean isFinished = false;
+
+        /**
+         * @param millisInFuture    The number of millis in the future from the call
+         *                          to {@link #start()} until the countdown is done and {@link #onFinish()}
+         *                          is called.
+         * @param countDownInterval The interval along the way to receive
+         *                          {@link #onTick(long)} callbacks.
+         */
+        public CustomCountDownTimer(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            isFinished = false;
+        }
+
+        @Override
+        public void onFinish() {
+            isFinished = true;
+        }
     }
 }
