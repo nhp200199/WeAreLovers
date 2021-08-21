@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -33,6 +34,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     int height;
     int width;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,14 +85,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d("Tag", "Created");
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        Toolbar toolbar = binding.toolbar.tb;
-        setSupportActionBar(toolbar);
+        mToolbar = binding.toolbar.tb;
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
+
+        Log.d("METRICS", "WIDTH: " + width);
+        Log.d("METRICS", "HEIGHT: " + height);
 
         connectViews(binding);
 
@@ -108,8 +114,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(sharedPreferences1.contains("picture"))
         {
+            Uri uri = Uri.parse(sharedPreferences1.getString("picture", null));
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            try {
+                BitmapFactory.decodeStream(
+                        getContentResolver().openInputStream(uri),
+                        null,
+                        options);
+
+                int imageHeight = options.outHeight;
+                int imageWidth = options.outWidth;
+
+                Log.d("RESULT METRICS", "WIDTH: " + imageWidth);
+                Log.d("RESULT METRICS", "HEIGHT: " + imageHeight);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
             Glide.with(this)
-                    .load(Uri.parse(sharedPreferences1.getString("picture", null)))
+                    .load(uri)
                     .into(img_background);
         }
 
@@ -167,8 +190,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 .setActivityTitle("My Crop")
                                 .setCropShape(CropImageView.CropShape.RECTANGLE)
                                 .setCropMenuCropButtonTitle("Done")
-                                .setAspectRatio(width,height)
+                                .setAspectRatio(width ,height - mToolbar.getHeight())
                                 .setFixAspectRatio(true)
+                                .setRequestedSize(width, height - mToolbar.getHeight(), CropImageView.RequestSizeOptions.RESIZE_EXACT)
                                 //.setFixAspectRatio(true)
                                 .start(MainActivity.this);
                         break;
@@ -184,7 +208,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // handle result of CropImageActivity
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
+//            mToolbar.setVisibility(View.GONE);
             if (resultCode == RESULT_OK) {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                try {
+                    BitmapFactory.decodeStream(
+                           getContentResolver().openInputStream(result.getUri()),
+                            null,
+                            options);
+
+                    int imageHeight = options.outHeight;
+                    int imageWidth = options.outWidth;
+
+                    Log.d("RESULT METRICS", "WIDTH: " + imageWidth);
+                    Log.d("RESULT METRICS", "HEIGHT: " + imageHeight);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
                 Glide.with(this)
                         .load(result.getUri())
                         .into(img_background);
