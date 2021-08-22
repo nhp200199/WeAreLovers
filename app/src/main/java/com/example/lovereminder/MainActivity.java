@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, MainFragment.SettingsListener{
     public static final int REQ_CODE_CREATE_DIARY = 12;
     private static final int TIME_TO_ACCEPT_CLOSE_APP = 5 * 1000;
 
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.tv_title:
-                showPopUpChangeBackGround();
+//                showPopUpChangeBackGround();
                 break;
         }
     }
@@ -240,6 +240,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onBackgroundImageChanged(Uri uri) {
+        Glide.with(this)
+                .load(uri)
+                .into(img_background);
+
+
+        SharedPreferences.Editor editor = sharedPreferences1.edit();
+        editor.putString("picture", uri.toString());
+        editor.apply();
     }
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {

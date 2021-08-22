@@ -6,12 +6,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -21,8 +26,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -30,6 +37,9 @@ import com.example.lovereminder.databinding.FragmentMainBinding;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -45,6 +55,9 @@ import static android.app.Activity.RESULT_OK;
  * A simple {@link Fragment} subclass.
  */
 public class MainFragment extends Fragment implements DialogFragment.Listener, View.OnClickListener, ChangeDateDialog.Listener {
+    interface SettingsListener{
+        void onBackgroundImageChanged(Uri uri);
+    }
     private int flag; // to distinguish you from your friend
     private TextView tv_yourName;
     private TextView tv_yourFrName;
@@ -57,6 +70,10 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
 
     private SharedPreferences sharedPreferences;
     private FragmentMainBinding binding;
+
+    int height;
+    int width;
+    private SettingsListener listener;
 
     public MainFragment() {
         // Required empty public constructor
@@ -94,12 +111,25 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     }
 
     @Override
+    public void onAttach(@NonNull @NotNull Context context) {
+        super.onAttach(context);
+        listener = (SettingsListener) context;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         binding = FragmentMainBinding.bind(v);
         connectViews(binding);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        height = displayMetrics.heightPixels;
+        width = displayMetrics.widthPixels;
+
+        setHasOptionsMenu(true);
 
         sharedPreferences = getActivity().getSharedPreferences("userInfor", Context.MODE_PRIVATE);
 
@@ -113,6 +143,28 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         iv_heart.startAnimation(zoomin);
 
         return v;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull @NotNull Menu menu, @NonNull @NotNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_settings, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_change_background:
+                flag = 2;
+                changePicture();
+                return true;
+            case R.id.action_change_date:
+                showPopUpChangeDate();
+                return true;
+            case R.id.action_change_theme:
+                return true;
+            default: return super.onOptionsItemSelected(item);
+        }
     }
 
     private void loadUserData(String bundleStrYourName, String bundleStrYourFrName, String bundleStrDays) {
@@ -231,12 +283,16 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     }
 
     private void changePicture() {
+        int actionBarHeight = ((AppCompatActivity)getActivity()).getSupportActionBar().getHeight();
+
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
                 .setActivityTitle("My Crop")
-                .setCropShape(CropImageView.CropShape.OVAL)
+                .setCropShape(CropImageView.CropShape.RECTANGLE)
                 .setCropMenuCropButtonTitle("Done")
-                .setRequestedSize(400, 400)
+                .setAspectRatio(width ,height - actionBarHeight)
+                .setFixAspectRatio(true)
+                .setRequestedSize(width, height - actionBarHeight, CropImageView.RequestSizeOptions.RESIZE_EXACT)
                 .start(getContext(), this);
     }
 
@@ -252,13 +308,34 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("yourImg", result.getUri().toString());
                     editor.apply();
-                } else {
+                } else if (flag == 1) {
                     civ_yourFrPicture.setImageURI(result.getUri());
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("yourFrImg", result.getUri().toString());
                     editor.apply();
+                } else if (flag == 2) {
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    try {
+                        BitmapFactory.decodeStream(
+                                getActivity().getContentResolver().openInputStream(result.getUri()),
+                                null,
+                                options);
+
+                        int imageHeight = options.outHeight;
+                        int imageWidth = options.outWidth;
+
+                        Log.d("RESULT METRICS", "WIDTH: " + imageWidth);
+                        Log.d("RESULT METRICS", "HEIGHT: " + imageHeight);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    if (listener != null) {
+                        listener.onBackgroundImageChanged(result.getUri());
+                    }
                 }
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+            }
+            else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Toast.makeText(getContext(), "Cropping failed: " + result.getError(), Toast.LENGTH_LONG).show();
             }
         }
