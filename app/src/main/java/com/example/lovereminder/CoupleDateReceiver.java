@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -64,6 +65,7 @@ public class CoupleDateReceiver extends BroadcastReceiver {
 
         if (currentDay == coupleDay - 1 && currentMonth != coupleMonth)
             showNotification(context);
+        else showNotification(context, "Not yet");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -94,6 +96,25 @@ public class CoupleDateReceiver extends BroadcastReceiver {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getRandomString(TITLES))
                 .setContentText(getRandomString(CONTENTS))
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(notificationId, builder.build());
+        Log.i("Receiver", "NOTIFICATION CREATED");
+    }
+
+    private void showNotification(Context context, String content) {
+        Intent intentActivity = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentActivity,0);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
+                BaseApplication.CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getRandomString(TITLES))
+                .setContentText(content)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true);
