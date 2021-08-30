@@ -54,7 +54,8 @@ import static android.app.Activity.RESULT_OK;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainFragment extends Fragment implements DialogFragment.Listener, View.OnClickListener, ChangeDateDialog.Listener {
+public class MainFragment extends Fragment implements DialogFragment.Listener, View.OnClickListener, ChangeDateDialog.Listener, ChangeThemeDialog.ThemeDialogListener {
+
     interface SettingsListener{
         void onBackgroundImageChanged(Uri uri);
     }
@@ -162,9 +163,16 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
                 showPopUpChangeDate();
                 return true;
             case R.id.action_change_theme:
+                showPopupChangeTheme();
                 return true;
             default: return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showPopupChangeTheme() {
+        ChangeThemeDialog changeDateDialog = new ChangeThemeDialog();
+        changeDateDialog.setTargetFragment(this, 123);
+        changeDateDialog.show(getFragmentManager(), "ChangeThemeDialog");
     }
 
     private void loadUserData(String bundleStrYourName, String bundleStrYourFrName, String bundleStrDays) {
@@ -383,5 +391,13 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC,
                 calendar.getTimeInMillis(),
                 pendingIntent);
+    }
+
+    @Override
+    public void onThemeDialogChanged(int themeId) {
+        SharedPreferences.Editor editor = getActivity().
+                getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
+                .edit();
+        editor.putInt("theme_color", themeId).apply();
     }
 }

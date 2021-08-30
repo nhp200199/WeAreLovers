@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chọn 1 trong các màu dưới đây"
+        android:layout_marginHorizontal="16dp"/>
+    
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rcvThemes"
+        android:layout_width="match_parent"
+        android:layout_margin="16dp"
+        tools:listitem="@layout/item_theme_color"
+        android:layout_height="wrap_content"/>
+</LinearLayout>

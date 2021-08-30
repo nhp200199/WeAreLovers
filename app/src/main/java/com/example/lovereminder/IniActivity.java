@@ -39,6 +39,7 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
     private Button btn_confirm;
 
     private SharedPreferences sharedPreferences;
+    private SharedPreferences userPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,10 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         connectViews(binding);
 
         sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE);
+        userPreferences = getSharedPreferences("user_preferences", MODE_PRIVATE);
+        userPreferences.edit()
+                .putInt("theme_color", R.color.colorPrimary)
+                .apply();
 
         btn_confirm.setEnabled(false);
         TextWatcher textWatcher = new TextWatcher() {
