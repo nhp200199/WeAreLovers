@@ -47,7 +47,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CreateDiaryActivity extends AppCompatActivity implements View.OnClickListener{
+public class CreateDiaryActivity extends BaseActivity implements View.OnClickListener{
     private Button btnSave;
     private EditText edt_diary;
     private ImageView img_background;
@@ -60,6 +60,7 @@ public class CreateDiaryActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme();
         ActivityCreateDiaryBinding binding = ActivityCreateDiaryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

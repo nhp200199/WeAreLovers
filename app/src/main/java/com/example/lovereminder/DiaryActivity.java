@@ -34,7 +34,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class DiaryActivity extends AppCompatActivity{
+public class DiaryActivity extends BaseActivity{
     private TextView tv_Date;
     private TextView tv_Content;
     private EditText edt_Content;
@@ -50,6 +50,7 @@ public class DiaryActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme();
         ActivityDiaryBinding binding = ActivityDiaryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mDiaryDao = AppDatabase.getInstance(this).getDiaryDao();
