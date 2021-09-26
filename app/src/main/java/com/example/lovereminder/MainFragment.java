@@ -395,9 +395,19 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
 
     @Override
     public void onThemeDialogChanged(int themeId) {
+        int newThemeId = 0;
+        switch (themeId) {
+            case R.color.colorPrimary:
+                newThemeId = R.style.AppTheme;
+                break;
+            case R.color.blue:
+                newThemeId = R.style.AppTheme_Blue;
+                break;
+        }
         SharedPreferences.Editor editor = getActivity().
                 getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
                 .edit();
         editor.putInt("theme_color", themeId).apply();
+        ((BaseActivity)(getActivity())).switchTheme(newThemeId);
     }
 }

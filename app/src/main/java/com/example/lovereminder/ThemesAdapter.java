@@ -21,7 +21,6 @@ public class ThemesAdapter extends RecyclerView.Adapter<ThemesAdapter.ThemeViewH
     private Context mContext;
     private List<Integer> colorIntsList = Arrays.asList(
             R.color.colorPrimary,
-            R.color.colorAccent,
             R.color.blue
     );
     private SharedPreferences mSharedPreferences;

@@ -46,6 +46,7 @@ public class ChangeThemeDialog extends AppCompatDialogFragment {
                 .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        dismiss();
                         int themeId = adapter.getCurrentSelectedThemeId();
                         ((ThemeDialogListener) getTargetFragment()).onThemeDialogChanged(themeId);
                     }

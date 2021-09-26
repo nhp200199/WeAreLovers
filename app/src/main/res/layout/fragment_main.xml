@@ -55,7 +55,7 @@
                 android:layout_height="96dp"
                 android:src="@drawable/couple"
                 app:civ_border_width="2dp"
-                app:civ_border_color="#E75555"/>
+                app:civ_border_color="?attr/colorPrimary"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -98,7 +98,7 @@
                 android:layout_height="96dp"
                 android:src="@drawable/couple"
                 app:civ_border_width="2dp"
-                app:civ_border_color="#FFE75555"/>
+                app:civ_border_color="?attr/colorPrimary"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
