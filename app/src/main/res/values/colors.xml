@@ -6,4 +6,6 @@
     <color name="textColor">#FFFFFF</color>
     <color name="Grey">#c3c3c3 </color>
     <color name="blue">#2977E8</color>
+    <color name="blue_light">#4187EB</color>
+    <color name="blue_dark">#085FDC</color>
 </resources>

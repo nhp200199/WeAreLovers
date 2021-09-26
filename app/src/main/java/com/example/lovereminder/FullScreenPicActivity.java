@@ -27,7 +27,7 @@ import com.github.chrisbanes.photoview.PhotoView;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class FullScreenPicActivity extends AppCompatActivity {
+public class FullScreenPicActivity extends BaseActivity {
     private PhotoView iv_FullPic;
 
     private SharedPreferences sharedPreferences;
@@ -36,6 +36,7 @@ public class FullScreenPicActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme();
         setContentView(R.layout.activity_full_screen_pic);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

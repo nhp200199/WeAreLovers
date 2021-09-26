@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, MainFragment.SettingsListener{
+public class MainActivity extends BaseActivity implements View.OnClickListener, MainFragment.SettingsListener{
     public static final int REQ_CODE_CREATE_DIARY = 12;
     private static final int TIME_TO_ACCEPT_CLOSE_APP = 5 * 1000;
 
@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme();
         Log.d("Tag", "Created");
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

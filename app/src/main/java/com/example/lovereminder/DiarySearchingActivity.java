@@ -22,7 +22,7 @@ import java.util.List;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class DiarySearchingActivity extends AppCompatActivity {
+public class DiarySearchingActivity extends BaseActivity {
 
     private androidx.appcompat.widget.SearchView svDiary;
     private RecyclerView rvDiaries;
@@ -35,6 +35,7 @@ public class DiarySearchingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme();
         setContentView(R.layout.activity_diary_searching);
 
         mDiaryDao = AppDatabase.getInstance(this).getDiaryDao();
