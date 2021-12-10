@@ -124,6 +124,9 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 9);
         calendar.set(Calendar.MINUTE, 0);
+        if (calendar.before(Calendar.getInstance())) {
+            calendar.add(Calendar.DATE, 1);
+        }
 
         Intent intent = new Intent(this, CoupleDateReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
@@ -132,7 +135,7 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC,
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
                 calendar.getTimeInMillis(),
                 pendingIntent);
 

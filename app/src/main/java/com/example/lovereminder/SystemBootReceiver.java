@@ -19,6 +19,9 @@ public class SystemBootReceiver extends BroadcastReceiver {
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 9);
         calendar.set(Calendar.MINUTE, 0);
+        if (calendar.before(Calendar.getInstance())) {
+            calendar.add(Calendar.DATE, 1);
+        }
 
         Intent intentForPending = new Intent(context, CoupleDateReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
@@ -27,7 +30,7 @@ public class SystemBootReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC,
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
                 calendar.getTimeInMillis(),
                 pendingIntent);
     }
