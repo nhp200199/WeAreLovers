@@ -35,6 +35,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.lovereminder.databinding.ActivityMainBinding;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.material.tabs.TabLayout;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -63,6 +65,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private ImageView img_background;
     private TabLayout tb_swipe;
     private Menu menu;
+    private AdView adView;
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences sharedPreferences1;
@@ -112,6 +115,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isIgnoringBatteryOptimizations()) {
             openIgnoreBatteryOptimizationSettings();
         }
+
+        setupAdView();
+    }
+
+    private void setupAdView() {
+        // Create an ad request.
+        AdRequest adRequest = new AdRequest.Builder()
+                .build();
+
+        // Start loading the ad in the background.
+        adView.loadAd(adRequest);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -194,6 +208,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         tv_title = binding.toolbar.tvTitle;
         tb_swipe = binding.tlSwipe;
         pager = binding.pager;
+        adView = binding.adView;
 
         tv_title.setOnClickListener(this);
     }
@@ -211,6 +226,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         super.onResume();
         if(getIntent().hasExtra("position"))
             swipeViewPager(getIntent().getIntExtra("position", 0));
+
+        if (adView != null) {
+            adView.resume();
+        }
     }
 
     private void showPopUpChangeBackGround() {
@@ -276,6 +295,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (adView != null) {
+            adView.pause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (adView != null) {
+            adView.destroy();
+        }
     }
 
     @Override
