@@ -33,6 +33,7 @@ public class CoupleDateReceiver extends BroadcastReceiver {
         "Tèn ten, thêm 1 tháng là thêm tình cảm nồng nàn nhé!",
             "Chúc mừng chúc mừng, tình cảm lứa đôi mãnh liệt như 2 bạn thật đáng nể"
     };
+    private static final String TAG = CoupleDateReceiver.class.getSimpleName();
     private int notificationId;
     private SharedPreferences mSharedPreferences;
 
@@ -72,10 +73,11 @@ public class CoupleDateReceiver extends BroadcastReceiver {
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void rescheduleAlarm(Context context) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + 1);
         calendar.set(Calendar.HOUR_OF_DAY, 9);
         calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Log.i(TAG, String.format("Couple date has been recycled. Next alarm at: %d", calendar.getTimeInMillis()));
 
         Intent rescheduledIntent = new Intent(context, CoupleDateReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,

@@ -1,6 +1,7 @@
 package com.example.lovereminder;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -10,14 +11,18 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -103,6 +108,36 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         retrieveUserInfor();
 
         setUpViewPager();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isIgnoringBatteryOptimizations()) {
+            openIgnoreBatteryOptimizationSettings();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean isIgnoringBatteryOptimizations(Context context) {
+        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        if (powerManager != null) {
+            return powerManager.isIgnoringBatteryOptimizations(context.getPackageName());
+        }
+        return false;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean isIgnoringBatteryOptimizations() {
+        return isIgnoringBatteryOptimizations(this);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void openIgnoreBatteryOptimizationSettings() {
+        try {
+            Toast.makeText(getApplicationContext(), "Battery optimization -> All apps -> mCare Lite -> Don't optimize", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void swipeViewPager(int position) {

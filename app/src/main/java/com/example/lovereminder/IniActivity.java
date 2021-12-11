@@ -33,6 +33,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class IniActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final String TAG = IniActivity.class.getSimpleName();
     private EditText edt_yourName;
     private EditText edt_yourFrName;
     private TextView edt_date;
@@ -121,12 +122,13 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void setAlarm() {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 9);
         calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
         if (calendar.before(Calendar.getInstance())) {
             calendar.add(Calendar.DATE, 1);
         }
+        Log.i(TAG, String.format("Couple date has been set. Next alarm at: %d", calendar.getTimeInMillis()));
 
         Intent intent = new Intent(this, CoupleDateReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
