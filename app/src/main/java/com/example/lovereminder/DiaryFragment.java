@@ -60,6 +60,7 @@ public class DiaryFragment extends Fragment {
 
     private DiaryDao mDiaryDao;
     private FragmentDiaryBinding binding;
+    private Disposable mGetAllDiaryDisposable;
 
     public DiaryFragment() {
         // Required empty public constructor
@@ -184,7 +185,7 @@ public class DiaryFragment extends Fragment {
 //            }
 //        });
 
-        mDiaryDao.getAllDiaries()
+        mGetAllDiaryDisposable = mDiaryDao.getAllDiaries()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(diaries -> {
@@ -198,7 +199,7 @@ public class DiaryFragment extends Fragment {
                                 adapter.submitList(diaries);
                             }
                         },
-                        error -> error.printStackTrace());
+                        error -> Log.e(TAG, error.getMessage()));
     }
 
     @Override
@@ -227,5 +228,12 @@ public class DiaryFragment extends Fragment {
                 return true;
             default: return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mGetAllDiaryDisposable != null)
+            mGetAllDiaryDisposable.dispose();
     }
 }

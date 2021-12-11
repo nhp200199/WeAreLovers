@@ -52,7 +52,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan">
 
             <!-- enable the search dialog to send searches to SearchableActivity -->
             <meta-data android:name="android.app.default_searchable"
