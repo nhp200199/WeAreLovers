@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.lovereminder">
+    package="com.phucnguyen.lovereminder">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:name=".BaseApplication"
+        android:name="com.phucnguyen.lovereminder.BaseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,7 +16,7 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>
-        <activity android:name=".DiarySearchingActivity"
+        <activity android:name="com.phucnguyen.lovereminder.DiarySearchingActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
@@ -26,11 +26,11 @@
         </activity>
 
         <receiver
-            android:name=".CoupleDateReceiver"
+            android:name="com.phucnguyen.lovereminder.CoupleDateReceiver"
             android:enabled="true"
             android:exported="false" />
         <receiver
-            android:name=".SystemBootReceiver"
+            android:name="com.phucnguyen.lovereminder.SystemBootReceiver"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -38,20 +38,20 @@
         </receiver>
 
         <activity
-            android:name=".FullScreenPicActivity"
-            android:parentActivityName=".MainActivity"
+            android:name="com.phucnguyen.lovereminder.FullScreenPicActivity"
+            android:parentActivityName="com.phucnguyen.lovereminder.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".DiaryActivity"
-            android:parentActivityName=".MainActivity"
+            android:name="com.phucnguyen.lovereminder.DiaryActivity"
+            android:parentActivityName="com.phucnguyen.lovereminder.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".CreateDiaryActivity"
-            android:parentActivityName=".MainActivity"
+            android:name="com.phucnguyen.lovereminder.CreateDiaryActivity"
+            android:parentActivityName="com.phucnguyen.lovereminder.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.phucnguyen.lovereminder.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
 
@@ -60,10 +60,10 @@
                 android:value=".DiarySearchingActivity" />
         </activity>
         <activity
-            android:name=".IniActivity"
+            android:name="com.phucnguyen.lovereminder.IniActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".WelcomeScreen"
+            android:name="com.phucnguyen.lovereminder.WelcomeScreen"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
