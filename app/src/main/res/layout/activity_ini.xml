@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:padding="8dp"
     android:background="@drawable/bg_welcome"
-    tools:context=".IniActivity">
+    tools:context=".ui.activity.IniActivity">
     <TextView
         android:id="@+id/tv_yourName"
         android:layout_width="wrap_content"

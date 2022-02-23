@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
-    tools:context=".PictureFragment">
+    tools:context=".ui.fragment.PictureFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
