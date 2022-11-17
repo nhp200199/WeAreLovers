@@ -54,15 +54,13 @@
         android:fontFamily="sans-serif"
         android:text="Nhấn để chọn"
         android:layout_below="@id/tv_date"/>
+
     <Button
+        android:id="@+id/btn_confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btn_confirm"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:layout_centerHorizontal="true"
         android:layout_below="@+id/edt_date"
-        android:background="@drawable/btn_round"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
-        android:text="Xác nhận"/>
+        android:text="Xác nhận" />
 </RelativeLayout>
