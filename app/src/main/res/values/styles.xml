@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:fontFamily">@font/pacifico_family</item>
         <item name="buttonStyle">@style/MyButton</item>
+        <item name="editTextStyle">@style/MyEditText</item>
     </style>
 
 <!--    <style name="AppTheme." parent="Theme.AppCompat.Light.NoActionBar">-->
@@ -31,6 +32,10 @@
         <item name="android:paddingHorizontal">@dimen/button_padding_horizontal</item>
         <item name="android:paddingVertical">@dimen/button_padding_vertical</item>
         <item name="android:minWidth">@dimen/button_min_width</item>
+    </style>
+
+    <style name="MyEditText" parent="Widget.AppCompat.EditText">
+        <item name="fontFamily">sans-serif</item>
     </style>
 
 </resources>

@@ -13,4 +13,6 @@
     <string name="channel_description">đây là các thông báo nhắc nhở về thông tin ngày hẹn hò, dùng để bạn không bị bồ giận khi quên ngày quen nhau</string>
     <string name="search_hint">Tìm kiếm nhật kí</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="init_screen_date_hint">Nhấn để chọn</string>
+    <string name="init_screen_btn_confirm_txt">Xác nhận</string>
 </resources>

@@ -3,11 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Personal/WeAreLovers/app/src/main/res/drawable/bg_round_corner.xml" value="0.48026315789473684" />
         <entry key="..\:/Personal/WeAreLovers/app/src/main/res/layout/activity_create_diary.xml" value="0.490036231884058" />
-        <entry key="..\:/Personal/WeAreLovers/app/src/main/res/layout/activity_diary.xml" value="0.490036231884058" />
+        <entry key="..\:/Personal/WeAreLovers/app/src/main/res/layout/activity_diary.xml" value="0.5" />
         <entry key="..\:/Personal/WeAreLovers/app/src/main/res/layout/activity_diary_searching.xml" value="0.490036231884058" />
-        <entry key="..\:/Personal/WeAreLovers/app/src/main/res/layout/activity_ini.xml" value="0.490036231884058" />
-        <entry key="..\:/Personal/WeAreLovers/app/src/main/res/layout/activity_main.xml" value="0.490036231884058" />
+        <entry key="..\:/Personal/WeAreLovers/app/src/main/res/layout/activity_ini.xml" value="0.25" />
+        <entry key="..\:/Personal/WeAreLovers/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/Personal/WeAreLovers/app/src/main/res/layout/toolbar.xml" value="0.4666666666666667" />
       </map>
     </option>
   </component>

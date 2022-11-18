@@ -4,4 +4,8 @@
     <dimen name="button_padding_horizontal">8dp</dimen>
     <dimen name="button_padding_vertical">8dp</dimen>
 
+    <dimen name="default_screen_horizontal_padding">8dp</dimen>
+    <dimen name="default_screen_vertical_padding">8dp</dimen>
+
+    <dimen name="default_corner_radius">16dp</dimen>
 </resources>
