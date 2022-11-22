@@ -15,4 +15,7 @@
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="init_screen_date_hint">Nhấn để chọn</string>
     <string name="init_screen_btn_confirm_txt">Xác nhận</string>
+    <string name="main_frag_main_txt">Mình đã quen nhau được ...</string>
+    <string name="main_frag_days_txt">Days</string>
+    <string name="frag_diary_txt_no_diary">Chưa có nhật kí</string>
 </resources>

@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Chưa có nhật kí"
+        android:text="@string/frag_diary_txt_no_diary"
         android:textAlignment="center"
         android:textSize="24sp" />
 
@@ -33,7 +33,7 @@
         android:id="@+id/fabAddDiary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
+        android:layout_gravity="bottom|end"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="64dp"
         android:src="@drawable/ic_create_24px" />

@@ -8,11 +8,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Mình đã quen nhau được ..."
+        android:text="@string/main_frag_main_txt"
         android:textColor="@color/textColor"
         android:layout_gravity="center_horizontal"
-        android:textStyle="bold"
-        android:textSize="24sp"
+        android:textAppearance="@style/MyHeadline6.Bold"
         android:layout_marginTop="25dp"
         />
     <LinearLayout
@@ -25,15 +24,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="56sp"
-            android:id="@+id/tv_day_count"
-            android:text="this is Text"/>
+            android:textAppearance="@style/MyHeadline3.Bold"
+            android:id="@+id/tv_day_count" />
         <TextView
             android:layout_marginLeft="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="36sp"
-            android:text="Days"/>
+            android:textAppearance="@style/MyHeadline5.Bold"
+            android:text="@string/main_frag_days_txt"/>
 
     </LinearLayout>
 
@@ -60,13 +58,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@id/tv_yourName"
-                android:background="@drawable/edt_round"
-                android:padding="8dp"
-                android:maxWidth="100dp"
-                android:maxLines="1"
-                android:ellipsize="end"
+                style="@style/SingleLineRoundBackground"
                 android:layout_marginTop="10dp"
-                android:layout_gravity="center_horizontal"
                 android:text="sample Text"/>
         </LinearLayout>
 
@@ -103,13 +96,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@id/tv_yourFrName"
-                android:background="@drawable/edt_round"
-                android:padding="8dp"
-                android:maxWidth="100dp"
-                android:maxLines="1"
-                android:ellipsize="end"
+                style="@style/SingleLineRoundBackground"
                 android:layout_marginTop="10dp"
-                android:layout_gravity="center_horizontal"
                 android:text="sample Text"/>
         </LinearLayout>
     </LinearLayout>

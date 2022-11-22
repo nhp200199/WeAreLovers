@@ -32,15 +32,15 @@ public class WelcomeScreen extends AppCompatActivity {
             public void run() {
                 try {
                     sleep(3000);
-                    Intent intent = new Intent(getApplicationContext(), IniActivity.class);
-                    startActivity(intent);
-//                    if (sharedPreferences.getString("yourName", "") == "") {
-//                        Intent intent = new Intent(getApplicationContext(), IniActivity.class);
-//                        startActivity(intent);
-//                    } else {
-//                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//                        startActivity(intent);
-//                    }
+//                    Intent intent = new Intent(getApplicationContext(), IniActivity.class);
+//                    startActivity(intent);
+                    if (sharedPreferences.getString("yourName", "") == "") {
+                        Intent intent = new Intent(getApplicationContext(), IniActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
+                    }
                     finish();
                     super.run();
                 } catch (InterruptedException e) {
