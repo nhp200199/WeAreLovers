@@ -27,7 +27,7 @@
         android:layout_gravity="center"
         android:text="@string/frag_diary_txt_no_diary"
         android:textAlignment="center"
-        android:textSize="24sp" />
+        android:textAppearance="@style/MyHeadline5.Bold" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddDiary"
