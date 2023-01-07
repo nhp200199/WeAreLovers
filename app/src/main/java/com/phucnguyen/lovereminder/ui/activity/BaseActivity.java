@@ -11,7 +11,7 @@ import com.phucnguyen.lovereminder.R;
 public class BaseActivity extends AppCompatActivity {
     private static final String PREF_USER_SETTINGS = "user_prefs";
     public static final String FIELD_THEME = "theme_id";
-    private int mCurrentThemeId = R.style.AppTheme;
+    private int mCurrentThemeId = R.style.AppThemeBase_Rose;
     private SharedPreferences mSharedPref;
 
     @Override

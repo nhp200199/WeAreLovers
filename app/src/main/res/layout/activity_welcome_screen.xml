@@ -14,7 +14,7 @@
         android:layout_centerInParent="true"
         android:fontFamily="@font/pacifico"
         android:text="@string/welcome"
-        android:textColor="@color/textColor"
+        android:textColor="@color/white"
         android:textSize="24sp"
         android:textStyle="normal" />
 

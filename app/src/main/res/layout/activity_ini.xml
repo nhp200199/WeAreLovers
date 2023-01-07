@@ -39,7 +39,7 @@
             android:id="@+id/tv_yourName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/textColor"
+            android:textColor="@color/white"
             android:text="@string/your_name"
             />
         <EditText
@@ -50,7 +50,7 @@
         <TextView
             android:id="@+id/tv_yourFrName"
             android:layout_width="wrap_content"
-            android:textColor="@color/textColor"
+            android:textColor="@color/white"
             android:layout_height="wrap_content"
             android:text="@string/your_friend_name"
             />
@@ -63,7 +63,7 @@
             android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/textColor"
+            android:textColor="@color/white"
             android:text="@string/date"
             />
 

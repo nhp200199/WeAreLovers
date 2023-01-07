@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_frag_main_txt"
-        android:textColor="@color/textColor"
+        android:textColor="@color/white"
         android:layout_gravity="center_horizontal"
         android:textAppearance="@style/MyHeadline6.Bold"
         android:layout_marginTop="25dp"

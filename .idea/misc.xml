@@ -3,8 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Phuc_CNTT/MyPetProject/AppLoveReminder/AppSource/app/src/main/res/layout/activity_main.xml" value="0.2293159609120521" />
+        <entry key="..\:/Phuc_CNTT/MyPetProject/AppLoveReminder/AppSource/app/src/main/res/drawable/heart_shape.xml" value="0.1945" />
+        <entry key="..\:/Phuc_CNTT/MyPetProject/AppLoveReminder/AppSource/app/src/main/res/drawable/tab_indicator_selected.xml" value="0.1945" />
+        <entry key="..\:/Phuc_CNTT/MyPetProject/AppLoveReminder/AppSource/app/src/main/res/drawable/tab_selector.xml" value="0.1945" />
+        <entry key="..\:/Phuc_CNTT/MyPetProject/AppLoveReminder/AppSource/app/src/main/res/layout/activity_create_diary.xml" value="0.11661237785016286" />
+        <entry key="..\:/Phuc_CNTT/MyPetProject/AppLoveReminder/AppSource/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/Phuc_CNTT/MyPetProject/AppLoveReminder/AppSource/app/src/main/res/layout/fragment_diary.xml" value="0.12121212121212122" />
+        <entry key="..\:/Phuc_CNTT/MyPetProject/AppLoveReminder/AppSource/app/src/main/res/layout/fragment_main.xml" value="0.11661237785016286" />
         <entry key="..\:/Phuc_CNTT/MyPetProject/AppLoveReminder/AppSource/app/src/main/res/layout/fragment_picture.xml" value="0.11661237785016286" />
       </map>
     </option>

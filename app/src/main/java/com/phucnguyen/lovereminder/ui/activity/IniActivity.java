@@ -54,7 +54,7 @@ public class IniActivity extends AppCompatActivity implements View.OnClickListen
         sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE);
         userPreferences = getSharedPreferences("user_preferences", MODE_PRIVATE);
         userPreferences.edit()
-                .putInt("theme_color", R.color.colorPrimary)
+                .putInt("theme_color", R.color.amaranth)
                 .apply();
 
         btn_confirm.setEnabled(false);

@@ -1,15 +1,20 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeBase" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
         <item name="android:fontFamily">@font/pacifico_family</item>
+        <item name="android:textColor">@color/dove_gray_approx</item>
         <item name="buttonStyle">@style/MyButton</item>
         <item name="editTextStyle">@style/MyEditText</item>
-        <item name="android:textColor">@color/normal_text</item>
+    </style>
+
+    <style name="AppThemeBase.Rose">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/amaranth</item>
+        <item name="colorPrimaryDark">@color/razzmatazz</item>
+        <item name="colorAccent">@color/shiraz</item>
+        <item name="android:statusBarColor">@color/shiraz</item>
     </style>
 
 <!--    <style name="AppTheme." parent="Theme.AppCompat.Light.NoActionBar">-->
@@ -20,12 +25,12 @@
 <!--        <item name="android:fontFamily">@font/pacifico_family</item>-->
 <!--    </style>-->
 
-    <style name="AppTheme.Blue" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeBase.Blue">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/blue_light</item>
-        <item name="colorPrimaryDark">@color/blue</item>
-        <item name="colorAccent">@color/blue_dark</item>
-        <item name="android:fontFamily">@font/pacifico_family</item>
+        <item name="colorPrimary">@color/royal_blue_approx</item>
+        <item name="colorPrimaryDark">@color/royal_blue</item>
+        <item name="colorAccent">@color/science_blue_approx</item>
+        <item name="android:statusBarColor">@color/royal_blue</item>
     </style>
 
     <style name="MyButton" parent="@android:style/Widget.Button">
@@ -69,7 +74,7 @@
     </style>
 
     <style name="TextAppearance.MaterialComponents.Body2.MyBody2">
-        <item name="android:textColor">@color/normal_text</item>
+        <item name="android:textColor">@color/dove_gray_approx</item>
     </style>
 
     <style name="ToolbarText" parent="MyHeadline6">
@@ -79,7 +84,7 @@
 
 <!--    Action bar-->
     <style name="MyActionBarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:textColor">@color/action_bar_text_color</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 <!--    Action bar-->
 </resources>

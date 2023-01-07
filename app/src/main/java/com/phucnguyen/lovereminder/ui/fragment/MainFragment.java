@@ -393,11 +393,11 @@ public class MainFragment extends Fragment implements DialogFragment.Listener, V
     public void onThemeDialogChanged(int themeId) {
         int newThemeId = 0;
         switch (themeId) {
-            case R.color.colorPrimary:
-                newThemeId = R.style.AppTheme;
+            case R.color.amaranth:
+                newThemeId = R.style.AppThemeBase_Rose;
                 break;
-            case R.color.blue:
-                newThemeId = R.style.AppTheme_Blue;
+            case R.color.royal_blue:
+                newThemeId = R.style.AppThemeBase_Blue;
                 break;
         }
         SharedPreferences.Editor editor = getActivity().

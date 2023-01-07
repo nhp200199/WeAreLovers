@@ -21,8 +21,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ThemesAdapter extends RecyclerView.Adapter<ThemesAdapter.ThemeViewHolder> {
     private Context mContext;
     private List<Integer> colorIntsList = Arrays.asList(
-            R.color.colorPrimary,
-            R.color.blue
+            R.color.amaranth,
+            R.color.royal_blue
     );
     private SharedPreferences mSharedPreferences;
     private int currentSelectedThemeIdPosition;
