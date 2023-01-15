@@ -107,9 +107,7 @@ public class CreateDiaryActivity extends BaseActivity implements View.OnClickLis
         Calendar calendar = Calendar.getInstance();
         String content = edt_diary.getText().toString();
 
-        Diary diary = new Diary();
-        diary.setDate(calendar.getTimeInMillis());
-        diary.setContent(content);
+        Diary diary = new Diary(0, calendar.getTimeInMillis(), content);
 
 //        new InsertDiaryAsync(this, mDiaryDao).execute(diary);
         mDiaryDao.insertDiary(diary)
