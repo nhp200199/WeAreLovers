@@ -29,13 +29,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
-import com.phucnguyen.lovereminder.ui.dialog.ChangeDateDialog;
-import com.phucnguyen.lovereminder.ui.dialog.ChangeThemeDialog;
+import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeDateDialog;
+import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog;
 import com.phucnguyen.lovereminder.receiver.CoupleDateReceiver;
 import com.phucnguyen.lovereminder.R;
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding;
 import com.phucnguyen.lovereminder.ui.activity.BaseActivity;
-import com.phucnguyen.lovereminder.ui.dialog.DialogFragment;
+import com.phucnguyen.lovereminder.ui.fragment.dialog.DialogFragment;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 

@@ -1,49 +1,36 @@
-package com.phucnguyen.lovereminder.viewmodel;
+package com.phucnguyen.lovereminder.viewmodel
 
-import android.app.Application;
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.phucnguyen.lovereminder.database.AppDatabase.Companion.getInstance
+import com.phucnguyen.lovereminder.database.DiaryDao
+import com.phucnguyen.lovereminder.model.Diary
+import io.reactivex.Observable
+import io.reactivex.subjects.Subject
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+class DiaryViewModel(application: Application) : AndroidViewModel(application) {
+    private val mDiaryDao: DiaryDao
+    private val diaryId = MutableLiveData<Int>()
+    val diary: LiveData<Diary>? = null
+    private val diaryIdSubject: Subject<Int>? = null
+    private val currentDiaryObservable: Observable<Diary>? = null
 
-import com.phucnguyen.lovereminder.database.AppDatabase;
-import com.phucnguyen.lovereminder.database.DiaryDao;
-import com.phucnguyen.lovereminder.model.Diary;
-
-import org.jetbrains.annotations.NotNull;
-
-import io.reactivex.Observable;
-import io.reactivex.subjects.Subject;
-
-public class DiaryViewModel extends AndroidViewModel {
-    private DiaryDao mDiaryDao;
-    private MutableLiveData<Integer> diaryId = new MutableLiveData<>();
-    private LiveData<Diary> diary;
-    private Subject<Integer> diaryIdSubject;
-    private Observable<Diary> currentDiaryObservable;
-
-    public DiaryViewModel(@NonNull @NotNull Application application) {
-        super(application);
-        mDiaryDao = AppDatabase.getInstance(application).getDiaryDao();
+    init {
+        mDiaryDao = getInstance(application).diaryDao
         //diary = Transformations.switchMap(diaryId, id -> mDiaryDao.getDiaryById(id));
 //        diaryIdSubject = BehaviorSubject.create();
 //        currentDiaryObservable = diaryIdSubject.switchMap(id -> mDiaryDao.getDiaryById(id));
     }
 
-    public LiveData<Diary> getDiary() {
-        return diary;
-    }
-
-    public void setDiaryId(int diaryId) {
-        this.diaryId.setValue(diaryId);
-    }
-
-//    public void setCurrentDiaryId(int diaryId) {
-//        diaryIdSubject.onNext(diaryId);
-//    }
-//
-//    public Observable<Diary> getCurrentDiaryObservable() {
-//        return currentDiaryObservable;
-//    }
+    fun setDiaryId(diaryId: Int) {
+        this.diaryId.value = diaryId
+    } //    public void setCurrentDiaryId(int diaryId) {
+    //        diaryIdSubject.onNext(diaryId);
+    //    }
+    //
+    //    public Observable<Diary> getCurrentDiaryObservable() {
+    //        return currentDiaryObservable;
+    //    }
 }

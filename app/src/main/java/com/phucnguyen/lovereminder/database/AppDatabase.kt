@@ -10,7 +10,7 @@ import com.phucnguyen.lovereminder.model.Diary
 
 @Database(version = 3, entities = [Diary::class, DiaryFTS::class])
 abstract class AppDatabase : RoomDatabase() {
-    abstract val diaryDao: DiaryDao?
+    abstract val diaryDao: DiaryDao
 
     companion object {
         private var instance: AppDatabase? = null
