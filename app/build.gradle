@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 33
@@ -50,7 +51,9 @@ dependencies {
 
     def room_version = "2.4.3"
     implementation "androidx.room:room-runtime:$room_version"
-    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "android.arch.persistence.room:compiler:1.1.1"
+    kapt "androidx.room:room-compiler:$room_version"
+//    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
     // optional - RxJava2 support for Room
     implementation "androidx.room:room-rxjava2:$room_version"
     //https://github.com/ReactiveX/RxJava/tree/2.x

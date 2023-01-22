@@ -1,4 +1,4 @@
-package com.phucnguyen.lovereminder.ui.dialog;
+package com.phucnguyen.lovereminder.ui.fragment.dialog;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
