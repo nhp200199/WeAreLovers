@@ -1,51 +1,42 @@
-package com.phucnguyen.lovereminder.ui.activity;
+package com.phucnguyen.lovereminder.ui.activity
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity
+import android.content.SharedPreferences
+import android.os.Bundle
+import com.phucnguyen.lovereminder.R
+import android.widget.TextView
+import android.content.Intent
+import android.view.animation.AnimationUtils
+import com.phucnguyen.lovereminder.ui.activity.IniActivity
+import com.phucnguyen.lovereminder.ui.activity.MainActivity
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.TextView;
-
-import com.phucnguyen.lovereminder.R;
-import com.phucnguyen.lovereminder.ui.activity.IniActivity;
-import com.phucnguyen.lovereminder.ui.activity.MainActivity;
-
-public class WelcomeScreen extends AppCompatActivity {
-    private SharedPreferences sharedPreferences;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_welcome_screen);
-        sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE);
-
-        TextView tvWelcome = findViewById(R.id.tv_welcome);
-        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade);
-        tvWelcome.setAnimation(animation);
-
-        Thread timer = new Thread() {
-            @Override
-            public void run() {
+class WelcomeScreen : AppCompatActivity() {
+    private lateinit var sharedPreferences: SharedPreferences
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_welcome_screen)
+        sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE)
+        val tvWelcome = findViewById<TextView>(R.id.tv_welcome)
+        val animation = AnimationUtils.loadAnimation(applicationContext, R.anim.fade)
+        tvWelcome.animation = animation
+        val timer: Thread = object : Thread() {
+            override fun run() {
                 try {
-                    sleep(3000);
-                    if (sharedPreferences.getString("yourName", "") == "") {
-                        Intent intent = new Intent(getApplicationContext(), IniActivity.class);
-                        startActivity(intent);
+                    sleep(3000)
+                    if (sharedPreferences.getString("yourName", "") === "") {
+                        val intent = Intent(applicationContext, IniActivity::class.java)
+                        startActivity(intent)
                     } else {
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intent);
+                        val intent = Intent(applicationContext, MainActivity::class.java)
+                        startActivity(intent)
                     }
-                    finish();
-                    super.run();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    finish()
+                    super.run()
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
                 }
             }
-        };
-        timer.start();
+        }
+        timer.start()
     }
 }

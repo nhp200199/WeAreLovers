@@ -1,190 +1,144 @@
-package com.phucnguyen.lovereminder.ui.activity;
+package com.phucnguyen.lovereminder.ui.activity
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
+import android.app.Activity
+import android.content.SharedPreferences
+import android.net.Uri
+import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.Toolbar
+import com.bumptech.glide.Glide
+import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.database.AppDatabase.Companion.getInstance
+import com.phucnguyen.lovereminder.database.DiaryDao
+import com.phucnguyen.lovereminder.databinding.ActivityCreateDiaryBinding
+import com.phucnguyen.lovereminder.model.Diary
+import io.reactivex.CompletableObserver
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import java.util.*
 
-import android.app.Activity;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.phucnguyen.lovereminder.database.AppDatabase;
-import com.phucnguyen.lovereminder.model.Diary;
-import com.phucnguyen.lovereminder.database.DiaryDao;
-import com.phucnguyen.lovereminder.R;
-import com.phucnguyen.lovereminder.databinding.ActivityCreateDiaryBinding;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Calendar;
-
-import io.reactivex.CompletableObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-
-public class CreateDiaryActivity extends BaseActivity implements View.OnClickListener{
-    private Button btnSave;
-    private EditText edt_diary;
-    private ImageView img_background;
-
-    private boolean isSaved = false;
-    private SharedPreferences sharedPreferences1;
-
-    private DiaryDao mDiaryDao;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setTheme();
-        ActivityCreateDiaryBinding binding = ActivityCreateDiaryBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(view -> onBackPressed());
-
-        btnSave = binding.btnSave;
-        edt_diary = binding.edtDiary;
-        img_background = binding.imgBackground;
-
-        sharedPreferences1 = getSharedPreferences("background", MODE_PRIVATE);
-
-        if(sharedPreferences1.contains("picture"))
-        {
+class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
+    private var btnSave: Button? = null
+    private var edt_diary: EditText? = null
+    private var img_background: ImageView? = null
+    private val isSaved = false
+    private lateinit var sharedPreferences1: SharedPreferences
+    private var mDiaryDao: DiaryDao? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setTheme()
+        val binding = ActivityCreateDiaryBinding.inflate(
+            layoutInflater
+        )
+        setContentView(binding.root)
+        val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
+        val actionBar = supportActionBar
+        actionBar!!.setDisplayShowTitleEnabled(false)
+        actionBar.setDisplayHomeAsUpEnabled(true)
+        toolbar.setNavigationOnClickListener { view: View? -> onBackPressed() }
+        btnSave = binding.btnSave
+        edt_diary = binding.edtDiary
+        img_background = binding.imgBackground
+        sharedPreferences1 = getSharedPreferences("background", MODE_PRIVATE)
+        if (sharedPreferences1.contains("picture")) {
             Glide.with(this)
-                    .load(Uri.parse(sharedPreferences1.getString("picture", null)))
-                    .into(img_background);
+                .load(Uri.parse(sharedPreferences1.getString("picture", null)))
+                .into(img_background!!)
         }
-
-        btnSave.setEnabled(false);
-        btnSave.setOnClickListener(this);
-
-        edt_diary.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+        btnSave!!.isEnabled = false
+        btnSave!!.setOnClickListener(this)
+        edt_diary!!.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                val string = edt_diary!!.text.toString().trim { it <= ' ' }
+                btnSave!!.isEnabled = !string.isEmpty()
             }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String string = edt_diary.getText().toString().trim();
-                btnSave.setEnabled(!string.isEmpty());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-        mDiaryDao = AppDatabase.getInstance(this).getDiaryDao();
+            override fun afterTextChanged(s: Editable) {}
+        })
+        mDiaryDao = getInstance(this).diaryDao
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.btn_save:
-                saveDiary();
-                break;
+    override fun onClick(v: View) {
+        when (v.id) {
+            R.id.btn_save -> saveDiary()
         }
     }
 
-    private void saveDiary() {
-        Calendar calendar = Calendar.getInstance();
-        String content = edt_diary.getText().toString();
-
-        Diary diary = new Diary(0, calendar.getTimeInMillis(), content);
+    private fun saveDiary() {
+        val calendar = Calendar.getInstance()
+        val content = edt_diary!!.text.toString()
+        val diary = Diary(0, calendar.timeInMillis, content)
 
 //        new InsertDiaryAsync(this, mDiaryDao).execute(diary);
-        mDiaryDao.insertDiary(diary)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CompletableObserver() {
-                    @Override
-                    public void onSubscribe(@NotNull Disposable d) {
+        mDiaryDao!!.insertDiary(diary)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onComplete() {
+                    Toast.makeText(this@CreateDiaryActivity, "Đã lưu", Toast.LENGTH_SHORT).show()
+                }
 
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Toast.makeText(CreateDiaryActivity.this, "Đã lưu", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onError(@NotNull Throwable e) {
-
-                    }
-                });
-        edt_diary.setText("");
-        hideKeyboard(this);
+                override fun onError(e: Throwable) {}
+            })
+        edt_diary!!.setText("")
+        hideKeyboard(this)
     }
 
-    @Override
-    public void onBackPressed() {
-        if(edt_diary.getText().toString().equals(""))
-            CreateDiaryActivity.super.onBackPressed();
-        else{
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    override fun onBackPressed() {
+        if (edt_diary!!.text.toString() == "") super@CreateDiaryActivity.onBackPressed() else {
+            val builder = AlertDialog.Builder(this)
             builder.setMessage("Chưa lưu đoạn nhật kí kìa ấy ơi. Bạn có muốn lưu lại không?")
-                    .setPositiveButton("Có", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            saveDiary();
-                        }
-                    })
-                    .setNegativeButton("Không", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                            finish();
-                        }
-                    });
-            AlertDialog alertDialog = builder.create();
-            alertDialog.show();
+                .setPositiveButton("Có") { dialog, which -> saveDiary() }
+                .setNegativeButton("Không") { dialog, which ->
+                    dialog.cancel()
+                    finish()
+                }
+            val alertDialog = builder.create()
+            alertDialog.show()
         }
     }
-    public static void hideKeyboard(Activity activity) {
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = activity.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null) {
-            view = new View(activity);
-        }
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+    companion object {
+        fun hideKeyboard(activity: Activity) {
+            val imm = activity.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            //Find the currently focused view, so we can grab the correct window token from it.
+            var view = activity.currentFocus
+            //If no view currently has focus, create a new one, just so we can grab a window token from it
+            if (view == null) {
+                view = View(activity)
+            }
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        } //    private static class InsertDiaryAsync extends AsyncTask<Diary, Void, Void>{
+        //        private DiaryDao mDiaryDao;
+        //        private Context context;
+        //
+        //        public InsertDiaryAsync(Context context, DiaryDao diaryDao) {
+        //            mDiaryDao = diaryDao;
+        //            this.context = context;
+        //        }
+        //
+        //        @Override
+        //        protected Void doInBackground(Diary... diaries) {
+        //            return mDiaryDao.insertDiary(diaries[0]);
+        //        }
+        //
+        //        @Override
+        //        protected void onPostExecute(Void unused) {
+        //            super.onPostExecute(unused);
+        //            Toast.makeText(context, "Đã lưu", Toast.LENGTH_SHORT).show();
+        //        }
+        //    }
     }
-//    private static class InsertDiaryAsync extends AsyncTask<Diary, Void, Void>{
-//        private DiaryDao mDiaryDao;
-//        private Context context;
-//
-//        public InsertDiaryAsync(Context context, DiaryDao diaryDao) {
-//            mDiaryDao = diaryDao;
-//            this.context = context;
-//        }
-//
-//        @Override
-//        protected Void doInBackground(Diary... diaries) {
-//            return mDiaryDao.insertDiary(diaries[0]);
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Void unused) {
-//            super.onPostExecute(unused);
-//            Toast.makeText(context, "Đã lưu", Toast.LENGTH_SHORT).show();
-//        }
-//    }
 }

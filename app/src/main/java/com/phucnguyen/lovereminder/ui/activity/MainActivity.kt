@@ -1,223 +1,202 @@
-package com.phucnguyen.lovereminder.ui.activity;
+package com.phucnguyen.lovereminder.ui.activity
 
-import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.CountDownTimer
+import android.os.PowerManager
+import android.provider.Settings
+import android.util.Log
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import com.bumptech.glide.Glide
+import com.google.android.gms.ads.AdRequest
+import com.phucnguyen.lovereminder.databinding.ActivityMainBinding
+import com.phucnguyen.lovereminder.ui.fragment.DiaryFragment
+import com.phucnguyen.lovereminder.ui.fragment.MainFragment
+import com.phucnguyen.lovereminder.ui.fragment.MainFragment.SettingsListener
+import com.phucnguyen.lovereminder.ui.fragment.PictureFragment
+import java.io.FileNotFoundException
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.PowerManager;
-import android.provider.Settings;
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.phucnguyen.lovereminder.ui.fragment.DiaryFragment;
-import com.phucnguyen.lovereminder.ui.fragment.MainFragment;
-import com.phucnguyen.lovereminder.ui.fragment.PictureFragment;
-import com.phucnguyen.lovereminder.databinding.ActivityMainBinding;
-import com.google.android.gms.ads.AdRequest;
-
-import java.io.FileNotFoundException;
-
-public class MainActivity extends BaseActivity implements MainFragment.SettingsListener {
-    private static final int TIME_TO_ACCEPT_CLOSE_APP = 5 * 1000;
-    public static final int COUNT_DOWN_INTERVAL = 200;
-
-    private int flag; //used to check exit
-
-    private SharedPreferences sharedPreferences;
-    private CountDownTimer timer;
-
-    private ActivityMainBinding mBinding;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setTheme();
-        Log.d("Tag", "Created");
-        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(mBinding.getRoot());
-        setSupportActionBar(mBinding.toolbar.tb);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        retrieveUserInfor();
-
-        setUpViewPager();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isIgnoringBatteryOptimizations()) {
-            openIgnoreBatteryOptimizationSettings();
+class MainActivity : BaseActivity(), SettingsListener {
+    private var flag //used to check exit
+            = 0
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var timer: CountDownTimer
+    private var mBinding: ActivityMainBinding? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setTheme()
+        Log.d("Tag", "Created")
+        mBinding = ActivityMainBinding.inflate(
+            layoutInflater
+        )
+        setContentView(mBinding!!.root)
+        setSupportActionBar(mBinding!!.toolbar.tb)
+        supportActionBar!!.setDisplayShowTitleEnabled(false)
+        retrieveUserInfor()
+        setUpViewPager()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isIgnoringBatteryOptimizations) {
+            openIgnoreBatteryOptimizationSettings()
         }
-
-        setupAdView();
+        setupAdView()
     }
 
-    private void setupAdView() {
+    private fun setupAdView() {
         // Create an ad request.
-        AdRequest adRequest = new AdRequest.Builder()
-                .build();
+        val adRequest = AdRequest.Builder()
+            .build()
 
         // Start loading the ad in the background.
-        mBinding.adView.loadAd(adRequest);
+        mBinding!!.adView.loadAd(adRequest)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean isIgnoringBatteryOptimizations(Context context) {
-        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        if (powerManager != null) {
-            return powerManager.isIgnoringBatteryOptimizations(context.getPackageName());
-        }
-        return false;
+    private fun isIgnoringBatteryOptimizations(context: Context): Boolean {
+        val powerManager = context.getSystemService(POWER_SERVICE) as PowerManager
+        return powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean isIgnoringBatteryOptimizations() {
-        return isIgnoringBatteryOptimizations(this);
-    }
+    @get:RequiresApi(api = Build.VERSION_CODES.M)
+    private val isIgnoringBatteryOptimizations: Boolean
+        private get() = isIgnoringBatteryOptimizations(this)
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private void openIgnoreBatteryOptimizationSettings() {
+    private fun openIgnoreBatteryOptimizationSettings() {
         try {
-            Toast.makeText(getApplicationContext(), "Battery optimization -> All apps -> mCare Lite -> Don't optimize", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent();
-            intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-            startActivity(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
+            Toast.makeText(
+                applicationContext,
+                "Battery optimization -> All apps -> mCare Lite -> Don't optimize",
+                Toast.LENGTH_LONG
+            ).show()
+            val intent = Intent()
+            intent.action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
-    private void swipeViewPager(int position) {
-        mBinding.pager.setCurrentItem(position);
+    private fun swipeViewPager(position: Int) {
+        mBinding!!.pager.currentItem = position
     }
 
-    private void retrieveUserInfor() {
-        sharedPreferences = getSharedPreferences("background", MODE_PRIVATE);
-        sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE);
-
-        if(sharedPreferences.contains("picture"))
-        {
-            Uri uri = Uri.parse(sharedPreferences.getString("picture", null));
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
+    private fun retrieveUserInfor() {
+        sharedPreferences = getSharedPreferences("background", MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE)
+        if (sharedPreferences.contains("picture")) {
+            val uri = Uri.parse(sharedPreferences.getString("picture", null))
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
             try {
                 BitmapFactory.decodeStream(
-                        getContentResolver().openInputStream(uri),
-                        null,
-                        options);
-
-                int imageHeight = options.outHeight;
-                int imageWidth = options.outWidth;
-
-                Log.d("RESULT METRICS", "WIDTH: " + imageWidth);
-                Log.d("RESULT METRICS", "HEIGHT: " + imageHeight);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                    contentResolver.openInputStream(uri),
+                    null,
+                    options
+                )
+                val imageHeight = options.outHeight
+                val imageWidth = options.outWidth
+                Log.d("RESULT METRICS", "WIDTH: $imageWidth")
+                Log.d("RESULT METRICS", "HEIGHT: $imageHeight")
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
             }
             Glide.with(this)
-                    .load(uri)
-                    .into(mBinding.imgBackground);
+                .load(uri)
+                .into(mBinding!!.imgBackground)
         }
     }
 
-    private void setUpViewPager() {
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        mBinding.pager.setAdapter(sectionsPagerAdapter);
-        mBinding.tlSwipe.setupWithViewPager(mBinding.pager);
+    private fun setUpViewPager() {
+        val sectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+        mBinding!!.pager.adapter = sectionsPagerAdapter
+        mBinding!!.tlSwipe.setupWithViewPager(mBinding!!.pager)
 
         //disable click on tab layout
-        for (View v : mBinding.tlSwipe.getTouchables()) {
-            v.setEnabled(false);
+        for (v in mBinding!!.tlSwipe.touchables) {
+            v.isEnabled = false
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if(getIntent().hasExtra("position"))
-            swipeViewPager(getIntent().getIntExtra("position", 0));
-
-        mBinding.adView.resume();
+    public override fun onResume() {
+        super.onResume()
+        if (intent.hasExtra("position")) swipeViewPager(intent.getIntExtra("position", 0))
+        mBinding!!.adView.resume()
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mBinding.adView.pause();
+    override fun onPause() {
+        super.onPause()
+        mBinding!!.adView.pause()
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mBinding.adView.destroy();
+    override fun onDestroy() {
+        super.onDestroy()
+        mBinding!!.adView.destroy()
     }
 
-    @Override
-    public void onBackgroundImageChanged(Uri uri) {
+    override fun onBackgroundImageChanged(uri: Uri) {
         Glide.with(this)
-                .load(uri)
-                .into(mBinding.imgBackground);
-
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("picture", uri.toString());
-        editor.apply();
+            .load(uri)
+            .into(mBinding!!.imgBackground)
+        val editor = sharedPreferences!!.edit()
+        editor.putString("picture", uri.toString())
+        editor.apply()
     }
 
-    private class SectionsPagerAdapter extends FragmentPagerAdapter {
-        private static final int NUMBER_OF_PAGES = 3;
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
+    private class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(
+        fm!!
+    ) {
+        override fun getCount(): Int {
+            return Companion.NUMBER_OF_PAGES
         }
-        @Override
-        public int getCount() {
-            return NUMBER_OF_PAGES;
-        }
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case 1:
-                    return new DiaryFragment();
-                case 2:
-                    return new PictureFragment();
-                default:
-                    return new MainFragment();
+
+        override fun getItem(position: Int): Fragment {
+            return when (position) {
+                1 -> DiaryFragment()
+                2 -> PictureFragment()
+                else -> MainFragment()
             }
         }
-    }
 
-    @Override
-    public void onBackPressed() {
-        if (flag == 0) {
-            configureTimerToExitApp();
-            Toast.makeText(this, "Nhấn lần nữa để thoát", Toast.LENGTH_SHORT).show();
+        companion object {
+            private const val NUMBER_OF_PAGES = 3
         }
-        flag++;
     }
 
-    private void configureTimerToExitApp() {
-        timer = new CountDownTimer(TIME_TO_ACCEPT_CLOSE_APP, COUNT_DOWN_INTERVAL) {
-            @Override
-            public void onTick(long millisUntilFinished) {
+    override fun onBackPressed() {
+        if (flag == 0) {
+            configureTimerToExitApp()
+            Toast.makeText(this, "Nhấn lần nữa để thoát", Toast.LENGTH_SHORT).show()
+        }
+        flag++
+    }
+
+    private fun configureTimerToExitApp() {
+        timer = object :
+            CountDownTimer(TIME_TO_ACCEPT_CLOSE_APP.toLong(), COUNT_DOWN_INTERVAL.toLong()) {
+            override fun onTick(millisUntilFinished: Long) {
                 if (flag == 2) {
-                    this.cancel();
-                    finish();
+                    cancel()
+                    finish()
                 }
             }
 
-            @Override
-            public void onFinish() {
-                flag = 0;
+            override fun onFinish() {
+                flag = 0
             }
-        };
-        timer.start();
+        }
+        timer.start()
+    }
+
+    companion object {
+        private const val TIME_TO_ACCEPT_CLOSE_APP = 5 * 1000
+        const val COUNT_DOWN_INTERVAL = 200
     }
 }
