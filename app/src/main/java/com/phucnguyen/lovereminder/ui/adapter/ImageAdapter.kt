@@ -1,103 +1,87 @@
-package com.phucnguyen.lovereminder.ui.adapter;
+package com.phucnguyen.lovereminder.ui.adapter
 
-import android.content.Context;
-import android.util.SparseBooleanArray;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
+import android.content.Context
+import android.util.SparseBooleanArray
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.model.Image
 
-import com.bumptech.glide.Glide;
-import com.phucnguyen.lovereminder.R;
-import com.phucnguyen.lovereminder.model.Image;
+class ImageAdapter(var context: Context, imagesInput: List<Image>) : BaseAdapter() {
+     var images = imagesInput
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
-import java.util.List;
-
-public class ImageAdapter extends BaseAdapter {
-    Context context;
-    List<Image> images;
-    private SparseBooleanArray imagesToDeleteTracker;
-
-    @Override
-    public int getCount() {
-        return images.size();
+    val imagesToDelete: SparseBooleanArray
+    override fun getCount(): Int {
+        return images.size
     }
 
-    public ImageAdapter(Context context, List<Image> images) {
-        this.context = context;
-        this.images = images;
-        this.imagesToDeleteTracker = new SparseBooleanArray();
+    override fun getItem(position: Int): Any {
+        return images[position]
     }
 
-    @Override
-    public Object getItem(int position) {
-        return images.get(position);
+    override fun getItemId(position: Int): Long {
+        return 0
     }
 
-    @Override
-    public long getItemId(int position) {
-        return 0;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView = new ImageView(context);
-        if (imagesToDeleteTracker.get(position)) {
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setLayoutParams(new ViewGroup.LayoutParams(330, 350));
-            imageView.setCropToPadding(true);
-
+    override fun getView(position: Int, convertView: View, parent: ViewGroup): View {
+        val imageView = ImageView(context)
+        if (imagesToDelete[position]) {
+            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+            imageView.layoutParams = ViewGroup.LayoutParams(330, 350)
+            imageView.cropToPadding = true
             Glide.with(context)
-                    .load(images.get(position).getUri())
-                    .thumbnail(0.5f)
-                    .into(imageView);
-
-            imageView.setBackgroundResource(R.drawable.view_border);
+                .load(images[position].uri)
+                .thumbnail(0.5f)
+                .into(imageView)
+            imageView.setBackgroundResource(R.drawable.view_border)
         } else {
             Glide.with(context)
-                    .load(images.get(position).getUri())
-                    .into(imageView);
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setLayoutParams(new ViewGroup.LayoutParams(330, 350));
+                .load(images[position].uri)
+                .into(imageView)
+            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+            imageView.layoutParams = ViewGroup.LayoutParams(330, 350)
         }
-        return imageView;
-
+        return imageView
     }
 
-    @Override
-    public boolean isEnabled(int position) {
-        return super.isEnabled(position);
+    override fun isEnabled(position: Int): Boolean {
+        return super.isEnabled(position)
     }
 
-    @Override
-    public boolean areAllItemsEnabled() {
-
-        return true;
+    override fun areAllItemsEnabled(): Boolean {
+        return true
     }
 
-    public void setImages(List<Image> images) {
-        this.images = images;
-        notifyDataSetChanged();
-    }
+//    fun setImages(images: List<Image>) {
+//        this.images = images
+//        notifyDataSetChanged()
+//    }
 
-    public boolean toggleImagePositionToDelete(int position) {
-        boolean result;
-        if (imagesToDeleteTracker.get(position)) {
-            result = false;
-            imagesToDeleteTracker.delete(position);
+    fun toggleImagePositionToDelete(position: Int): Boolean {
+        val result: Boolean
+        if (imagesToDelete[position]) {
+            result = false
+            imagesToDelete.delete(position)
         } else {
-            result = true;
-            imagesToDeleteTracker.put(position, true);
+            result = true
+            imagesToDelete.put(position, true)
         }
-        notifyDataSetChanged();
-        return result;
+        notifyDataSetChanged()
+        return result
     }
 
-    public SparseBooleanArray getImagesToDelete() {
-        return imagesToDeleteTracker;
+    fun resetTracker() {
+        imagesToDelete.clear()
     }
 
-    public void resetTracker() {
-        imagesToDeleteTracker.clear();
+    init {
+        imagesToDelete = SparseBooleanArray()
     }
 }

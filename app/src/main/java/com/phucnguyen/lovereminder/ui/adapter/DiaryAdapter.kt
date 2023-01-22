@@ -1,95 +1,75 @@
-package com.phucnguyen.lovereminder.ui.adapter;
+package com.phucnguyen.lovereminder.ui.adapter
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.model.Diary
+import com.phucnguyen.lovereminder.ui.adapter.DiaryAdapter.DiaryViewHolder
+import java.text.SimpleDateFormat
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.phucnguyen.lovereminder.R;
-import com.phucnguyen.lovereminder.model.Diary;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-public class DiaryAdapter extends ListAdapter<Diary, DiaryAdapter.DiaryViewHolder> {
-    public interface Listener{
-        void onDiaryLongClickListener(Diary diary, View v);
-        void onDiaryClickListener(Diary diary);
+class DiaryAdapter(private val mContext: Context) : ListAdapter<Diary, DiaryViewHolder>(
+    DIFF_CALLBACK
+) {
+    interface Listener {
+        fun onDiaryLongClickListener(diary: Diary?, v: View?)
+        fun onDiaryClickListener(diary: Diary?)
     }
 
-    public void setListener(Listener listener) {
-        mListener = listener;
+    fun setListener(listener: Listener?) {
+        mListener = listener
     }
 
-    private Listener mListener;
-    private Context mContext;
-
-    public DiaryAdapter(Context context) {
-        super(DIFF_CALLBACK);
-        mContext = context;
+    private var mListener: Listener? = null
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DiaryViewHolder {
+        val convertView = LayoutInflater.from(mContext).inflate(
+            R.layout.diary_item, parent,
+            false
+        )
+        return DiaryViewHolder(convertView)
     }
 
-
-    @NonNull
-    @Override
-    public DiaryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View convertView = LayoutInflater.from(mContext).inflate(R.layout.diary_item, parent,
-                false);
-        return new DiaryViewHolder(convertView);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull final DiaryViewHolder holder, int position) {
-        final Diary diary = getItem(position);
+    override fun onBindViewHolder(holder: DiaryViewHolder, position: Int) {
+        val diary = getItem(position)
         //transform the date retrieved from database
-        long dateToBeFormat = diary.getDate();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        Date dateObject = new Date(dateToBeFormat);
-        String formattedDateString = simpleDateFormat.format(dateObject);
-
-        holder.tv_date.setText(formattedDateString);
-        holder.tv_content.setText(diary.getContent());
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mListener != null)
-                    mListener.onDiaryClickListener(diary);
-            }
-        });
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (mListener != null)
-                    mListener.onDiaryLongClickListener(diary, v);
-                return true;
-            }
-        });
-    }
-
-     class DiaryViewHolder extends RecyclerView.ViewHolder {
-        TextView tv_date, tv_content;
-        public DiaryViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tv_date = (TextView) itemView.findViewById(R.id.tv_date);
-            tv_content = (TextView) itemView.findViewById(R.id.tv_content);
+        val dateToBeFormat = diary!!.date
+        val simpleDateFormat = SimpleDateFormat("dd-MM-yyyy")
+        val dateObject = Date(dateToBeFormat)
+        val formattedDateString = simpleDateFormat.format(dateObject)
+        holder.tv_date.text = formattedDateString
+        holder.tv_content.text = diary.content
+        holder.itemView.setOnClickListener {
+            if (mListener != null) mListener!!.onDiaryClickListener(
+                diary
+            )
+        }
+        holder.itemView.setOnLongClickListener { v ->
+            if (mListener != null) mListener!!.onDiaryLongClickListener(diary, v)
+            true
         }
     }
-    private static DiffUtil.ItemCallback<Diary> DIFF_CALLBACK = new DiffUtil.ItemCallback<Diary>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull Diary oldItem, @NonNull Diary newItem) {
-            return oldItem.getId() == newItem.getId();
-        }
 
-        @Override
-        public boolean areContentsTheSame(@NonNull Diary oldItem, @NonNull Diary newItem) {
-            return oldItem.getContent().equals(newItem.getContent());
-        }
-    };
+    inner class DiaryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var tv_date: TextView = itemView.findViewById<View>(R.id.tv_date) as TextView
+        var tv_content: TextView = itemView.findViewById<View>(R.id.tv_content) as TextView
+    }
+
+    companion object {
+        private val DIFF_CALLBACK: DiffUtil.ItemCallback<Diary> =
+            object : DiffUtil.ItemCallback<Diary>() {
+                override fun areItemsTheSame(oldItem: Diary, newItem: Diary): Boolean {
+                    return oldItem.id == newItem.id
+                }
+
+                override fun areContentsTheSame(oldItem: Diary, newItem: Diary): Boolean {
+                    return oldItem.content == newItem.content
+                }
+            }
+    }
 }
