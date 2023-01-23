@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit
 class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     ChangeDateDialog.Listener, ThemeDialogListener {
     interface SettingsListener {
-        fun onBackgroundImageChanged(uri: Uri?)
+        fun onBackgroundImageChanged(uri: Uri)
     }
 
     private var flag // to distinguish you from your friend
