@@ -25,9 +25,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class DiaryActivity : BaseActivity() {
-    private var tv_Date: TextView? = null
-    private var tv_Content: TextView? = null
-    private var edt_Content: EditText? = null
     private var menu: Menu? = null
     private var diaryId = 0
     var originalText: String? = null
@@ -35,18 +32,15 @@ class DiaryActivity : BaseActivity() {
     private var viewModel: DiaryViewModel? = null
     private var mDiaryDao: DiaryDao? = null
     private var isEditing = false
+    private lateinit var binding: ActivityDiaryBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme()
-        val binding = ActivityDiaryBinding.inflate(
-            layoutInflater
-        )
+        binding = ActivityDiaryBinding.inflate(layoutInflater)
         setContentView(binding.root)
         mDiaryDao = getInstance(this).diaryDao
         viewModel = ViewModelProvider(this).get(DiaryViewModel::class.java)
-        tv_Content = binding.tvContent
-        tv_Date = binding.tvDate
-        edt_Content = binding.edtContent
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         val supportActionBar = supportActionBar
@@ -56,46 +50,24 @@ class DiaryActivity : BaseActivity() {
         if (savedInstanceState != null) {
             isEditing = savedInstanceState.getBoolean("isEditing")
             if (isEditing) {
-                edt_Content!!.visibility = View.VISIBLE
-                tv_Content!!.visibility = View.GONE
+                binding.edtContent.visibility = View.VISIBLE
+                binding.tvContent.visibility = View.GONE
             }
         }
         if (intent.hasExtra("id")) {
             diaryId = intent.getIntExtra("id", 0)
         }
-
-//        viewModel.setDiaryId(diaryId);
-//        viewModel.getDiary().observe(this, diary -> {
-//            currentDiary = diary;
-//            originalText = currentDiary.getContent();
-//            tv_Content.setText(diary.getContent());
-//            SimpleDateFormat sdf = new SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy");
-//            String formattedDateString = sdf.format(new Date(diary.getDate()));
-//            tv_Date.setText(formattedDateString);
-//        });
-
-//        viewModel.setCurrentDiaryId(diaryId);
-//        viewModel.getCurrentDiaryObservable()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(diary -> {
-//                    currentDiary = diary;
-//                    originalText = currentDiary.getContent();
-//                    tv_Content.setText(diary.getContent());
-//                    SimpleDateFormat sdf = new SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy");
-//                    String formattedDateString = sdf.format(new Date(diary.getDate()));
-//                    tv_Date.setText(formattedDateString);
-//                });
+        
         mDiaryDao!!.getDiaryById(diaryId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { diary: Diary ->
                 currentDiary = diary
                 originalText = currentDiary!!.content
-                tv_Content!!.text = diary.content
+                binding.tvContent.text = diary.content
                 val sdf = SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy")
                 val formattedDateString = sdf.format(Date(diary.date))
-                tv_Date!!.text = formattedDateString
+                binding.tvDate.text = formattedDateString
             }
     }
 
@@ -138,33 +110,33 @@ class DiaryActivity : BaseActivity() {
         return when (item.itemId) {
             R.id.action_edit_dairy -> {
                 isEditing = true
-                edt_Content!!.visibility = View.VISIBLE
-                edt_Content!!.setText(tv_Content!!.text.toString())
-                edt_Content!!.requestFocus()
+                binding.edtContent.visibility = View.VISIBLE
+                binding.edtContent.setText(binding.tvContent.text.toString())
+                binding.edtContent.requestFocus()
                 val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(edt_Content, InputMethodManager.SHOW_IMPLICIT)
-                edt_Content!!.setSelection(edt_Content!!.text.length)
-                tv_Content!!.visibility = View.INVISIBLE
+                imm.showSoftInput(binding.edtContent, InputMethodManager.SHOW_IMPLICIT)
+                binding.edtContent.setSelection(binding.edtContent.text.length)
+                binding.tvContent.visibility = View.INVISIBLE
                 invalidateOptionsMenu()
                 true
             }
             R.id.action_done_rewrite_diary -> {
-                if (originalText == edt_Content!!.text.toString().trim { it <= ' ' }) {
+                if (originalText == binding.edtContent.text.toString().trim { it <= ' ' }) {
                     Toast.makeText(this, "Bạn chưa thay đổi nội dung nhật kí", Toast.LENGTH_SHORT)
                         .show()
                     return true
                 }
                 isEditing = false
-                tv_Content!!.visibility = View.VISIBLE
-                edt_Content!!.visibility = View.INVISIBLE
+                binding.tvContent.visibility = View.VISIBLE
+                binding.edtContent.visibility = View.INVISIBLE
                 updateDiary()
                 invalidateOptionsMenu()
                 true
             }
             R.id.action_cancel_rewrite_diary -> {
                 isEditing = false
-                tv_Content!!.visibility = View.VISIBLE
-                edt_Content!!.visibility = View.INVISIBLE
+                binding.tvContent.visibility = View.VISIBLE
+                binding.edtContent.visibility = View.INVISIBLE
                 invalidateOptionsMenu()
                 true
             }
@@ -173,7 +145,7 @@ class DiaryActivity : BaseActivity() {
     }
 
     private fun updateDiary() {
-        val updatedContent = edt_Content!!.text.toString().trim { it <= ' ' }
+        val updatedContent = binding.edtContent.text.toString().trim { it <= ' ' }
         currentDiary!!.content = updatedContent
         //        new UpdateDiaryAsync(mDiaryDao).execute(currentDiary);
         mDiaryDao!!.updateDiary(currentDiary!!)
@@ -182,7 +154,7 @@ class DiaryActivity : BaseActivity() {
             .subscribe(object : CompletableObserver {
                 override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
-                    tv_Content!!.text = updatedContent
+                    binding.tvContent.text = updatedContent
                     Toast.makeText(this@DiaryActivity, "Diary updated", Toast.LENGTH_SHORT).show()
                 }
 
@@ -191,25 +163,8 @@ class DiaryActivity : BaseActivity() {
     }
 
     override fun onBackPressed() {
-        if (originalText != edt_Content!!.text.toString()
+        if (originalText != binding.edtContent.text.toString()
                 .trim { it <= ' ' } && isEditing
         ) showMessage() else super.onBackPressed()
-    } //    private static class UpdateDiaryAsync extends AsyncTask<Diary, Void, Integer>{
-    //        private DiaryDao mDiaryDao;
-    //
-    //        public UpdateDiaryAsync(DiaryDao diaryDao) {
-    //            mDiaryDao = diaryDao;
-    //        }
-    //
-    //        @Override
-    //        protected Integer doInBackground(Diary... diaries) {
-    //            return mDiaryDao.updateDiary(diaries[0]);
-    //        }
-    //
-    //        @Override
-    //        protected void onPostExecute(Integer updatedDiaryId) {
-    //            super.onPostExecute(updatedDiaryId);
-    //            Log.d("Tag", String.valueOf(updatedDiaryId));
-    //        }
-    //    }
+    }
 }
