@@ -5,7 +5,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.content.SharedPreferences
 import android.os.Bundle
-import com.phucnguyen.lovereminder.R
 import android.text.TextWatcher
 import android.text.Editable
 import androidx.annotation.RequiresApi
@@ -25,46 +24,41 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import com.phucnguyen.lovereminder.*
 import com.phucnguyen.lovereminder.databinding.ActivityIniBinding
 import java.util.*
 
 class IniActivity : AppCompatActivity(), View.OnClickListener {
-    private var edt_yourName: EditText? = null
-    private var edt_yourFrName: EditText? = null
-    private var edt_date: TextView? = null
-    private var btn_confirm: Button? = null
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userPreferences: SharedPreferences
+    private lateinit var binding: ActivityIniBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityIniBinding.inflate(
-            layoutInflater
-        )
+        binding = ActivityIniBinding.inflate(layoutInflater)
         setContentView(binding.root)
         showDialog()
         connectViews(binding)
-        sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE)
-        userPreferences = getSharedPreferences("user_preferences", MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences(SHARE_PREF_USER_INFO, MODE_PRIVATE)
+        userPreferences = getSharedPreferences(SHARE_PREF_USER_PREFERENCE, MODE_PRIVATE)
         userPreferences.edit()
-            .putInt("theme_color", R.color.colorPrimary)
+            .putInt(PREF_THEME_COLOR, R.color.colorPrimary)
             .apply()
-        btn_confirm!!.isEnabled = false
+        binding.btnConfirm.isEnabled = false
         val textWatcher: TextWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                val date = edt_date!!.text.toString().trim { it <= ' ' }
-                val yourName = edt_yourName!!.text.toString().trim { it <= ' ' }
-                val yourFrName = edt_yourFrName!!.text.toString().trim { it <= ' ' }
-                if (date == "Nhấn để chọn" || yourFrName.isEmpty() || yourName.isEmpty()) {
-                    btn_confirm!!.isEnabled = false
-                } else btn_confirm!!.isEnabled = true
+                val date = binding.edtDate.text.toString().trim { it <= ' ' }
+                val yourName = binding.edtYourName.text.toString().trim { it <= ' ' }
+                val yourFrName = binding.edtYourFrName.text.toString().trim { it <= ' ' }
+                binding.btnConfirm.isEnabled = !(date == "Nhấn để chọn" || yourFrName.isEmpty() || yourName.isEmpty())
             }
 
             override fun afterTextChanged(s: Editable) {}
         }
-        edt_date!!.addTextChangedListener(textWatcher)
-        edt_yourFrName!!.addTextChangedListener(textWatcher)
-        edt_yourName!!.addTextChangedListener(textWatcher)
+        binding.edtDate.addTextChangedListener(textWatcher)
+        binding.edtYourFrName.addTextChangedListener(textWatcher)
+        binding.edtYourName.addTextChangedListener(textWatcher)
     }
 
     private fun showDialog() {
@@ -76,27 +70,21 @@ class IniActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun connectViews(binding: ActivityIniBinding) {
-        edt_yourName = binding.edtYourName
-        edt_yourFrName = binding.edtYourFrName
-        edt_date = binding.edtDate
-        btn_confirm = binding.btnConfirm
-        btn_confirm!!.setOnClickListener(this)
-        edt_date!!.setOnClickListener(this)
+        binding.btnConfirm.setOnClickListener(this)
+        binding.edtDate.setOnClickListener(this)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private fun collectInfor() {
-        val editor = sharedPreferences!!.edit()
-        editor.putString("yourName", edt_yourName!!.text.toString())
-        editor.putString("yourFrName", edt_yourFrName!!.text.toString())
-        editor.putString("date", edt_date!!.text.toString())
+        val editor = sharedPreferences.edit()
+        editor.putString(PREF_YOUR_NAME, binding.edtYourName.text.toString())
+        editor.putString(PREF_YOUR_FRIEND_NAME, binding.edtYourFrName.text.toString())
+        editor.putString(PREF_COUPLE_DATE, binding.edtDate.text.toString())
         editor.apply()
 
         //setting the alarm
         setAlarm()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private fun setAlarm() {
         val calendar = Calendar.getInstance()
         calendar[Calendar.HOUR_OF_DAY] = 9
@@ -117,11 +105,19 @@ class IniActivity : AppCompatActivity(), View.OnClickListener {
             PendingIntent.FLAG_UPDATE_CURRENT
         )
         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            pendingIntent
-        )
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        }
 
         //persist alarm when system restarts
         val receiver = ComponentName(this, SystemBootReceiver::class.java)
@@ -133,7 +129,6 @@ class IniActivity : AppCompatActivity(), View.OnClickListener {
         )
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     override fun onClick(v: View) {
         when (v.id) {
             R.id.btn_confirm -> {
@@ -157,7 +152,7 @@ class IniActivity : AppCompatActivity(), View.OnClickListener {
                 month = month + 1
                 //TODO: reformat the text String.format
                 val date = "$dayOfMonth/$month/$year"
-                edt_date!!.text = date
+                binding.edtDate.text = date
             }, year, month, day
         )
         datePickerDialog.datePicker.maxDate = Date().time
