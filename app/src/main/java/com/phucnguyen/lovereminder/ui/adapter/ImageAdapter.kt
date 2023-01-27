@@ -17,7 +17,8 @@ class ImageAdapter(var context: Context, imagesInput: List<Image>) : BaseAdapter
             notifyDataSetChanged()
         }
 
-    val imagesToDelete: SparseBooleanArray
+    val imagesToDelete: SparseBooleanArray = SparseBooleanArray()
+
     override fun getCount(): Int {
         return images.size
     }
@@ -59,11 +60,6 @@ class ImageAdapter(var context: Context, imagesInput: List<Image>) : BaseAdapter
         return true
     }
 
-//    fun setImages(images: List<Image>) {
-//        this.images = images
-//        notifyDataSetChanged()
-//    }
-
     fun toggleImagePositionToDelete(position: Int): Boolean {
         val result: Boolean
         if (imagesToDelete[position]) {
@@ -79,9 +75,5 @@ class ImageAdapter(var context: Context, imagesInput: List<Image>) : BaseAdapter
 
     fun resetTracker() {
         imagesToDelete.clear()
-    }
-
-    init {
-        imagesToDelete = SparseBooleanArray()
     }
 }

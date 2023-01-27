@@ -30,7 +30,6 @@ import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.ui.activity.CreateDiaryActivity
 import com.phucnguyen.lovereminder.ui.activity.DiaryActivity
 import com.phucnguyen.lovereminder.ui.adapter.DiaryAdapter
-import com.phucnguyen.lovereminder.ui.fragment.DiaryFragment
 import io.reactivex.CompletableObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -171,7 +170,7 @@ class DiaryFragment : Fragment() {
                 popupMenu.show()
             }
 
-            override fun onDiaryClickListener(diary: Diary?) {
+            override fun onDiaryClickListener(diary: Diary) {
                 val intent = Intent(activity, DiaryActivity::class.java)
                 intent.putExtra("id", diary!!.id)
                 startActivity(intent)

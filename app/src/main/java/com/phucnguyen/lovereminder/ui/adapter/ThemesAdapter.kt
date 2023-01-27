@@ -8,16 +8,18 @@ import android.content.SharedPreferences
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import com.phucnguyen.lovereminder.PREF_THEME_COLOR
+import com.phucnguyen.lovereminder.SHARE_PREF_USER_PREFERENCE
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.*
 
 class ThemesAdapter(private val mContext: Context) : RecyclerView.Adapter<ThemeViewHolder>() {
-    private val colorIntsList = Arrays.asList(
+    private val colorIntsList = listOf(
         R.color.colorPrimary,
         R.color.blue
     )
     private val mSharedPreferences: SharedPreferences =
-        mContext.getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
+        mContext.getSharedPreferences(SHARE_PREF_USER_PREFERENCE, Context.MODE_PRIVATE)
     private var currentSelectedThemeIdPosition: Int
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ThemeViewHolder {
         val v = LayoutInflater.from(mContext).inflate(R.layout.item_theme_color, parent, false)
@@ -26,8 +28,11 @@ class ThemesAdapter(private val mContext: Context) : RecyclerView.Adapter<ThemeV
 
     override fun onBindViewHolder(holder: ThemeViewHolder, position: Int) {
         holder.civTheme.setImageResource(colorIntsList[position])
-        if (position == currentSelectedThemeIdPosition) holder.civThemeChecked.visibility =
-            View.VISIBLE else holder.civThemeChecked.visibility = View.GONE
+        if (position == currentSelectedThemeIdPosition) {
+            holder.civThemeChecked.visibility = View.VISIBLE
+        } else {
+            holder.civThemeChecked.visibility = View.GONE
+        }
         holder.civTheme.setOnClickListener { v: View? -> changeSelectedThemePosition(position) }
     }
 
@@ -45,17 +50,12 @@ class ThemesAdapter(private val mContext: Context) : RecyclerView.Adapter<ThemeV
         get() = colorIntsList[currentSelectedThemeIdPosition]
 
     inner class ThemeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val civTheme: CircleImageView
-        val civThemeChecked: CircleImageView
-
-        init {
-            civTheme = itemView.findViewById(R.id.civThemeCorlor)
-            civThemeChecked = itemView.findViewById(R.id.civThemeChecked)
-        }
+        val civTheme: CircleImageView = itemView.findViewById(R.id.civThemeCorlor)
+        val civThemeChecked: CircleImageView = itemView.findViewById(R.id.civThemeChecked)
     }
 
     init {
-        val selectedThemeColorId = mSharedPreferences.getInt("theme_color", 0)
+        val selectedThemeColorId = mSharedPreferences.getInt(PREF_THEME_COLOR, 0)
         currentSelectedThemeIdPosition = colorIntsList.indexOf(selectedThemeColorId)
     }
 }

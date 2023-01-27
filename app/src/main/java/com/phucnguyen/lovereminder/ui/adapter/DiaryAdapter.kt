@@ -18,8 +18,8 @@ class DiaryAdapter(private val mContext: Context) : ListAdapter<Diary, DiaryView
     DIFF_CALLBACK
 ) {
     interface Listener {
-        fun onDiaryLongClickListener(diary: Diary?, v: View?)
-        fun onDiaryClickListener(diary: Diary?)
+        fun onDiaryLongClickListener(diary: Diary, v: View)
+        fun onDiaryClickListener(diary: Diary)
     }
 
     fun setListener(listener: Listener?) {
@@ -38,26 +38,24 @@ class DiaryAdapter(private val mContext: Context) : ListAdapter<Diary, DiaryView
     override fun onBindViewHolder(holder: DiaryViewHolder, position: Int) {
         val diary = getItem(position)
         //transform the date retrieved from database
-        val dateToBeFormat = diary!!.date
+        val dateToBeFormat = diary.date
         val simpleDateFormat = SimpleDateFormat("dd-MM-yyyy")
         val dateObject = Date(dateToBeFormat)
         val formattedDateString = simpleDateFormat.format(dateObject)
-        holder.tv_date.text = formattedDateString
-        holder.tv_content.text = diary.content
+        holder.tvDate.text = formattedDateString
+        holder.tvContent.text = diary.content
         holder.itemView.setOnClickListener {
-            if (mListener != null) mListener!!.onDiaryClickListener(
-                diary
-            )
+            mListener?.onDiaryClickListener(diary)
         }
         holder.itemView.setOnLongClickListener { v ->
-            if (mListener != null) mListener!!.onDiaryLongClickListener(diary, v)
+            mListener?.onDiaryLongClickListener(diary, v)
             true
         }
     }
 
     inner class DiaryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var tv_date: TextView = itemView.findViewById<View>(R.id.tv_date) as TextView
-        var tv_content: TextView = itemView.findViewById<View>(R.id.tv_content) as TextView
+        var tvDate: TextView = itemView.findViewById<View>(R.id.tv_date) as TextView
+        var tvContent: TextView = itemView.findViewById<View>(R.id.tv_content) as TextView
     }
 
     companion object {
