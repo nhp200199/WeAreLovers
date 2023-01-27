@@ -18,6 +18,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.bumptech.glide.Glide
 import com.google.android.gms.ads.AdRequest
+import com.phucnguyen.lovereminder.PREF_PICTURE
+import com.phucnguyen.lovereminder.SHARE_PREF_BACKGROUND
+import com.phucnguyen.lovereminder.SHARE_PREF_USER_INFO
 import com.phucnguyen.lovereminder.databinding.ActivityMainBinding
 import com.phucnguyen.lovereminder.ui.fragment.DiaryFragment
 import com.phucnguyen.lovereminder.ui.fragment.MainFragment
@@ -26,24 +29,22 @@ import com.phucnguyen.lovereminder.ui.fragment.PictureFragment
 import java.io.FileNotFoundException
 
 class MainActivity : BaseActivity(), SettingsListener {
-    private var flag //used to check exit
-            = 0
+    private var flag = 0 // used to check exit
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var timer: CountDownTimer
-    private var mBinding: ActivityMainBinding? = null
+    private lateinit var mBinding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme()
         Log.d("Tag", "Created")
-        mBinding = ActivityMainBinding.inflate(
-            layoutInflater
-        )
-        setContentView(mBinding!!.root)
-        setSupportActionBar(mBinding!!.toolbar.tb)
+        mBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
+        setSupportActionBar(mBinding.toolbar.tb)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
         retrieveUserInfor()
         setUpViewPager()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isIgnoringBatteryOptimizations) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isIgnoringBatteryOptimizations(this)) {
             openIgnoreBatteryOptimizationSettings()
         }
         setupAdView()
@@ -55,25 +56,20 @@ class MainActivity : BaseActivity(), SettingsListener {
             .build()
 
         // Start loading the ad in the background.
-        mBinding!!.adView.loadAd(adRequest)
+        mBinding.adView.loadAd(adRequest)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private fun isIgnoringBatteryOptimizations(context: Context): Boolean {
         val powerManager = context.getSystemService(POWER_SERVICE) as PowerManager
-        return powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName) ?: false
     }
 
-    @get:RequiresApi(api = Build.VERSION_CODES.M)
-    private val isIgnoringBatteryOptimizations: Boolean
-        private get() = isIgnoringBatteryOptimizations(this)
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private fun openIgnoreBatteryOptimizationSettings() {
         try {
             Toast.makeText(
                 applicationContext,
-                "Battery optimization -> All apps -> mCare Lite -> Don't optimize",
+                "Battery optimization -> All apps -> WeAreLovers -> Don't optimize",
                 Toast.LENGTH_LONG
             ).show()
             val intent = Intent()
@@ -85,14 +81,14 @@ class MainActivity : BaseActivity(), SettingsListener {
     }
 
     private fun swipeViewPager(position: Int) {
-        mBinding!!.pager.currentItem = position
+        mBinding.pager.currentItem = position
     }
 
     private fun retrieveUserInfor() {
-        sharedPreferences = getSharedPreferences("background", MODE_PRIVATE)
-        sharedPreferences = getSharedPreferences("userInfor", MODE_PRIVATE)
-        if (sharedPreferences.contains("picture")) {
-            val uri = Uri.parse(sharedPreferences.getString("picture", null))
+        sharedPreferences = getSharedPreferences(SHARE_PREF_BACKGROUND, MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences(SHARE_PREF_USER_INFO, MODE_PRIVATE)
+        if (sharedPreferences.contains(PREF_PICTURE)) {
+            val uri = Uri.parse(sharedPreferences.getString(PREF_PICTURE, null))
             val options = BitmapFactory.Options()
             options.inJustDecodeBounds = true
             try {
@@ -110,17 +106,17 @@ class MainActivity : BaseActivity(), SettingsListener {
             }
             Glide.with(this)
                 .load(uri)
-                .into(mBinding!!.imgBackground)
+                .into(mBinding.imgBackground)
         }
     }
 
     private fun setUpViewPager() {
         val sectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
-        mBinding!!.pager.adapter = sectionsPagerAdapter
-        mBinding!!.tlSwipe.setupWithViewPager(mBinding!!.pager)
+        mBinding.pager.adapter = sectionsPagerAdapter
+        mBinding.tlSwipe.setupWithViewPager(mBinding.pager)
 
         //disable click on tab layout
-        for (v in mBinding!!.tlSwipe.touchables) {
+        for (v in mBinding.tlSwipe.touchables) {
             v.isEnabled = false
         }
     }
@@ -128,24 +124,24 @@ class MainActivity : BaseActivity(), SettingsListener {
     public override fun onResume() {
         super.onResume()
         if (intent.hasExtra("position")) swipeViewPager(intent.getIntExtra("position", 0))
-        mBinding!!.adView.resume()
+        mBinding.adView.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        mBinding!!.adView.pause()
+        mBinding.adView.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mBinding!!.adView.destroy()
+        mBinding.adView.destroy()
     }
 
     override fun onBackgroundImageChanged(uri: Uri) {
         Glide.with(this)
             .load(uri)
-            .into(mBinding!!.imgBackground)
-        val editor = sharedPreferences!!.edit()
+            .into(mBinding.imgBackground)
+        val editor = sharedPreferences.edit()
         editor.putString("picture", uri.toString())
         editor.apply()
     }
