@@ -1,18 +1,16 @@
 package com.phucnguyen.lovereminder.ui.activity
 
-import android.app.Activity
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
-import com.phucnguyen.lovereminder.PREF_PICTURE
+import com.phucnguyen.lovereminder.PREF_BACKGROUND_PICTURE
 import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.SHARE_PREF_BACKGROUND
 import com.phucnguyen.lovereminder.database.AppDatabase.Companion.getInstance
@@ -45,9 +43,9 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
         toolbar.setNavigationOnClickListener { view: View? -> onBackPressed() }
 
         sharedPreferences = getSharedPreferences(SHARE_PREF_BACKGROUND, MODE_PRIVATE)
-        if (sharedPreferences.contains(PREF_PICTURE)) {
+        if (sharedPreferences.contains(PREF_BACKGROUND_PICTURE)) {
             Glide.with(this)
-                .load(Uri.parse(sharedPreferences.getString(PREF_PICTURE, null)))
+                .load(Uri.parse(sharedPreferences.getString(PREF_BACKGROUND_PICTURE, null)))
                 .into(binding.imgBackground)
         }
         binding.btnSave.isEnabled = false

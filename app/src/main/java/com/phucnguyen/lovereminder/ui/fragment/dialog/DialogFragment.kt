@@ -6,13 +6,12 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import android.widget.EditText
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import androidx.appcompat.app.AlertDialog
 import com.phucnguyen.lovereminder.R
 import java.lang.ClassCastException
 
 class DialogFragment : AppCompatDialogFragment() {
-    private var editTextUsername: EditText? = null
+    private lateinit var editTextUsername: EditText
     private var listener: Listener? = null
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -33,17 +32,17 @@ class DialogFragment : AppCompatDialogFragment() {
             .setTitle("Sửa Tên")
             .setNegativeButton("Hủy") { dialogInterface, i -> }
             .setPositiveButton("Lưu") { dialogInterface, i ->
-                val username = editTextUsername!!.text.toString()
-                listener!!.ApplyChange(username)
+                val username = editTextUsername.text.toString()
+                listener?.applyChange(username)
             }
         val name = arguments!!.getString("name")
         editTextUsername = view.findViewById(R.id.edt_userName)
-        editTextUsername?.setText(name)
+        editTextUsername.setText(name)
         return builder.create()
     }
 
     interface Listener {
-        fun ApplyChange(username: String?)
+        fun applyChange(username: String)
     }
 
     companion object {

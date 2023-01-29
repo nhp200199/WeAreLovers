@@ -15,8 +15,8 @@ class ChangeThemeDialog : AppCompatDialogFragment() {
         fun onThemeDialogChanged(themeId: Int)
     }
 
-    private var rcvThemes: RecyclerView? = null
-    private var adapter: ThemesAdapter? = null
+    private lateinit var rcvThemes: RecyclerView
+    private lateinit var adapter: ThemesAdapter
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(
             activity!!
@@ -29,7 +29,7 @@ class ChangeThemeDialog : AppCompatDialogFragment() {
             .setNegativeButton("Hủy") { dialogInterface, i -> }
             .setPositiveButton("Xác nhận") { dialogInterface, i ->
                 dismiss()
-                val themeId = adapter!!.currentSelectedThemeId
+                val themeId = adapter.currentSelectedThemeId
                 (targetFragment as ThemeDialogListener?)!!.onThemeDialogChanged(themeId)
             }
         return builder.create()
@@ -37,14 +37,12 @@ class ChangeThemeDialog : AppCompatDialogFragment() {
 
     private fun connectView(view: View) {
         rcvThemes = view.findViewById(R.id.rcvThemes)
-        rcvThemes?.setLayoutManager(
-            LinearLayoutManager(
-                view.context,
-                RecyclerView.HORIZONTAL,
-                false
-            )
+        rcvThemes.layoutManager = LinearLayoutManager(
+            view.context,
+            RecyclerView.HORIZONTAL,
+            false
         )
         adapter = ThemesAdapter(view.context)
-        rcvThemes?.setAdapter(adapter)
+        rcvThemes.adapter = adapter
     }
 }

@@ -58,7 +58,7 @@ class DiarySearchingActivity : BaseActivity() {
                 .subscribe { searchedDiaries: List<Diary?> ->
                     mAdapter!!.submitList(searchedDiaries)
                     mAdapter!!.setListener(object : DiaryAdapter.Listener {
-                        override fun onDiaryLongClickListener(diary: Diary?, v: View?) {}
+                        override fun onDiaryLongClickListener(diary: Diary, v: View) {}
 
                         override fun onDiaryClickListener(diary: Diary) {
                             val intent =

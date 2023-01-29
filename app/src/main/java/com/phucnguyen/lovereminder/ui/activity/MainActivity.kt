@@ -18,7 +18,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.bumptech.glide.Glide
 import com.google.android.gms.ads.AdRequest
-import com.phucnguyen.lovereminder.PREF_PICTURE
+import com.phucnguyen.lovereminder.PREF_BACKGROUND_PICTURE
 import com.phucnguyen.lovereminder.SHARE_PREF_BACKGROUND
 import com.phucnguyen.lovereminder.SHARE_PREF_USER_INFO
 import com.phucnguyen.lovereminder.databinding.ActivityMainBinding
@@ -87,8 +87,8 @@ class MainActivity : BaseActivity(), SettingsListener {
     private fun retrieveUserInfor() {
         sharedPreferences = getSharedPreferences(SHARE_PREF_BACKGROUND, MODE_PRIVATE)
         sharedPreferences = getSharedPreferences(SHARE_PREF_USER_INFO, MODE_PRIVATE)
-        if (sharedPreferences.contains(PREF_PICTURE)) {
-            val uri = Uri.parse(sharedPreferences.getString(PREF_PICTURE, null))
+        if (sharedPreferences.contains(PREF_BACKGROUND_PICTURE)) {
+            val uri = Uri.parse(sharedPreferences.getString(PREF_BACKGROUND_PICTURE, null))
             val options = BitmapFactory.Options()
             options.inJustDecodeBounds = true
             try {
