@@ -24,36 +24,31 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.ViewModelProvider
 import com.phucnguyen.lovereminder.*
 import com.phucnguyen.lovereminder.databinding.ActivityIniBinding
+import com.phucnguyen.lovereminder.viewmodel.IniActivityViewModel
 import java.util.*
 
 class IniActivity : AppCompatActivity(), View.OnClickListener {
-    private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var userPreferences: SharedPreferences
     private lateinit var binding: ActivityIniBinding
+    private lateinit var viewModel: IniActivityViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityIniBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        showDialog()
         connectViews(binding)
-        sharedPreferences = getSharedPreferences(SHARE_PREF_USER_INFO, MODE_PRIVATE)
-        userPreferences = getSharedPreferences(SHARE_PREF_USER_PREFERENCE, MODE_PRIVATE)
-        userPreferences.edit()
-            .putInt(PREF_THEME_COLOR, R.color.colorPrimary)
-            .apply()
-        binding.btnConfirm.isEnabled = false
+        viewModel = ViewModelProvider(this).get(IniActivityViewModel::class.java)
         val textWatcher: TextWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 val date = binding.edtDate.text.toString().trim { it <= ' ' }
                 val yourName = binding.edtYourName.text.toString().trim { it <= ' ' }
                 val yourFrName = binding.edtYourFrName.text.toString().trim { it <= ' ' }
-                binding.btnConfirm.isEnabled = !(date == "Nhấn để chọn" || yourFrName.isEmpty() || yourName.isEmpty())
+                binding.btnConfirm.isEnabled =
+                    !(date == getString(R.string.hint_edt_couple_date) || yourFrName.isEmpty() || yourName.isEmpty())
             }
-
             override fun afterTextChanged(s: Editable) {}
         }
         binding.edtDate.addTextChangedListener(textWatcher)
@@ -61,28 +56,9 @@ class IniActivity : AppCompatActivity(), View.OnClickListener {
         binding.edtYourName.addTextChangedListener(textWatcher)
     }
 
-    private fun showDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage("Hehe, khi em vào tới được đây rồi thì có nghĩa mình đã chính thức quen nhau được 1 năm rồi đó bé lùn tịt :))))")
-            .setPositiveButton("I love you") { dialog, which -> dialog.cancel() }
-        val dialog = builder.create()
-        dialog.show()
-    }
-
     private fun connectViews(binding: ActivityIniBinding) {
         binding.btnConfirm.setOnClickListener(this)
         binding.edtDate.setOnClickListener(this)
-    }
-
-    private fun collectInfor() {
-        val editor = sharedPreferences.edit()
-        editor.putString(PREF_YOUR_NAME, binding.edtYourName.text.toString())
-        editor.putString(PREF_YOUR_FRIEND_NAME, binding.edtYourFrName.text.toString())
-        editor.putString(PREF_COUPLE_DATE, binding.edtDate.text.toString())
-        editor.apply()
-
-        //setting the alarm
-        setAlarm()
     }
 
     private fun setAlarm() {
@@ -132,7 +108,10 @@ class IniActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.btn_confirm -> {
-                collectInfor()
+                viewModel.saveUserInfo(binding.edtYourName.text.toString().trim(),
+                    binding.edtYourFrName.text.toString().trim(),
+                    binding.edtDate.toString().trim())
+                setAlarm()
                 startActivity(Intent(this@IniActivity, MainActivity::class.java))
                 finish()
             }
