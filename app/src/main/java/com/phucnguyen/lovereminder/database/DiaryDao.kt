@@ -12,7 +12,7 @@ interface DiaryDao {
     val allDiaries: Observable<List<Diary>>
 
     @Insert
-    fun insertDiary(diary: Diary): Completable
+    suspend fun insertDiary(diary: Diary): Long
 
     @Delete
     fun deleteDiary(diary: Diary?): Completable

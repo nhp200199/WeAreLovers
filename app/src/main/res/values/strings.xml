@@ -15,4 +15,8 @@
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="hint_edt_couple_date">Nhấn để chọn</string>
     <string name="txt_btn_confirm_user_info">Xác nhận</string>
+    <string name="toast_msg_diary_created">Đã lưu</string>
+    <string name="toast_msg_fail_create_diary">Có lỗi khi tạo nhật kí</string>
+    <string name="txt_btn_create_diary">Lưu</string>
+    <string name="hint_create_diary">Hãy viết điều bạn đang suy nghĩ nhé</string>
 </resources>

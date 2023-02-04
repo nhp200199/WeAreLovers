@@ -1,7 +1,5 @@
 package com.phucnguyen.lovereminder.ui.activity
 
-import android.content.SharedPreferences
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -9,25 +7,20 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.phucnguyen.lovereminder.PREF_BACKGROUND_PICTURE
 import com.phucnguyen.lovereminder.R
-import com.phucnguyen.lovereminder.SHARE_PREF_BACKGROUND
-import com.phucnguyen.lovereminder.database.AppDatabase.Companion.getInstance
-import com.phucnguyen.lovereminder.database.DiaryDao
 import com.phucnguyen.lovereminder.databinding.ActivityCreateDiaryBinding
 import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.utils.hideKeyboard
-import io.reactivex.CompletableObserver
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import com.phucnguyen.lovereminder.viewmodel.CreateDiaryViewModel
+import kotlinx.coroutines.launch
 import java.util.*
 
 class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
-    private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var mDiaryDao: DiaryDao
     private lateinit var binding: ActivityCreateDiaryBinding
+    private lateinit var viewModel: CreateDiaryViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme()
@@ -42,13 +35,12 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
         actionBar.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { view: View? -> onBackPressed() }
 
-        sharedPreferences = getSharedPreferences(SHARE_PREF_BACKGROUND, MODE_PRIVATE)
-        if (sharedPreferences.contains(PREF_BACKGROUND_PICTURE)) {
-            Glide.with(this)
-                .load(Uri.parse(sharedPreferences.getString(PREF_BACKGROUND_PICTURE, null)))
+        viewModel = ViewModelProvider(this).get(CreateDiaryViewModel::class.java)
+        viewModel.getBackgroundImage()?.apply {
+            Glide.with(this@CreateDiaryActivity)
+                .load(this@apply)
                 .into(binding.imgBackground)
         }
-        binding.btnSave.isEnabled = false
         binding.btnSave.setOnClickListener(this)
         binding.edtDiary.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -59,7 +51,6 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
 
             override fun afterTextChanged(s: Editable) {}
         })
-        mDiaryDao = getInstance(this).diaryDao
     }
 
     override fun onClick(v: View) {
@@ -73,19 +64,16 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
         val content = binding.edtDiary.text.toString()
         val diary = Diary(0, calendar.timeInMillis, content)
 
-        mDiaryDao.insertDiary(diary)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : CompletableObserver {
-                override fun onSubscribe(d: Disposable) {}
-                override fun onComplete() {
-                    Toast.makeText(this@CreateDiaryActivity, "Đã lưu", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onError(e: Throwable) {}
-            })
-        binding.edtDiary.setText("")
-        hideKeyboard(this)
+        lifecycleScope.launch {
+            val diaryId = viewModel.createDiary(diary)
+            if (diaryId > 0 ) {
+                Toast.makeText(this@CreateDiaryActivity, getString(R.string.toast_msg_diary_created), Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@CreateDiaryActivity, getString(R.string.toast_msg_fail_create_diary), Toast.LENGTH_SHORT).show()
+            }
+            binding.edtDiary.setText("")
+            hideKeyboard(this@CreateDiaryActivity)
+        }
     }
 
     override fun onBackPressed() {
