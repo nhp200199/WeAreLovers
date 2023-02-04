@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout
     android:id="@+id/relative"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activity.CreateDiaryActivity">
+    tools:context=".ui.activity.CreateDiaryActivity"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <include
         layout="@layout/toolbar"
         android:id="@+id/toolbar"/>
@@ -33,7 +33,7 @@
                 android:gravity="top"
                 android:layout_marginLeft="15dp"
                 android:lines="8"
-                android:hint="Hãy viết điều bạn đang suy nghĩ nhé"
+                android:hint="@string/hint_create_diary"
                 android:background="@drawable/edt_round"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
@@ -41,10 +41,11 @@
                 android:id="@+id/btn_save"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Lưu"
+                android:text="@string/txt_btn_create_diary"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/btn_round"
                 android:layout_below="@+id/edt_diary"
+                android:enabled="false"
                 android:layout_centerHorizontal="true"/>
         </RelativeLayout>
 
