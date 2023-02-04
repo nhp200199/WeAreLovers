@@ -5,17 +5,18 @@ import com.phucnguyen.lovereminder.model.Diary
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DiaryDao {
-    @get:Query("select * from diaries order by date desc")
-    val allDiaries: Observable<List<Diary>>
+    @Query("select * from diaries order by date desc")
+    fun findAllDiaries(): Flow<List<Diary>>
 
     @Insert
     suspend fun insertDiary(diary: Diary): Long
 
     @Delete
-    fun deleteDiary(diary: Diary?): Completable
+    suspend fun deleteDiary(diary: Diary): Int
 
     @Update
     fun updateDiary(diary: Diary): Completable

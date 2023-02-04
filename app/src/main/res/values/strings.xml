@@ -19,4 +19,6 @@
     <string name="toast_msg_fail_create_diary">Có lỗi khi tạo nhật kí</string>
     <string name="txt_btn_create_diary">Lưu</string>
     <string name="hint_create_diary">Hãy viết điều bạn đang suy nghĩ nhé</string>
+    <string name="toast_msg_deleted_diary">Nhật kí đã được xóa</string>
+    <string name="toast_msg_fail_delete_diary">Có lỗi khi xóa nhật kí</string>
 </resources>
