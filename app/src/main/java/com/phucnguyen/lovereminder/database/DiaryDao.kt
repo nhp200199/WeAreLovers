@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DiaryDao {
-    @get:Query("select * from diaries order by date desc")
-    val allDiaries: Observable<List<Diary>>
+    @Query("select * from diaries order by date desc")
+    fun findAllDiaries(): Flow<List<Diary>>
 
     @Insert
-    fun insertDiary(diary: Diary): Completable
+    suspend fun insertDiary(diary: Diary): Long
 
     @Delete
-    fun deleteDiary(diary: Diary?): Completable
+    suspend fun deleteDiary(diary: Diary): Int
 
     @Update
     suspend fun updateDiary(diary: Diary): Int
