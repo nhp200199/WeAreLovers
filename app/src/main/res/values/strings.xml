@@ -15,4 +15,10 @@
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="hint_edt_couple_date">Nhấn để chọn</string>
     <string name="txt_btn_confirm_user_info">Xác nhận</string>
+    <string name="toast_msg_update_diary_success">Nhật kí đã được chỉnh sửa</string>
+    <string name="toast_msg_update_diary_failed">Có lỗi trong quá trình chỉnh sửa. Vui lòng thử lại</string>
+    <string name="title_dialog_change_unsave_confirmation">Chưa lưu thay dổi. Bạn có muốn lưu lại không?</string>
+    <string name="txt_dialog_action_positive">Có</string>
+    <string name="txt_dialog_action_negative">Không</string>
+    <string name="msg_toast_diary_content_unchanged">Bạn chưa thay đổi nội dung nhật kí</string>
 </resources>

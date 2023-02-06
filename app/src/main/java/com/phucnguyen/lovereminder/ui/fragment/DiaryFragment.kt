@@ -167,7 +167,7 @@ class DiaryFragment : Fragment() {
 
             override fun onDiaryClickListener(diary: Diary) {
                 val intent = Intent(activity, DiaryActivity::class.java)
-                intent.putExtra("id", diary.id)
+                intent.putExtra(DiaryActivity.EXTRA_DIARY_ID, diary.id)
                 startActivity(intent)
             }
         })
