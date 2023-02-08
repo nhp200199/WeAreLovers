@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.phucnguyen.lovereminder.*
 import com.phucnguyen.lovereminder.databinding.ActivityIniBinding
 import com.phucnguyen.lovereminder.viewmodel.IniActivityViewModel
+import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
 import java.util.*
 
 class IniActivity : AppCompatActivity(), View.OnClickListener {
@@ -39,7 +40,7 @@ class IniActivity : AppCompatActivity(), View.OnClickListener {
         binding = ActivityIniBinding.inflate(layoutInflater)
         setContentView(binding.root)
         connectViews(binding)
-        viewModel = ViewModelProvider(this).get(IniActivityViewModel::class.java)
+        viewModel = ViewModelProvider(this, ViewModelFactory(application)).get(IniActivityViewModel::class.java)
         val textWatcher: TextWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
@@ -110,7 +111,7 @@ class IniActivity : AppCompatActivity(), View.OnClickListener {
             R.id.btn_confirm -> {
                 viewModel.saveUserInfo(binding.edtYourName.text.toString().trim(),
                     binding.edtYourFrName.text.toString().trim(),
-                    binding.edtDate.toString().trim())
+                    binding.edtDate.text.toString().trim())
                 setAlarm()
                 startActivity(Intent(this@IniActivity, MainActivity::class.java))
                 finish()

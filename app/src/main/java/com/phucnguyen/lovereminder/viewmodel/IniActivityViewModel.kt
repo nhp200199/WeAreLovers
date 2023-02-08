@@ -5,8 +5,10 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.AndroidViewModel
 import com.phucnguyen.lovereminder.*
+import com.phucnguyen.lovereminder.repository.UserRepo
+import kotlinx.coroutines.flow.Flow
 
-class IniActivityViewModel(application: Application) : AndroidViewModel(application) {
+class IniActivityViewModel(application: Application, private val userRepo: UserRepo) : AndroidViewModel(application) {
     private var sharedPreferences: SharedPreferences
     private var userPreferences: SharedPreferences
 
@@ -25,10 +27,10 @@ class IniActivityViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun saveUserInfo(yourName: String, yourFrName: String, coupleDate: String) {
-        val editor = sharedPreferences.edit()
-        editor.putString(PREF_YOUR_NAME, yourName)
-        editor.putString(PREF_YOUR_FRIEND_NAME, yourFrName)
-        editor.putString(PREF_COUPLE_DATE, coupleDate)
-        editor.apply()
+        userRepo.run {
+            setYourName(yourName)
+            setYourFrName(yourFrName)
+            setCoupleDate(coupleDate)
+        }
     }
 }

@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.*
 import com.bumptech.glide.Glide
 import com.phucnguyen.lovereminder.*
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding
@@ -27,8 +28,13 @@ import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeDateDialog
 import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog
 import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog.ThemeDialogListener
 import com.phucnguyen.lovereminder.ui.fragment.dialog.DialogFragment
+import com.phucnguyen.lovereminder.ui.uiState.UserInfoUiState
+import com.phucnguyen.lovereminder.viewmodel.MainFragmentViewModel
+import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -47,6 +53,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     private var flag = 0 // to distinguish you from your friend
     private lateinit var sharedPreferences: SharedPreferences
     private var binding: FragmentMainBinding? = null
+    private lateinit var viewModel: MainFragmentViewModel
     var height = 0
     var width = 0
     private var listener: SettingsListener? = null
@@ -82,6 +89,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as SettingsListener
+        viewModel = ViewModelProvider(this, ViewModelFactory(requireActivity().application)).get(MainFragmentViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -139,11 +147,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
 
     private fun loadUserData() {
         if (sharedPreferences.getString(PREF_YOUR_IMAGE, "") !== "") loadUserImg()
-        try {
-            setInfor(ownerName, partnerName, coupleDate)
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
     }
 
     private fun connectViews(binding: FragmentMainBinding) {
@@ -168,13 +171,12 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
             .into(binding!!.friendProfileImage)
     }
 
-    @Throws(ParseException::class)
-    private fun setInfor(yourName: String?, yourFrName: String?, Days: String?) {
+    private fun setInfo(userInfoState: UserInfoUiState) {
+        binding!!.tvYourName.text = userInfoState.yourName
+        binding!!.tvYourFrName.text = userInfoState.yourFrName
+
         val calendar = Calendar.getInstance()
-        var dateStartString: String? = ""
-        dateStartString = Days
-        binding!!.tvYourName.text = yourName
-        binding!!.tvYourFrName.text = yourFrName
+        var dateStartString = userInfoState.coupleDate
         val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
         val dateStart = simpleDateFormat.parse(dateStartString)
         val dateEndString = simpleDateFormat.format(calendar.time)
@@ -188,11 +190,9 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     override fun applyChange(username: String) {
         val editor = sharedPreferences.edit()
         if (flag == 0) {
-            binding!!.tvYourName.text = username
-            editor.putString(PREF_YOUR_NAME, username)
+            viewModel.updateYourName(username)
         } else {
-            binding!!.tvYourFrName.text = username
-            editor.putString(PREF_YOUR_FRIEND_NAME, username)
+            viewModel.updateYourFrName(username)
         }
         editor.apply()
     }
@@ -298,6 +298,19 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
             }
         }
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.userInfoUiStateFlow.collect {
+                    Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_SHORT).show()
+                    setInfo(it)
+                }
+            }
+        }
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     override fun applyDateChange(date: String) {
