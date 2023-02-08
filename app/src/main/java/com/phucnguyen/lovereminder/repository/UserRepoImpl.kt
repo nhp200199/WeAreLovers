@@ -58,6 +58,7 @@ class UserRepoImpl(private val userSharePref: SharedPreferences) : UserRepo {
     }
 
     override fun setCoupleDate(date: String) {
+        _coupleDateFlow.tryEmit(date)
         userSharePref.edit().putString(PREF_COUPLE_DATE, date).apply()
     }
 }

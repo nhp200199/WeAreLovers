@@ -2,6 +2,7 @@ package com.phucnguyen.lovereminder.ui.fragment
 
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.DatePickerDialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -24,7 +25,6 @@ import com.phucnguyen.lovereminder.*
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding
 import com.phucnguyen.lovereminder.receiver.CoupleDateReceiver
 import com.phucnguyen.lovereminder.ui.activity.BaseActivity
-import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeDateDialog
 import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog
 import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog.ThemeDialogListener
 import com.phucnguyen.lovereminder.ui.fragment.dialog.DialogFragment
@@ -33,10 +33,8 @@ import com.phucnguyen.lovereminder.viewmodel.MainFragmentViewModel
 import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -44,8 +42,7 @@ import java.util.concurrent.TimeUnit
 /**
  * A simple [Fragment] subclass.
  */
-class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
-    ChangeDateDialog.Listener, ThemeDialogListener {
+class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, ThemeDialogListener {
     interface SettingsListener {
         fun onBackgroundImageChanged(uri: Uri)
     }
@@ -57,9 +54,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     var height = 0
     var width = 0
     private var listener: SettingsListener? = null
-    private var ownerName: String? = null
-    private var partnerName: String? = null
-    private var coupleDate: String? = null
+    private lateinit var coupleDate: String
     override fun onDestroy() {
         Log.d("Tag", "Main Frag Destroyed")
         super.onDestroy()
@@ -106,9 +101,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
         width = displayMetrics.widthPixels
         setHasOptionsMenu(true)
         sharedPreferences = activity!!.getSharedPreferences(SHARE_PREF_USER_INFO, Context.MODE_PRIVATE)
-        ownerName = sharedPreferences.getString(PREF_YOUR_NAME, DEFAULT_NAME)
-        partnerName = sharedPreferences.getString(PREF_YOUR_FRIEND_NAME, DEFAULT_NAME)
-        coupleDate = sharedPreferences.getString(PREF_COUPLE_DATE, DEFAULT_COUPLE_DATE)
         loadUserData()
         val zoomin = AnimationUtils.loadAnimation(activity, R.anim.zoom_in)
         binding!!.imgHeart.startAnimation(zoomin)
@@ -220,9 +212,28 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     }
 
     private fun showPopUpChangeDate() {
-        val changeDateDialog = ChangeDateDialog()
-        changeDateDialog.setTargetFragment(this@MainFragment, 2)
-        changeDateDialog.show(fragmentManager!!, "custom")
+        val pickerListener = DatePickerDialog.OnDateSetListener { view, selectedYear, selectedMonth, selectedDayOfMonth ->
+            val newCoupleDate = "$selectedDayOfMonth/${selectedMonth + 1}/$selectedYear"
+            viewModel.updateCoupleDate(newCoupleDate)
+            changeAlarm()
+        }
+
+        val sdf: SimpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
+        val calendar = Calendar.getInstance()
+        calendar.time = sdf.parse(coupleDate)
+        val previousSelectedDay = calendar[Calendar.DAY_OF_MONTH]
+        val previousSelectedMonth = calendar[Calendar.MONTH]
+        val previousSelectedYear = calendar[Calendar.YEAR]
+
+
+        val now = Calendar.getInstance()
+        val datePickerDialog = DatePickerDialog(requireContext(),
+            android.R.style.ThemeOverlay_DeviceDefault_Accent_DayNight,
+            pickerListener,
+            previousSelectedYear, previousSelectedMonth, previousSelectedDay
+        )
+        datePickerDialog.datePicker.maxDate = now.timeInMillis
+        datePickerDialog.show()
     }
 
     private fun ShowPopUpChangeName() {
@@ -304,39 +315,13 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.userInfoUiStateFlow.collect {
-                    Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_SHORT).show()
+                    coupleDate = it.coupleDate
                     setInfo(it)
                 }
             }
         }
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    override fun applyDateChange(date: String) {
-        val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
-        var dateStart: Date? = null
-        try {
-            dateStart = simpleDateFormat.parse(date)
-            val dateEndString = simpleDateFormat.format(calendar.time)
-            val dateEnd = simpleDateFormat.parse(dateEndString)
-            val diff = dateEnd.time - dateStart.time
-            binding!!.tvDayCount.text =
-                TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS).toString()
-        } catch (e: ParseException) {
-            e.printStackTrace()
-            Toast.makeText(activity, "Nhập sai định dạng", Toast.LENGTH_SHORT).show()
-        }
-        val editor = sharedPreferences.edit()
-        editor.putString("date", date)
-        editor.apply()
-
-        //change the alarm
-        changeAlarm()
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private fun changeAlarm() {
         val calendar = Calendar.getInstance()
         calendar[Calendar.HOUR_OF_DAY] = 9
@@ -357,11 +342,19 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            pendingIntent
-        )
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        }
     }
 
     override fun onThemeDialogChanged(themeId: Int) {
@@ -377,8 +370,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     }
 
     companion object {
-        const val DEFAULT_NAME = "Không xác định"
-        const val DEFAULT_COUPLE_DATE = "26/12/1965"
         private val TAG = MainFragment::class.java.simpleName
     }
 }

@@ -26,4 +26,8 @@ class MainFragmentViewModel(application: Application, private val userRepo: User
     fun updateYourFrName(newName: String) {
         userRepo.setYourFrName(newName)
     }
+
+    fun updateCoupleDate(date: String) {
+        userRepo.setCoupleDate(date)
+    }
 }
