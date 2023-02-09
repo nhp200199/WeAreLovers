@@ -16,7 +16,6 @@ import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
@@ -47,8 +46,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
         fun onBackgroundImageChanged(uri: Uri)
     }
 
-    private var flag = 0 // to distinguish you from your friend
-    private lateinit var sharedPreferences: SharedPreferences
     private var binding: FragmentMainBinding? = null
     private lateinit var viewModel: MainFragmentViewModel
     var height = 0
@@ -100,8 +97,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
         height = displayMetrics.heightPixels
         width = displayMetrics.widthPixels
         setHasOptionsMenu(true)
-        sharedPreferences = activity!!.getSharedPreferences(SHARE_PREF_USER_INFO, Context.MODE_PRIVATE)
-        loadUserData()
         val zoomin = AnimationUtils.loadAnimation(activity, R.anim.zoom_in)
         binding!!.imgHeart.startAnimation(zoomin)
         return v
@@ -115,7 +110,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_change_background -> {
-                flag = 2
+                viewModel.flag = 2
                 changePicture()
                 true
             }
@@ -137,10 +132,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
         changeDateDialog.show(fragmentManager!!, "ChangeThemeDialog")
     }
 
-    private fun loadUserData() {
-        if (sharedPreferences.getString(PREF_YOUR_IMAGE, "") !== "") loadUserImg()
-    }
-
     private fun connectViews(binding: FragmentMainBinding) {
         binding.mainFragLinear.setOnClickListener(this)
         binding.tvYourFrName.setOnClickListener(this)
@@ -150,20 +141,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
         binding.profileImage.setOnClickListener(this)
     }
 
-    private fun loadUserImg() {
-        val yourImg = sharedPreferences.getString(PREF_YOUR_IMAGE, "")
-        val yourFrImg = sharedPreferences.getString(PREF_YOUR_FRIEND_IMAGE, "")
-        val yourUri = Uri.parse(yourImg)
-        val yourFrUri = Uri.parse(yourFrImg)
-        Glide.with(activity!!)
-            .load(yourUri)
-            .into(binding!!.profileImage)
-        Glide.with(activity!!)
-            .load(yourFrUri)
-            .into(binding!!.friendProfileImage)
-    }
-
-    private fun setInfo(userInfoState: UserInfoUiState) {
+    private fun setUserInfo(userInfoState: UserInfoUiState) {
         binding!!.tvYourName.text = userInfoState.yourName
         binding!!.tvYourFrName.text = userInfoState.yourFrName
 
@@ -177,34 +155,39 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
         binding!!.tvDayCount.text =
             TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS)
                 .toString()
+
+        Glide.with(activity!!)
+            .load(userInfoState.yourImage)
+            .into(binding!!.profileImage)
+        Glide.with(activity!!)
+            .load(userInfoState.yourFrImage)
+            .into(binding!!.friendProfileImage)
     }
 
     override fun applyChange(username: String) {
-        val editor = sharedPreferences.edit()
-        if (flag == 0) {
+        if (viewModel.flag == 0) {
             viewModel.updateYourName(username)
         } else {
             viewModel.updateYourFrName(username)
         }
-        editor.apply()
     }
 
     override fun onClick(v: View) {
         when (v.id) {
             R.id.profile_image -> {
                 changePicture()
-                flag = 0
+                viewModel.flag = 0
             }
             R.id.friend_profile_image -> {
                 changePicture()
-                flag = 1
+                viewModel.flag = 1
             }
             R.id.tv_yourName -> {
-                flag = 0
+                viewModel.flag = 0
                 ShowPopUpChangeName()
             }
             R.id.tv_yourFrName -> {
-                flag = 1
+                viewModel.flag = 1
                 ShowPopUpChangeName()
             }
             R.id.main_frag_linear -> showPopUpChangeDate()
@@ -239,7 +222,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
     private fun ShowPopUpChangeName() {
         val dialogFragment = DialogFragment()
         val bundle = Bundle()
-        if (flag == 0) bundle.putString(
+        if (viewModel.flag == 0) bundle.putString(
             "name",
             binding!!.tvYourName.text.toString().trim { it <= ' ' }) else bundle.putString(
             "name",
@@ -273,17 +256,11 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result = CropImage.getActivityResult(data)
             if (resultCode == Activity.RESULT_OK) {
-                if (flag == 0) {
-                    binding!!.profileImage.setImageURI(result.uri)
-                    val editor = sharedPreferences.edit()
-                    editor.putString(PREF_YOUR_IMAGE, result.uri.toString())
-                    editor.apply()
-                } else if (flag == 1) {
-                    binding!!.friendProfileImage.setImageURI(result.uri)
-                    val editor = sharedPreferences.edit()
-                    editor.putString(PREF_YOUR_FRIEND_IMAGE, result.uri.toString())
-                    editor.apply()
-                } else if (flag == 2) {
+                if (viewModel.flag == 0) {
+                    viewModel.updateYourImage(result.uri.toString())
+                } else if (viewModel.flag == 1) {
+                    viewModel.updateYourFrImage(result.uri.toString())
+                } else if (viewModel.flag == 2) {
                     val options = BitmapFactory.Options()
                     options.inJustDecodeBounds = true
                     try {
@@ -316,7 +293,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.userInfoUiStateFlow.collect {
                     coupleDate = it.coupleDate
-                    setInfo(it)
+                    setUserInfo(it)
                 }
             }
         }

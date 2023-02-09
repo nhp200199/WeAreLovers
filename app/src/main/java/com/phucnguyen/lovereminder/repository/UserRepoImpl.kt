@@ -11,12 +11,16 @@ import kotlinx.coroutines.flow.asSharedFlow
 class UserRepoImpl(private val userSharePref: SharedPreferences) : UserRepo {
     private val _yourNameFlow = MutableSharedFlow<String>(replay = 1)
     private val _yourFrNameFlow = MutableSharedFlow<String>(replay = 1)
+    private val _yourImageFlow = MutableSharedFlow<String>(replay = 1)
+    private val _yourFrImageFlow = MutableSharedFlow<String>(replay = 1)
     private val _coupleDateFlow = MutableSharedFlow<String>(replay = 1)
 
     init {
         _yourNameFlow.tryEmit(userSharePref.getString(PREF_YOUR_NAME, "")!!)
         _yourFrNameFlow.tryEmit(userSharePref.getString(PREF_YOUR_FRIEND_NAME, "")!!)
         _coupleDateFlow.tryEmit(userSharePref.getString(PREF_COUPLE_DATE, "26/12/1965")!!)
+        _yourImageFlow.tryEmit(userSharePref.getString(PREF_YOUR_IMAGE, "")!!)
+        _yourFrImageFlow.tryEmit(userSharePref.getString(PREF_YOUR_FRIEND_IMAGE, "")!!)
     }
 
     override fun getYourNameFlow(): Flow<String> {
@@ -27,12 +31,12 @@ class UserRepoImpl(private val userSharePref: SharedPreferences) : UserRepo {
         return _yourFrNameFlow.asSharedFlow()
     }
 
-    override fun getYourImage(): String {
-        return userSharePref.getString(PREF_YOUR_IMAGE, "")!!
+    override fun getYourImageFlow(): Flow<String> {
+        return _yourImageFlow.asSharedFlow()
     }
 
-    override fun getYourFrImage(): String {
-        return userSharePref.getString(PREF_YOUR_FRIEND_IMAGE, "")!!
+    override fun getYourFrImageFlow(): Flow<String> {
+        return _yourFrImageFlow.asSharedFlow()
     }
 
     override fun getCoupleDateFlow(): Flow<String> {
@@ -50,10 +54,12 @@ class UserRepoImpl(private val userSharePref: SharedPreferences) : UserRepo {
     }
 
     override fun setYourImage(uriPath: String) {
+        _yourImageFlow.tryEmit(uriPath)
         userSharePref.edit().putString(PREF_YOUR_IMAGE, uriPath).apply()
     }
 
     override fun setYourFrImage(uriPath: String) {
+        _yourFrImageFlow.tryEmit(uriPath)
         userSharePref.edit().putString(PREF_YOUR_FRIEND_IMAGE, uriPath).apply()
     }
 
