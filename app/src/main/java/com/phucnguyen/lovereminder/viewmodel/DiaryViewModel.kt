@@ -2,35 +2,45 @@ package com.phucnguyen.lovereminder.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.phucnguyen.lovereminder.database.AppDatabase.Companion.getInstance
 import com.phucnguyen.lovereminder.database.DiaryDao
 import com.phucnguyen.lovereminder.model.Diary
-import io.reactivex.Observable
-import io.reactivex.subjects.Subject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onEach
 
 class DiaryViewModel(application: Application) : AndroidViewModel(application) {
     private val mDiaryDao: DiaryDao
-    private val diaryId = MutableLiveData<Int>()
-    val diary: LiveData<Diary>? = null
-    private val diaryIdSubject: Subject<Int>? = null
-    private val currentDiaryObservable: Observable<Diary>? = null
+    private val _isEditingFlow = MutableStateFlow(false)
+    val isEditingFlow = _isEditingFlow.asStateFlow()
+    var originalText: String? = null
+    private var currentDiary: Diary? = null
 
     init {
         mDiaryDao = getInstance(application).diaryDao
-        //diary = Transformations.switchMap(diaryId, id -> mDiaryDao.getDiaryById(id));
-//        diaryIdSubject = BehaviorSubject.create();
-//        currentDiaryObservable = diaryIdSubject.switchMap(id -> mDiaryDao.getDiaryById(id));
     }
 
-    fun setDiaryId(diaryId: Int) {
-        this.diaryId.value = diaryId
-    } //    public void setCurrentDiaryId(int diaryId) {
-    //        diaryIdSubject.onNext(diaryId);
-    //    }
-    //
-    //    public Observable<Diary> getCurrentDiaryObservable() {
-    //        return currentDiaryObservable;
-    //    }
+    fun setDiaryEditingState(isEditing: Boolean) {
+        _isEditingFlow.tryEmit(isEditing)
+    }
+
+    fun isEditingDiary(): Boolean {
+        return isEditingFlow.value
+    }
+
+    suspend fun updateDiary(newContent: String): Boolean {
+        val updateDiary = currentDiary!!.copy(content = newContent)
+        val updateResult = mDiaryDao.updateDiary(updateDiary)
+        return updateResult > 0
+    }
+
+    fun findDiaryById(id: Int): Flow<Diary> {
+        return mDiaryDao.findById(id).onEach {
+            currentDiary = it
+            originalText = currentDiary!!.content
+        }
+    }
+
+    fun isDiaryContentChanged(newContent: String): Boolean = newContent != originalText
 }

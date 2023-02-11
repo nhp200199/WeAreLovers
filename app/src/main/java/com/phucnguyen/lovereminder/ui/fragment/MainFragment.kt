@@ -2,6 +2,7 @@ package com.phucnguyen.lovereminder.ui.fragment
 
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.DatePickerDialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -15,22 +16,24 @@ import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.*
 import com.bumptech.glide.Glide
 import com.phucnguyen.lovereminder.*
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding
 import com.phucnguyen.lovereminder.receiver.CoupleDateReceiver
 import com.phucnguyen.lovereminder.ui.activity.BaseActivity
-import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeDateDialog
 import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog
 import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog.ThemeDialogListener
 import com.phucnguyen.lovereminder.ui.fragment.dialog.DialogFragment
+import com.phucnguyen.lovereminder.ui.uiState.UserInfoUiState
+import com.phucnguyen.lovereminder.viewmodel.MainFragmentViewModel
+import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -38,21 +41,17 @@ import java.util.concurrent.TimeUnit
 /**
  * A simple [Fragment] subclass.
  */
-class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
-    ChangeDateDialog.Listener, ThemeDialogListener {
+class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, ThemeDialogListener {
     interface SettingsListener {
         fun onBackgroundImageChanged(uri: Uri)
     }
 
-    private var flag = 0 // to distinguish you from your friend
-    private lateinit var sharedPreferences: SharedPreferences
     private var binding: FragmentMainBinding? = null
+    private lateinit var viewModel: MainFragmentViewModel
     var height = 0
     var width = 0
     private var listener: SettingsListener? = null
-    private var ownerName: String? = null
-    private var partnerName: String? = null
-    private var coupleDate: String? = null
+    private lateinit var coupleDate: String
     override fun onDestroy() {
         Log.d("Tag", "Main Frag Destroyed")
         super.onDestroy()
@@ -82,6 +81,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as SettingsListener
+        viewModel = ViewModelProvider(this, ViewModelFactory(requireActivity().application)).get(MainFragmentViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -97,11 +97,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
         height = displayMetrics.heightPixels
         width = displayMetrics.widthPixels
         setHasOptionsMenu(true)
-        sharedPreferences = activity!!.getSharedPreferences(SHARE_PREF_USER_INFO, Context.MODE_PRIVATE)
-        ownerName = sharedPreferences.getString(PREF_YOUR_NAME, DEFAULT_NAME)
-        partnerName = sharedPreferences.getString(PREF_YOUR_FRIEND_NAME, DEFAULT_NAME)
-        coupleDate = sharedPreferences.getString(PREF_COUPLE_DATE, DEFAULT_COUPLE_DATE)
-        loadUserData()
         val zoomin = AnimationUtils.loadAnimation(activity, R.anim.zoom_in)
         binding!!.imgHeart.startAnimation(zoomin)
         return v
@@ -115,7 +110,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_change_background -> {
-                flag = 2
+                viewModel.flag = 2
                 changePicture()
                 true
             }
@@ -137,15 +132,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
         changeDateDialog.show(fragmentManager!!, "ChangeThemeDialog")
     }
 
-    private fun loadUserData() {
-        if (sharedPreferences.getString(PREF_YOUR_IMAGE, "") !== "") loadUserImg()
-        try {
-            setInfor(ownerName, partnerName, coupleDate)
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-    }
-
     private fun connectViews(binding: FragmentMainBinding) {
         binding.mainFragLinear.setOnClickListener(this)
         binding.tvYourFrName.setOnClickListener(this)
@@ -155,26 +141,12 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
         binding.profileImage.setOnClickListener(this)
     }
 
-    private fun loadUserImg() {
-        val yourImg = sharedPreferences.getString(PREF_YOUR_IMAGE, "")
-        val yourFrImg = sharedPreferences.getString(PREF_YOUR_FRIEND_IMAGE, "")
-        val yourUri = Uri.parse(yourImg)
-        val yourFrUri = Uri.parse(yourFrImg)
-        Glide.with(activity!!)
-            .load(yourUri)
-            .into(binding!!.profileImage)
-        Glide.with(activity!!)
-            .load(yourFrUri)
-            .into(binding!!.friendProfileImage)
-    }
+    private fun setUserInfo(userInfoState: UserInfoUiState) {
+        binding!!.tvYourName.text = userInfoState.yourName
+        binding!!.tvYourFrName.text = userInfoState.yourFrName
 
-    @Throws(ParseException::class)
-    private fun setInfor(yourName: String?, yourFrName: String?, Days: String?) {
         val calendar = Calendar.getInstance()
-        var dateStartString: String? = ""
-        dateStartString = Days
-        binding!!.tvYourName.text = yourName
-        binding!!.tvYourFrName.text = yourFrName
+        var dateStartString = userInfoState.coupleDate
         val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
         val dateStart = simpleDateFormat.parse(dateStartString)
         val dateEndString = simpleDateFormat.format(calendar.time)
@@ -183,36 +155,39 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
         binding!!.tvDayCount.text =
             TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS)
                 .toString()
+
+        Glide.with(activity!!)
+            .load(userInfoState.yourImage)
+            .into(binding!!.profileImage)
+        Glide.with(activity!!)
+            .load(userInfoState.yourFrImage)
+            .into(binding!!.friendProfileImage)
     }
 
     override fun applyChange(username: String) {
-        val editor = sharedPreferences.edit()
-        if (flag == 0) {
-            binding!!.tvYourName.text = username
-            editor.putString(PREF_YOUR_NAME, username)
+        if (viewModel.flag == 0) {
+            viewModel.updateYourName(username)
         } else {
-            binding!!.tvYourFrName.text = username
-            editor.putString(PREF_YOUR_FRIEND_NAME, username)
+            viewModel.updateYourFrName(username)
         }
-        editor.apply()
     }
 
     override fun onClick(v: View) {
         when (v.id) {
             R.id.profile_image -> {
                 changePicture()
-                flag = 0
+                viewModel.flag = 0
             }
             R.id.friend_profile_image -> {
                 changePicture()
-                flag = 1
+                viewModel.flag = 1
             }
             R.id.tv_yourName -> {
-                flag = 0
+                viewModel.flag = 0
                 ShowPopUpChangeName()
             }
             R.id.tv_yourFrName -> {
-                flag = 1
+                viewModel.flag = 1
                 ShowPopUpChangeName()
             }
             R.id.main_frag_linear -> showPopUpChangeDate()
@@ -220,15 +195,34 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     }
 
     private fun showPopUpChangeDate() {
-        val changeDateDialog = ChangeDateDialog()
-        changeDateDialog.setTargetFragment(this@MainFragment, 2)
-        changeDateDialog.show(fragmentManager!!, "custom")
+        val pickerListener = DatePickerDialog.OnDateSetListener { view, selectedYear, selectedMonth, selectedDayOfMonth ->
+            val newCoupleDate = "$selectedDayOfMonth/${selectedMonth + 1}/$selectedYear"
+            viewModel.updateCoupleDate(newCoupleDate)
+            changeAlarm()
+        }
+
+        val sdf: SimpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
+        val calendar = Calendar.getInstance()
+        calendar.time = sdf.parse(coupleDate)
+        val previousSelectedDay = calendar[Calendar.DAY_OF_MONTH]
+        val previousSelectedMonth = calendar[Calendar.MONTH]
+        val previousSelectedYear = calendar[Calendar.YEAR]
+
+
+        val now = Calendar.getInstance()
+        val datePickerDialog = DatePickerDialog(requireContext(),
+            android.R.style.ThemeOverlay_DeviceDefault_Accent_DayNight,
+            pickerListener,
+            previousSelectedYear, previousSelectedMonth, previousSelectedDay
+        )
+        datePickerDialog.datePicker.maxDate = now.timeInMillis
+        datePickerDialog.show()
     }
 
     private fun ShowPopUpChangeName() {
         val dialogFragment = DialogFragment()
         val bundle = Bundle()
-        if (flag == 0) bundle.putString(
+        if (viewModel.flag == 0) bundle.putString(
             "name",
             binding!!.tvYourName.text.toString().trim { it <= ' ' }) else bundle.putString(
             "name",
@@ -262,17 +256,11 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result = CropImage.getActivityResult(data)
             if (resultCode == Activity.RESULT_OK) {
-                if (flag == 0) {
-                    binding!!.profileImage.setImageURI(result.uri)
-                    val editor = sharedPreferences.edit()
-                    editor.putString(PREF_YOUR_IMAGE, result.uri.toString())
-                    editor.apply()
-                } else if (flag == 1) {
-                    binding!!.friendProfileImage.setImageURI(result.uri)
-                    val editor = sharedPreferences.edit()
-                    editor.putString(PREF_YOUR_FRIEND_IMAGE, result.uri.toString())
-                    editor.apply()
-                } else if (flag == 2) {
+                if (viewModel.flag == 0) {
+                    viewModel.updateYourImage(result.uri.toString())
+                } else if (viewModel.flag == 1) {
+                    viewModel.updateYourFrImage(result.uri.toString())
+                } else if (viewModel.flag == 2) {
                     val options = BitmapFactory.Options()
                     options.inJustDecodeBounds = true
                     try {
@@ -299,31 +287,18 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    override fun applyDateChange(date: String) {
-        val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
-        var dateStart: Date? = null
-        try {
-            dateStart = simpleDateFormat.parse(date)
-            val dateEndString = simpleDateFormat.format(calendar.time)
-            val dateEnd = simpleDateFormat.parse(dateEndString)
-            val diff = dateEnd.time - dateStart.time
-            binding!!.tvDayCount.text =
-                TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS).toString()
-        } catch (e: ParseException) {
-            e.printStackTrace()
-            Toast.makeText(activity, "Nhập sai định dạng", Toast.LENGTH_SHORT).show()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.userInfoUiStateFlow.collect {
+                    coupleDate = it.coupleDate
+                    setUserInfo(it)
+                }
+            }
         }
-        val editor = sharedPreferences.edit()
-        editor.putString("date", date)
-        editor.apply()
-
-        //change the alarm
-        changeAlarm()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private fun changeAlarm() {
         val calendar = Calendar.getInstance()
         calendar[Calendar.HOUR_OF_DAY] = 9
@@ -344,11 +319,19 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            pendingIntent
-        )
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        }
     }
 
     override fun onThemeDialogChanged(themeId: Int) {
@@ -364,8 +347,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener,
     }
 
     companion object {
-        const val DEFAULT_NAME = "Không xác định"
-        const val DEFAULT_COUPLE_DATE = "26/12/1965"
         private val TAG = MainFragment::class.java.simpleName
     }
 }

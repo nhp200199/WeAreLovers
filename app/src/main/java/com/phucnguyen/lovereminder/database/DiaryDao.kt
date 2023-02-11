@@ -19,10 +19,10 @@ interface DiaryDao {
     suspend fun deleteDiary(diary: Diary): Int
 
     @Update
-    fun updateDiary(diary: Diary): Completable
+    suspend fun updateDiary(diary: Diary): Int
 
     @Query("select * from diaries where id = :id")
-    fun getDiaryById(id: Int): Single<Diary>
+    fun findById(id: Int): Flow<Diary>
 
     @Query("select * from diaries join diaries_fts on diaries_fts.content = diaries.content where diaries_fts match :query")
     fun getDiariesBasedOnString(query: String): Single<List<Diary>>

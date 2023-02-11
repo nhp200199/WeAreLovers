@@ -5,33 +5,25 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.phucnguyen.lovereminder.R
-import com.phucnguyen.lovereminder.database.AppDatabase.Companion.getInstance
-import com.phucnguyen.lovereminder.database.DiaryDao
 import com.phucnguyen.lovereminder.databinding.ActivityDiaryBinding
 import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.viewmodel.DiaryViewModel
-import io.reactivex.CompletableObserver
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 class DiaryActivity : BaseActivity() {
     private var menu: Menu? = null
     private var diaryId = 0
-    var originalText: String? = null
-    private var currentDiary: Diary? = null
-    private var viewModel: DiaryViewModel? = null
-    private var mDiaryDao: DiaryDao? = null
-    private var isEditing = false
+    private lateinit var viewModel: DiaryViewModel
     private lateinit var binding: ActivityDiaryBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +31,6 @@ class DiaryActivity : BaseActivity() {
         setTheme()
         binding = ActivityDiaryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        mDiaryDao = getInstance(this).diaryDao
         viewModel = ViewModelProvider(this).get(DiaryViewModel::class.java)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -47,38 +38,58 @@ class DiaryActivity : BaseActivity() {
         supportActionBar!!.setDisplayShowTitleEnabled(false)
         supportActionBar.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { view: View? -> onBackPressed() }
-        if (savedInstanceState != null) {
-            isEditing = savedInstanceState.getBoolean("isEditing")
-            if (isEditing) {
-                binding.edtContent.visibility = View.VISIBLE
-                binding.tvContent.visibility = View.GONE
+        if (intent.hasExtra(EXTRA_DIARY_ID)) {
+            diaryId = intent.getIntExtra(EXTRA_DIARY_ID, DEFAULT_DIARY_ID)
+        }
+
+        lifecycleScope.launch { 
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.isEditingFlow.collect {
+                        if (it) {
+                            binding.edtContent.visibility = View.VISIBLE
+                            binding.tvContent.visibility = View.GONE
+                            binding.edtContent.setText(binding.tvContent.text.toString())
+                            binding.edtContent.requestFocus()
+                            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                            imm.showSoftInput(binding.edtContent, InputMethodManager.SHOW_IMPLICIT)
+                            binding.edtContent.setSelection(binding.edtContent.text.length)
+                        } else {
+                            binding.edtContent.visibility = View.GONE
+                            binding.tvContent.visibility = View.VISIBLE
+                        }
+                    }
+                }
+                launch {
+                    viewModel.findDiaryById(diaryId).collect {
+                        populateDiaryView(it)
+                    }
+                }
             }
         }
-        if (intent.hasExtra("id")) {
-            diaryId = intent.getIntExtra("id", 0)
-        }
-        
-        mDiaryDao!!.getDiaryById(diaryId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { diary: Diary ->
-                currentDiary = diary
-                originalText = currentDiary!!.content
-                binding.tvContent.text = diary.content
-                val sdf = SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy")
-                val formattedDateString = sdf.format(Date(diary.date))
-                binding.tvDate.text = formattedDateString
-            }
+    }
+
+    private fun populateDiaryView(diary: Diary) {
+        binding.tvContent.text = diary.content
+        val sdf = SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy")
+        val formattedDateString = sdf.format(Date(diary.date))
+        binding.tvDate.text = formattedDateString
     }
 
     private fun showMessage() {
         val builder = AlertDialog.Builder(this)
-        builder.setMessage("Chưa lưu thay dổi. Bạn có muốn lưu lại không?")
-            .setPositiveButton("Có") { dialog, which ->
-                updateDiary()
-                finish()
+        builder.setMessage(getString(R.string.title_dialog_change_unsave_confirmation))
+            .setPositiveButton(getString(R.string.txt_dialog_action_positive)) { dialog, which ->
+                lifecycleScope.launch {
+                    updateDiary()
+                    dialog.dismiss()
+                    finish()
+                }
             }
-            .setNegativeButton("Không") { dialog, which -> super@DiaryActivity.onBackPressed() }
+            .setNegativeButton(getString(R.string.txt_dialog_action_negative)) { dialog, which ->
+                dialog.dismiss()
+                super@DiaryActivity.onBackPressed()
+            }
         val alertDialog = builder.create()
         alertDialog.show()
     }
@@ -90,13 +101,8 @@ class DiaryActivity : BaseActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean("isEditing", isEditing)
-    }
-
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        if (isEditing) {
+        if (viewModel.isEditingDiary()) {
             menu.findItem(R.id.action_edit_dairy).isVisible = false
             menu.setGroupVisible(R.id.group_rewrite_diary_status, true)
         } else {
@@ -109,34 +115,25 @@ class DiaryActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_edit_dairy -> {
-                isEditing = true
-                binding.edtContent.visibility = View.VISIBLE
-                binding.edtContent.setText(binding.tvContent.text.toString())
-                binding.edtContent.requestFocus()
-                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(binding.edtContent, InputMethodManager.SHOW_IMPLICIT)
-                binding.edtContent.setSelection(binding.edtContent.text.length)
-                binding.tvContent.visibility = View.INVISIBLE
+                viewModel.setDiaryEditingState(true)
                 invalidateOptionsMenu()
                 true
             }
             R.id.action_done_rewrite_diary -> {
-                if (originalText == binding.edtContent.text.toString().trim { it <= ' ' }) {
-                    Toast.makeText(this, "Bạn chưa thay đổi nội dung nhật kí", Toast.LENGTH_SHORT)
+                if (!viewModel.isDiaryContentChanged(binding.edtContent.text.toString().trim { it <= ' ' })) {
+                    Toast.makeText(this, getString(R.string.msg_toast_diary_content_unchanged), Toast.LENGTH_SHORT)
                         .show()
                     return true
                 }
-                isEditing = false
-                binding.tvContent.visibility = View.VISIBLE
-                binding.edtContent.visibility = View.INVISIBLE
-                updateDiary()
+                viewModel.setDiaryEditingState(false)
+                lifecycleScope.launch {
+                    updateDiary()
+                }
                 invalidateOptionsMenu()
                 true
             }
             R.id.action_cancel_rewrite_diary -> {
-                isEditing = false
-                binding.tvContent.visibility = View.VISIBLE
-                binding.edtContent.visibility = View.INVISIBLE
+                viewModel.setDiaryEditingState(false)
                 invalidateOptionsMenu()
                 true
             }
@@ -144,27 +141,29 @@ class DiaryActivity : BaseActivity() {
         }
     }
 
-    private fun updateDiary() {
-        val updatedContent = binding.edtContent.text.toString().trim { it <= ' ' }
-        currentDiary!!.content = updatedContent
-        //        new UpdateDiaryAsync(mDiaryDao).execute(currentDiary);
-        mDiaryDao!!.updateDiary(currentDiary!!)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : CompletableObserver {
-                override fun onSubscribe(d: Disposable) {}
-                override fun onComplete() {
-                    binding.tvContent.text = updatedContent
-                    Toast.makeText(this@DiaryActivity, "Diary updated", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onError(e: Throwable) {}
-            })
+    private suspend fun updateDiary() {
+        val newContent = binding.edtContent.text.toString().trim { it <= ' ' }
+        val updateResult = viewModel.updateDiary(newContent)
+        if (updateResult) {
+            Toast.makeText(this@DiaryActivity, getString(R.string.toast_msg_update_diary_success), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this@DiaryActivity, getString(R.string.toast_msg_update_diary_failed), Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onBackPressed() {
-        if (originalText != binding.edtContent.text.toString()
-                .trim { it <= ' ' } && isEditing
-        ) showMessage() else super.onBackPressed()
+        if (viewModel.isDiaryContentChanged(binding.edtContent.text.toString().trim { it <= ' ' } )
+                && viewModel.isEditingDiary()
+        ) {
+            showMessage()
+        }
+        else {
+            super.onBackPressed()
+        }
+    }
+
+    companion object {
+        const val EXTRA_DIARY_ID = "id"
+        const val DEFAULT_DIARY_ID = 0
     }
 }
