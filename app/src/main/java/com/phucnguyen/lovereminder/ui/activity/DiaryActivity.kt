@@ -16,6 +16,7 @@ import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.databinding.ActivityDiaryBinding
 import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.viewmodel.DiaryViewModel
+import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,7 +32,7 @@ class DiaryActivity : BaseActivity() {
         setTheme()
         binding = ActivityDiaryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        viewModel = ViewModelProvider(this).get(DiaryViewModel::class.java)
+        viewModel = ViewModelProvider(this, ViewModelFactory(application)).get(DiaryViewModel::class.java)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         val supportActionBar = supportActionBar

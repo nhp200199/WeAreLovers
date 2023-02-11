@@ -24,6 +24,8 @@ class ViewModelFactory(val application: Application) : ViewModelProvider.Android
             return MainFragmentViewModel(application,
                 UserRepoImpl(application.getSharedPreferences(SHARE_PREF_USER_INFO, AppCompatActivity.MODE_PRIVATE))
             ) as T
+        } else if (modelClass.isAssignableFrom(DiaryViewModel::class.java)) {
+            return DiaryViewModel(application, DiaryRepoImpl(AppDatabase.getInstance(application).diaryDao)) as T
         } else {
             throw IllegalArgumentException("Cannot find the view model")
         }

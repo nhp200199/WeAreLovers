@@ -9,13 +9,13 @@ class DiaryRepoImpl(val diaryDao: DiaryDao) : DiaryRepo {
         return diaryDao.findAllDiaries()
     }
 
-//    override suspend fun findById(id: Int): Diary {
-//        return diaryDao.getDiaryById(id)
-//    }
-//
-//    override suspend fun updateDiary(diary: Diary): Int {
-//        TODO("Not yet implemented")
-//    }
+    override suspend fun findById(id: Int): Flow<Diary> {
+        return diaryDao.findById(id)
+    }
+
+    override suspend fun updateDiary(diary: Diary): Int {
+        return diaryDao.updateDiary(diary)
+    }
 
     override suspend fun deleteDiary(diary: Diary): Int {
         return diaryDao.deleteDiary(diary)

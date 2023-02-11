@@ -5,21 +5,17 @@ import androidx.lifecycle.AndroidViewModel
 import com.phucnguyen.lovereminder.database.AppDatabase.Companion.getInstance
 import com.phucnguyen.lovereminder.database.DiaryDao
 import com.phucnguyen.lovereminder.model.Diary
+import com.phucnguyen.lovereminder.repository.DiaryRepo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
 
-class DiaryViewModel(application: Application) : AndroidViewModel(application) {
-    private val mDiaryDao: DiaryDao
+class DiaryViewModel(application: Application, private val diaryRepo: DiaryRepo) : AndroidViewModel(application) {
     private val _isEditingFlow = MutableStateFlow(false)
     val isEditingFlow = _isEditingFlow.asStateFlow()
     var originalText: String? = null
     private var currentDiary: Diary? = null
-
-    init {
-        mDiaryDao = getInstance(application).diaryDao
-    }
 
     fun setDiaryEditingState(isEditing: Boolean) {
         _isEditingFlow.tryEmit(isEditing)
@@ -31,12 +27,12 @@ class DiaryViewModel(application: Application) : AndroidViewModel(application) {
 
     suspend fun updateDiary(newContent: String): Boolean {
         val updateDiary = currentDiary!!.copy(content = newContent)
-        val updateResult = mDiaryDao.updateDiary(updateDiary)
+        val updateResult = diaryRepo.updateDiary(updateDiary)
         return updateResult > 0
     }
 
-    fun findDiaryById(id: Int): Flow<Diary> {
-        return mDiaryDao.findById(id).onEach {
+    suspend fun findDiaryById(id: Int): Flow<Diary> {
+        return diaryRepo.findById(id).onEach {
             currentDiary = it
             originalText = currentDiary!!.content
         }
