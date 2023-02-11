@@ -15,6 +15,7 @@ import com.phucnguyen.lovereminder.databinding.ActivityCreateDiaryBinding
 import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.utils.hideKeyboard
 import com.phucnguyen.lovereminder.viewmodel.CreateDiaryViewModel
+import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -35,7 +36,7 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
         actionBar.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { view: View? -> onBackPressed() }
 
-        viewModel = ViewModelProvider(this).get(CreateDiaryViewModel::class.java)
+        viewModel = ViewModelProvider(this, ViewModelFactory(application)).get(CreateDiaryViewModel::class.java)
         viewModel.getBackgroundImage()?.apply {
             Glide.with(this@CreateDiaryActivity)
                 .load(this@apply)
