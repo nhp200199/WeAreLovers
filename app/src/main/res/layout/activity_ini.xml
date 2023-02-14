@@ -87,5 +87,6 @@
         android:layout_below="@+id/ll_couple_info_container"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
-        android:text="@string/init_screen_btn_confirm_txt" />
+        android:enabled="false"
+        android:text="@string/txt_btn_confirm_user_info"/>
 </RelativeLayout>

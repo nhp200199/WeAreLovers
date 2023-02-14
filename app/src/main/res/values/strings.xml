@@ -19,4 +19,18 @@
     <string name="main_frag_days_txt">Days</string>
     <string name="frag_diary_txt_no_diary">Chưa có nhật kí</string>
     <string name="txt_no_pictures_added">Thêm hình ảnh đi bạn nhé!!!</string>
+    <string name="hint_edt_couple_date">Nhấn để chọn</string>
+    <string name="txt_btn_confirm_user_info">Xác nhận</string>
+    <string name="toast_msg_update_diary_success">Nhật kí đã được chỉnh sửa</string>
+    <string name="toast_msg_update_diary_failed">Có lỗi trong quá trình chỉnh sửa. Vui lòng thử lại</string>
+    <string name="title_dialog_change_unsave_confirmation">Chưa lưu thay dổi. Bạn có muốn lưu lại không?</string>
+    <string name="txt_dialog_action_positive">Có</string>
+    <string name="txt_dialog_action_negative">Không</string>
+    <string name="msg_toast_diary_content_unchanged">Bạn chưa thay đổi nội dung nhật kí</string>
+    <string name="toast_msg_diary_created">Đã lưu</string>
+    <string name="toast_msg_fail_create_diary">Có lỗi khi tạo nhật kí</string>
+    <string name="txt_btn_create_diary">Lưu</string>
+    <string name="hint_create_diary">Hãy viết điều bạn đang suy nghĩ nhé</string>
+    <string name="toast_msg_deleted_diary">Nhật kí đã được xóa</string>
+    <string name="toast_msg_fail_delete_diary">Có lỗi khi xóa nhật kí</string>
 </resources>
