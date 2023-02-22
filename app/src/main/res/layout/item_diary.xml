@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:fontFamily="sans-serif"
-        android:text="ngay thang" />
+        android:text="ngay thang"
+        android:textAppearance="?attr/textAppearanceBody1" />
 
     <TextView
         android:id="@+id/tv_content"
@@ -24,5 +25,6 @@
         android:layout_marginBottom="5dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="mot noi dung g" />
+        android:text="mot noi dung g"
+        android:textAppearance="?attr/textAppearanceBody2" />
 </LinearLayout>

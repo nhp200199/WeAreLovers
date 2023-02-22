@@ -12,10 +12,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:fontFamily="@font/pacifico"
         android:text="@string/welcome"
-        android:textColor="@color/white"
-        android:textSize="24sp"
-        android:textStyle="normal" />
+        android:textAppearance="?attr/textAppearanceHeadline5"
+        android:textColor="@color/white" />
 
 </RelativeLayout>

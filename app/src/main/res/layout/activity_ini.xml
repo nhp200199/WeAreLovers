@@ -4,25 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_welcome"
+    android:gravity="center_vertical"
     android:paddingHorizontal="@dimen/default_screen_horizontal_padding"
     android:paddingVertical="@dimen/default_screen_vertical_padding"
-    android:background="@drawable/bg_welcome"
-    tools:context=".ui.activity.IniActivity"
-    android:gravity="center_vertical">
+    tools:context=".ui.activity.IniActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_logo_container"
         android:layout_width="160dp"
-        android:layout_centerHorizontal="true"
         android:layout_height="160dp"
+        android:layout_centerHorizontal="true"
         app:cardCornerRadius="@dimen/default_corner_radius">
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@mipmap/ic_launcher"
+            android:outlineProvider="background"
             android:scaleType="centerCrop"
-            android:outlineProvider="background"/>
+            android:src="@mipmap/ic_launcher" />
 
     </androidx.cardview.widget.CardView>
 
@@ -39,54 +39,60 @@
             android:id="@+id/tv_yourName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
             android:text="@string/your_name"
-            />
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@color/white" />
+
         <EditText
-            android:inputType="text"
+            android:id="@+id/edt_yourName"
+            style="@style/MyEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/edt_yourName" />
+            android:inputType="text" />
+
         <TextView
             android:id="@+id/tv_yourFrName"
             android:layout_width="wrap_content"
-            android:textColor="@color/white"
             android:layout_height="wrap_content"
             android:text="@string/your_friend_name"
-            />
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@color/white" />
+
         <EditText
-            android:inputType="text"
+            android:id="@+id/edt_yourFrName"
+            style="@style/MyEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/edt_yourFrName" />
+            android:inputType="text" />
+
         <TextView
             android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
             android:text="@string/date"
-            />
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@color/white" />
 
         <EditText
             android:id="@+id/edt_date"
+            style="@style/MyEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:fontFamily="sans-serif"
             android:focusable="false"
             android:focusableInTouchMode="false"
-            android:hint="@string/init_screen_date_hint"
-            android:textSize="18sp" />
+            android:hint="@string/init_screen_date_hint" />
 
     </LinearLayout>
 
     <Button
         android:id="@+id/btn_confirm"
+        style="@style/MyButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_couple_info_container"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
         android:enabled="false"
-        android:text="@string/txt_btn_confirm_user_info"/>
+        android:text="@string/txt_btn_confirm_user_info" />
 </RelativeLayout>

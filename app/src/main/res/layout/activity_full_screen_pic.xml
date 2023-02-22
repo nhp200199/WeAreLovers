@@ -7,13 +7,15 @@
     android:background="#000000"
     android:orientation="vertical"
     tools:context=".ui.activity.FullScreenPicActivity">
+
     <include
-        layout="@layout/toolbar"
-        android:id="@+id/toolbar"/>
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/photo_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layoutDirection="locale"/>
+        android:layoutDirection="locale" />
 
 </LinearLayout>

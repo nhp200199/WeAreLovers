@@ -1,52 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/relative"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activity.CreateDiaryActivity"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    tools:context=".ui.activity.CreateDiaryActivity">
+
     <include
-        layout="@layout/toolbar"
-        android:id="@+id/toolbar"/>
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar">
+
         <ImageView
             android:id="@+id/img_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/couple"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop"
+            android:src="@drawable/couple" />
 
         <RelativeLayout
             android:id="@+id/relative_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
             <EditText
                 android:id="@+id/edt_diary"
-                android:inputType="textMultiLine"
-                android:layout_marginRight="15dp"
-                android:padding="10dp"
-                android:layout_centerInParent="true"
-                android:gravity="top"
-                android:layout_marginLeft="15dp"
-                android:lines="8"
-                android:hint="@string/hint_create_diary"
-                android:background="@drawable/edt_round"
+                style="@style/MyEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:gravity="top"
+                android:hint="@string/hint_create_diary"
+                android:inputType="textMultiLine"
+                android:lines="8" />
 
             <Button
                 android:id="@+id/btn_save"
+                style="@style/MyButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/txt_btn_create_diary"
-                android:layout_marginTop="15dp"
                 android:layout_below="@+id/edt_diary"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
                 android:enabled="false"
-                android:layout_centerHorizontal="true" />
+                android:text="@string/txt_btn_create_diary" />
         </RelativeLayout>
 
     </FrameLayout>

@@ -5,8 +5,15 @@
         <!-- Customize your theme here. -->
         <item name="android:fontFamily">@font/pacifico_family</item>
         <item name="android:textColor">@color/dove_gray_approx</item>
-        <item name="buttonStyle">@style/MyButton</item>
-        <item name="editTextStyle">@style/MyEditText</item>
+        <item name="textAppearanceHeadline1">@style/TextAppearance.MaterialComponents.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.MaterialComponents.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/MyHeadline3.Bold</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.MaterialComponents.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/MyHeadline5.Bold</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.MaterialComponents.Headline6</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.MaterialComponents.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
     </style>
 
     <style name="AppThemeBase.Rose">
@@ -14,39 +21,35 @@
         <item name="colorPrimary">@color/amaranth</item>
         <item name="colorPrimaryDark">@color/razzmatazz</item>
         <item name="colorAccent">@color/shiraz</item>
-        <item name="android:statusBarColor">@color/shiraz</item>
     </style>
-
-<!--    <style name="AppTheme." parent="Theme.AppCompat.Light.NoActionBar">-->
-<!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
-<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
-<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
-<!--        <item name="colorAccent">@color/colorAccent</item>-->
-<!--        <item name="android:fontFamily">@font/pacifico_family</item>-->
-<!--    </style>-->
 
     <style name="AppThemeBase.Blue">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/royal_blue_approx</item>
         <item name="colorPrimaryDark">@color/royal_blue</item>
         <item name="colorAccent">@color/science_blue_approx</item>
-        <item name="android:statusBarColor">@color/royal_blue</item>
     </style>
 
+<!--    STYLES-->
     <style name="MyButton" parent="@android:style/Widget.Button">
         <item name="android:background">@drawable/btn_round</item>
         <item name="android:paddingHorizontal">@dimen/button_padding_horizontal</item>
         <item name="android:paddingVertical">@dimen/button_padding_vertical</item>
         <item name="android:minWidth">@dimen/button_min_width</item>
+        <item name="android:textColor">@color/color_state_general_btn_txt</item>
+        <item name="android:textAppearance">?attr/textAppearanceButton</item>
     </style>
 
     <style name="MyEditText" parent="Widget.AppCompat.EditText">
         <item name="fontFamily">sans-serif</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:background">@drawable/edt_round</item>
     </style>
 
 <!--    Text View-->
     <style name="SingleLineRoundBackground" parent="android:Widget.TextView">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2.MyBody2</item>
+        <item name="android:textAppearance">?attr/textAppearanceBody2</item>
         <item name="android:padding">@dimen/default_chip_padding</item>
         <item name="android:background">@drawable/edt_round</item>
         <item name="android:maxWidth">100dp</item>
@@ -56,13 +59,7 @@
     </style>
 
 <!--    Text View-->
-
-<!--    Text Appearances-->
-    <style name="MyHeadline6" parent="TextAppearance.MaterialComponents.Headline6"/>
-    <style name="MyHeadline6.Bold">
-        <item name="android:textStyle">bold</item>
-    </style>
-
+    
     <style name="MyHeadline5" parent="TextAppearance.MaterialComponents.Headline5"/>
     <style name="MyHeadline5.Bold">
         <item name="android:textStyle">bold</item>
@@ -73,18 +70,10 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextAppearance.MaterialComponents.Body2.MyBody2">
-        <item name="android:textColor">@color/dove_gray_approx</item>
-    </style>
-
-    <style name="ToolbarText" parent="MyHeadline6">
-        <item name="android:textColor"></item>
-    </style>
-<!--    Text Appearances-->
-
 <!--    Action bar-->
     <style name="MyActionBarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:textColor">@color/white</item>
+        <item name="android:textAppearance">?attr/textAppearanceHeadline5</item>
     </style>
 <!--    Action bar-->
 </resources>

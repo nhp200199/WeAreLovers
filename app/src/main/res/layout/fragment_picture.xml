@@ -11,13 +11,12 @@
         android:id="@+id/gv_Pictures"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="auto_fit"
+        android:layout_gravity="center"
         android:columnWidth="90dp"
         android:horizontalSpacing="2dp"
-        android:verticalSpacing="3dp"
-        android:layout_gravity="center"
+        android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
-        >
+        android:verticalSpacing="3dp">
 
     </GridView>
 
@@ -25,16 +24,16 @@
         android:id="@+id/linear_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_gravity="center"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:text="@string/txt_no_pictures_added"
-            android:textAppearance="@style/MyHeadline5.Bold">
-        </TextView>
+            android:textAppearance="?attr/textAppearanceHeadline5"></TextView>
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

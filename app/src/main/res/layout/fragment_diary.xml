@@ -13,7 +13,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="15dp"
         android:layout_marginRight="10dp"
-        tools:listitem="@layout/diary_item">
+        tools:listitem="@layout/item_diary">
         <!--        android:divider="@android:color/transparent"-->
         <!--        android:dividerHeight="10.0sp"-->
 
@@ -27,7 +27,7 @@
         android:layout_gravity="center"
         android:text="@string/frag_diary_txt_no_diary"
         android:textAlignment="center"
-        android:textAppearance="@style/MyHeadline5.Bold" />
+        android:textAppearance="?attr/textAppearanceHeadline5" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddDiary"

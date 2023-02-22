@@ -29,7 +29,7 @@ class DiaryAdapter(private val mContext: Context) : ListAdapter<Diary, DiaryView
     private var mListener: Listener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DiaryViewHolder {
         val convertView = LayoutInflater.from(mContext).inflate(
-            R.layout.diary_item, parent,
+            R.layout.item_diary, parent,
             false
         )
         return DiaryViewHolder(convertView)

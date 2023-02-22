@@ -8,13 +8,13 @@
         android:id="@+id/civThemeCorlor"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:src="@color/cardview_dark_background"/>
+        android:src="@color/cardview_dark_background" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/civThemeChecked"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_gravity="center"
-        android:src="@color/royal_blue"/>
+        android:src="@color/royal_blue" />
 
 </FrameLayout>
