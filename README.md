@@ -7,7 +7,7 @@ This app create a beautiful and memorable space for couples. Here couples can ex
 - Create love diary
 Store image of each other
 ## Future Improvements
-- [ ] Update UI base on Material guideline.
+- [x] Update UI base on Material guideline.
 - [x] Migrate codebase to Kotlin
 - [x] Apply MVVM architecture
 - [ ] Support advertising
