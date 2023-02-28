@@ -4,7 +4,6 @@
     <style name="AppThemeBase" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:fontFamily">@font/pacifico_family</item>
-        <item name="android:textColor">@color/dove_gray_approx</item>
         <item name="textAppearanceHeadline1">@style/TextAppearance.MaterialComponents.Headline1</item>
         <item name="textAppearanceHeadline2">@style/TextAppearance.MaterialComponents.Headline2</item>
         <item name="textAppearanceHeadline3">@style/MyHeadline3.Bold</item>
@@ -14,6 +13,9 @@
         <item name="textAppearanceBody1">@style/TextAppearance.MaterialComponents.Body1</item>
         <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
         <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
+        <item name="android:textColorPrimary">@color/dove_gray_approx</item>
+        <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:textColorHint">@color/dove_gray_approx</item>
     </style>
 
     <style name="AppThemeBase.Rose">
@@ -48,13 +50,14 @@
     </style>
 
 <!--    Text View-->
-    <style name="SingleLineRoundBackground" parent="android:Widget.TextView">
+    <style name="SingleLineRoundBackgroundTextView" parent="android:Widget.TextView">
         <item name="android:textAppearance">?attr/textAppearanceBody2</item>
         <item name="android:padding">@dimen/default_chip_padding</item>
         <item name="android:background">@drawable/edt_round</item>
         <item name="android:maxWidth">100dp</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:layout_gravity">center_horizontal</item>
     </style>
 
@@ -71,9 +74,9 @@
     </style>
 
 <!--    Action bar-->
-    <style name="MyActionBarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <style name="MyActionBarThemeOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:textColor">@color/white</item>
-        <item name="android:textAppearance">?attr/textAppearanceHeadline5</item>
+        <item name="textAppearanceHeadline5">@style/MyHeadline5.Bold</item>
     </style>
 <!--    Action bar-->
 </resources>

@@ -27,6 +27,7 @@
         android:layout_gravity="center"
         android:text="@string/frag_diary_txt_no_diary"
         android:textAlignment="center"
+        android:textColor="?android:attr/textColorPrimary"
         android:textAppearance="?attr/textAppearanceHeadline5" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

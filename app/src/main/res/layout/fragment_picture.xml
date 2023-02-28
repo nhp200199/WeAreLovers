@@ -33,6 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:text="@string/txt_no_pictures_added"
+            android:textColor="?android:attr/textColorPrimary"
             android:textAppearance="?attr/textAppearanceHeadline5"></TextView>
     </LinearLayout>
 

@@ -13,7 +13,7 @@
         android:layout_marginTop="25dp"
         android:text="@string/main_frag_main_txt"
         android:textAppearance="?attr/textAppearanceHeadline6"
-        android:textColor="@color/white" />
+        android:textColor="?android:attr/textColorSecondary" />
 
     <LinearLayout
         android:id="@+id/main_frag_linear"
@@ -27,6 +27,7 @@
             android:id="@+id/tv_day_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="?android:attr/textColorPrimary"
             android:textAppearance="?attr/textAppearanceHeadline3" />
 
         <TextView
@@ -61,7 +62,7 @@
 
             <TextView
                 android:id="@id/tv_yourName"
-                style="@style/SingleLineRoundBackground"
+                style="@style/SingleLineRoundBackgroundTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -102,7 +103,7 @@
 
             <TextView
                 android:id="@id/tv_yourFrName"
-                style="@style/SingleLineRoundBackground"
+                style="@style/SingleLineRoundBackgroundTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"

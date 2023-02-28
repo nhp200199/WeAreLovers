@@ -21,6 +21,7 @@
         android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"
         android:text="sdfsdfsfsdfds"
+        android:textColor="?android:attr/textColorPrimary"
         android:textAppearance="?attr/textAppearanceBody1" />
 
     <FrameLayout
@@ -43,6 +44,7 @@
             android:layout_marginStart="30dp"
             android:layout_marginEnd="10dp"
             android:text="dsfsklfjsdalfdsjfsfsdf"
+            android:textColor="?android:attr/textColorPrimary"
             android:textAppearance="?attr/textAppearanceBody2" />
     </FrameLayout>
 
