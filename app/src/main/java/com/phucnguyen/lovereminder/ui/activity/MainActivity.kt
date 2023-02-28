@@ -156,13 +156,13 @@ class MainActivity : BaseActivity(), SettingsListener {
         override fun getItem(position: Int): Fragment {
             return when (position) {
                 1 -> DiaryFragment()
-                2 -> PictureFragment()
+//                2 -> PictureFragment()
                 else -> MainFragment()
             }
         }
 
         companion object {
-            private const val NUMBER_OF_PAGES = 3
+            private const val NUMBER_OF_PAGES = 2
         }
     }
 
