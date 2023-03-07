@@ -4,7 +4,7 @@ import com.phucnguyen.lovereminder.database.DiaryDao
 import com.phucnguyen.lovereminder.model.Diary
 import kotlinx.coroutines.flow.Flow
 
-class DiaryRepoImpl(val diaryDao: DiaryDao) : DiaryRepo {
+class DiaryRepoImpl(private val diaryDao: DiaryDao) : DiaryRepo {
     override fun findAllDiaries(): Flow<List<Diary>> {
         return diaryDao.findAllDiaries()
     }

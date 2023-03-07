@@ -6,7 +6,6 @@ import android.app.DatePickerDialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
@@ -184,11 +183,11 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
             }
             R.id.tv_yourName -> {
                 viewModel.flag = 0
-                ShowPopUpChangeName()
+                showPopUpChangeName()
             }
             R.id.tv_yourFrName -> {
                 viewModel.flag = 1
-                ShowPopUpChangeName()
+                showPopUpChangeName()
             }
             R.id.main_frag_linear -> showPopUpChangeDate()
         }
@@ -219,7 +218,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
         datePickerDialog.show()
     }
 
-    private fun ShowPopUpChangeName() {
+    private fun showPopUpChangeName() {
         val dialogFragment = DialogFragment()
         val bundle = Bundle()
         if (viewModel.flag == 0) bundle.putString(

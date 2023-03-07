@@ -9,14 +9,10 @@ import com.phucnguyen.lovereminder.repository.UserRepo
 import kotlinx.coroutines.flow.Flow
 
 class IniActivityViewModel(application: Application, private val userRepo: UserRepo) : AndroidViewModel(application) {
-    private var sharedPreferences: SharedPreferences
     private var userPreferences: SharedPreferences
 
+    //TODO: move SharedPreference to Data layer
     init {
-        sharedPreferences = application.getSharedPreferences(
-            SHARE_PREF_USER_INFO,
-            AppCompatActivity.MODE_PRIVATE
-        )
         userPreferences = application.getSharedPreferences(
             SHARE_PREF_USER_PREFERENCE,
             AppCompatActivity.MODE_PRIVATE

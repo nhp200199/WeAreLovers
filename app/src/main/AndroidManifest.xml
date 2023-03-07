@@ -63,7 +63,7 @@
             android:name="com.phucnguyen.lovereminder.ui.activity.IniActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.phucnguyen.lovereminder.ui.activity.WelcomeScreen"
+            android:name="com.phucnguyen.lovereminder.ui.activity.SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
