@@ -2,63 +2,57 @@ package com.phucnguyen.lovereminder.ui.adapter
 
 import android.content.Context
 import android.util.SparseBooleanArray
-import android.view.View
+import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageView
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.databinding.ItemPictureBinding
 import com.phucnguyen.lovereminder.model.Image
 
-class ImageAdapter(var context: Context, imagesInput: List<Image>) : BaseAdapter() {
-     var images = imagesInput
+class ImageAdapter(var context: Context) : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
+     var images: List<Image>? = null
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
     val imagesToDelete: SparseBooleanArray = SparseBooleanArray()
-
-    override fun getCount(): Int {
-        return images.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = ItemPictureBinding.inflate(LayoutInflater.from(context))
+        return ViewHolder(binding)
     }
 
-    override fun getItem(position: Int): Any {
-        return images[position]
-    }
-
-    override fun getItemId(position: Int): Long {
-        return 0
-    }
-
-    override fun getView(position: Int, convertView: View, parent: ViewGroup): View {
-        val imageView = ImageView(context)
-        if (imagesToDelete[position]) {
-            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-            imageView.layoutParams = ViewGroup.LayoutParams(330, 350)
-            imageView.cropToPadding = true
-            Glide.with(context)
-                .load(images[position].uri)
-                .thumbnail(0.5f)
-                .into(imageView)
-            imageView.setBackgroundResource(R.drawable.view_border)
-        } else {
-            Glide.with(context)
-                .load(images[position].uri)
-                .into(imageView)
-            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-            imageView.layoutParams = ViewGroup.LayoutParams(330, 350)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        images?.let {
+            val data = it[position]
+            holder.bind(data)
         }
-        return imageView
     }
 
-    override fun isEnabled(position: Int): Boolean {
-        return super.isEnabled(position)
+    override fun getItemCount(): Int {
+        return images?.size ?: 0
     }
 
-    override fun areAllItemsEnabled(): Boolean {
-        return true
-    }
+//    override fun getView(position: Int, convertView: View, parent: ViewGroup): View {
+//        val imageView = ImageView(context)
+//        if (imagesToDelete[position]) {
+//            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+//            imageView.layoutParams = ViewGroup.LayoutParams(330, 350)
+//            imageView.cropToPadding = true
+//            Glide.with(context)
+//                .load(images[position].uri)
+//                .thumbnail(0.5f)
+//                .into(imageView)
+//            imageView.setBackgroundResource(R.drawable.view_border)
+//        } else {
+//            Glide.with(context)
+//                .load(images[position].uri)
+//                .into(imageView)
+//            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+//            imageView.layoutParams = ViewGroup.LayoutParams(330, 350)
+//        }
+//        return imageView
+//    }
 
     fun toggleImagePositionToDelete(position: Int): Boolean {
         val result: Boolean
@@ -75,5 +69,13 @@ class ImageAdapter(var context: Context, imagesInput: List<Image>) : BaseAdapter
 
     fun resetTracker() {
         imagesToDelete.clear()
+    }
+
+    class ViewHolder(private val binding: ItemPictureBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(image: Image) {
+            Glide.with(binding.root.context)
+                .load(image.uri)
+                .into(binding.ivPicture)
+        }
     }
 }

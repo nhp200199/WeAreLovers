@@ -79,7 +79,7 @@ class IniActivity : AppCompatActivity(), View.OnClickListener {
             this,
             0,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
