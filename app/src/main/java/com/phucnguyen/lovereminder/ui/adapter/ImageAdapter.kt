@@ -10,12 +10,16 @@ import com.phucnguyen.lovereminder.databinding.ItemPictureBinding
 import com.phucnguyen.lovereminder.model.Image
 
 class ImageAdapter(var context: Context) : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
+    interface Listener {
+        fun onItemClicked(position: Int)
+    }
+
      var images: List<Image>? = null
         set(value) {
             field = value
             notifyDataSetChanged()
         }
-
+    var listener: Listener? = null
     val imagesToDelete: SparseBooleanArray = SparseBooleanArray()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemPictureBinding.inflate(LayoutInflater.from(context))
@@ -26,6 +30,10 @@ class ImageAdapter(var context: Context) : RecyclerView.Adapter<ImageAdapter.Vie
         images?.let {
             val data = it[position]
             holder.bind(data)
+        }
+
+        holder.itemView.setOnClickListener {
+            listener?.onItemClicked(position)
         }
     }
 

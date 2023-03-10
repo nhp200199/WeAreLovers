@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.databinding.FragmentPictureBinding
+import com.phucnguyen.lovereminder.ui.activity.FullScreenPicActivity
 import com.phucnguyen.lovereminder.ui.adapter.ImageAdapter
 import com.phucnguyen.lovereminder.viewmodel.PictureViewModel
 import io.reactivex.Observable
@@ -60,6 +61,15 @@ class PictureFragment : Fragment(), View.OnClickListener {
         viewModel = ViewModelProvider(requireActivity()).get(
             PictureViewModel::class.java
         )
+
+        adapter?.listener = object : ImageAdapter.Listener {
+            override fun onItemClicked(position: Int) {
+                val intent = Intent(requireActivity(), FullScreenPicActivity::class.java).apply {
+                    putExtra(FullScreenPicActivity.EXTRA_PICTURE_POS, position)
+                }
+                startActivity(intent)
+            }
+        }
         binding!!.rcvPictures.apply {
             adapter = this@PictureFragment.adapter
             layoutManager = GridLayoutManager(context!!, 3)
