@@ -1,11 +1,12 @@
 package com.phucnguyen.lovereminder.ui.fragment
 
 import android.Manifest
+import android.content.ContentResolver
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -15,7 +16,6 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -26,10 +26,7 @@ import com.phucnguyen.lovereminder.viewmodel.PictureViewModel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
+import java.io.*
 import java.util.*
 
 /**
@@ -112,32 +109,50 @@ class PictureFragment : Fragment(), View.OnClickListener {
 //                true
 //            }
         binding!!.fabAddImage.setOnClickListener(this)
-        if (!haveStoragePermission()) {
-            requestStoragePermission()
+        if (!haveReadStoragePermission()) {
+            requestReadStoragePermission()
         } else {
             viewModel.loadImages()
         }
         return v
     }
 
-    private fun haveStoragePermission(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    context!!.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) == PERMISSION_GRANTED
-                            && context!!.checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) == PERMISSION_GRANTED
-                            && context!!.checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PERMISSION_GRANTED
-                } else {
-                    context!!.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PERMISSION_GRANTED
-                }
+    private fun haveWriteStoragePermission(): Boolean {
+        return if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+                    context!!.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED
+                } else true
     }
 
-    private fun requestStoragePermission() {
+    private fun haveReadStoragePermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context!!.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) == PERMISSION_GRANTED
+        } else {
+            context!!.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PERMISSION_GRANTED
+        }
+    }
+
+    private fun requestReadStoragePermission() {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) arrayOf(
             Manifest.permission.READ_MEDIA_IMAGES,
-            Manifest.permission.READ_MEDIA_VIDEO,
-            Manifest.permission.READ_MEDIA_AUDIO
         ) else arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
 
         requestPermissions(permissions, READ_EXTERNAL_STORAGE_REQUEST)
+    }
+
+    private fun requestReadAndWriteStoragePermission() {
+        val permissions = mutableListOf<String>()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+        requestPermissions(permissions.toTypedArray(), READ_AND_WRITE_EXTERNAL_STORAGE_REQUEST)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -224,31 +239,50 @@ class PictureFragment : Fragment(), View.OnClickListener {
         alertDialog.show()
     }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        if (requestCode == REQUEST_CHOOSE_IMAGE && resultCode == RESULT_OK) {
-//            //when user selects multiple images, data.getClipData will not null
-//            if (data!!.clipData != null) {
-//                val clipData = data.clipData
-//                for (i in 0 until clipData!!.itemCount) {
-//                    //TODO: load image's thumbnail, not the whole image
-//                    val uri = clipData.getItemAt(i).uri
-//                    val image = Image()
-//                    image.uri = uri
-//                    images.add(0, image)
-//                    saveImageToExternalDir(uri)
-//                }
-//            } else if (data.data != null) {
-//                //TODO: load image's thumbnail, not the whole image
-//                val uri = data.data
-//                val image = Image()
-//                image.uri = uri
-//                images.add(0, image)
-//                saveImageToExternalDir(uri)
-//            }
-//            pictureViewModel!!.setImages(images)
-//        }
-//        super.onActivityResult(requestCode, resultCode, data)
-//    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CHOOSE_IMAGE && resultCode == RESULT_OK) {
+            //when user selects multiple images, data.getClipData will not null
+            val bitmaps  = mutableListOf<Bitmap>()
+            if (data!!.clipData != null) {
+                val clipData = data.clipData
+                for (i in 0 until clipData!!.itemCount) {
+                    clipData.getItemAt(i).uri?.let {
+                        val bm = getBitmap(it, requireActivity().contentResolver)
+                        if (bm != null) {
+                            bitmaps.add(bm)
+                        } else {
+                            Toast.makeText(requireContext(), "Error when getting image", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } else if (data.data != null) {
+                val uri = data.data!!
+                val bm = getBitmap(uri, requireActivity().contentResolver)
+                if (bm != null) {
+                    bitmaps.add(bm)
+                } else {
+                    Toast.makeText(requireContext(), "Error when getting image", Toast.LENGTH_SHORT).show()
+                }
+            }
+            viewModel.saveImages(bitmaps)
+        }
+    }
+
+    private fun getBitmap(file: Uri, cr: ContentResolver): Bitmap?{
+        var bitmap: Bitmap ?= null
+        try {
+            val inputStream = cr.openInputStream(file)
+            bitmap = BitmapFactory.decodeStream(inputStream)
+            // close stream
+            try {
+                inputStream?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+        } catch (e: FileNotFoundException){}
+        return bitmap
+    }
 
     private fun saveImageToExternalDir(uri: Uri?) {
         Observable.create<Boolean> { emitter ->
@@ -300,23 +334,17 @@ class PictureFragment : Fragment(), View.OnClickListener {
     }
 
     private fun chooseImagesFromGallery() {
-        if (ActivityCompat.checkSelfPermission(
-                activity!!,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                READ_EXTERNAL_STORAGE_REQ
-            )
-        } else {
-            val intent = Intent()
-            intent.action = Intent.ACTION_OPEN_DOCUMENT
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            intent.type = "image/*"
+        if (haveReadStoragePermission() && haveWriteStoragePermission()) {
+            val intent = Intent().apply {
+                action = Intent.ACTION_OPEN_DOCUMENT
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = "image/*"
+            }
             startActivityForResult(Intent.createChooser(intent, "Chọn Ảnh"), REQUEST_CHOOSE_IMAGE)
+        } else {
+            requestReadAndWriteStoragePermission()
         }
     }
 
@@ -338,20 +366,28 @@ class PictureFragment : Fragment(), View.OnClickListener {
                 }
                 return
             }
+            READ_AND_WRITE_EXTERNAL_STORAGE_REQUEST -> {
+                if (grantResults.isNotEmpty()
+                    && grantResults[0] == PERMISSION_GRANTED
+                    && grantResults[1] == PERMISSION_GRANTED
+                ) {
+                    chooseImagesFromGallery()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Bạn cần cho phép để truy cập ảnh",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                return
+            }
         }
-//        if (requestCode == READ_EXTERNAL_STORAGE_REQ && permissions[0] == Manifest.permission.READ_EXTERNAL_STORAGE) {
-//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) chooseImagesFromGallery() else Toast.makeText(
-//                requireContext(),
-//                "Bạn cần cho phép để truy cập ảnh",
-//                Toast.LENGTH_SHORT
-//            ).show()
-//        } else if (requestCode == READ_EXTERNAL_STORAGE_REQUEST)
     }
 
     companion object {
         private const val RESULT_OK = -1
         private const val READ_EXTERNAL_STORAGE_REQUEST = 113
-        const val READ_EXTERNAL_STORAGE_REQ = 100
+        const val READ_AND_WRITE_EXTERNAL_STORAGE_REQUEST = 100
         const val REQUEST_CHOOSE_IMAGE = 443
         const val LOG_TAG = "PictureFragment"
         const val PICTURES_FOLDER_NAME = "saved-pictures"

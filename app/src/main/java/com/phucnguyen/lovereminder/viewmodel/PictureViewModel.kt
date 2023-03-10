@@ -2,9 +2,13 @@ package com.phucnguyen.lovereminder.viewmodel
 
 import android.app.Application
 import android.content.ContentUris
+import android.content.ContentValues
+import android.database.ContentObserver
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -18,10 +22,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 
 class PictureViewModel(application: Application) : AndroidViewModel(application) {
     private var _images = MutableLiveData<List<Image>>()
     val images: LiveData<List<Image>> = _images
+    private var contentObserver: ContentObserver? = null
 //    init {
 //        val imagesList: MutableList<Image> = ArrayList()
 //        val file = File(application.getExternalFilesDir(
@@ -38,22 +45,72 @@ class PictureViewModel(application: Application) : AndroidViewModel(application)
 //        _images = MutableLiveData(imagesList)
 //    }
 
-    fun setImages(images: List<Image>) {
-        this._images.value = images
+    fun loadImages() {
+        viewModelScope.launch() {
+            withContext(Dispatchers.IO) {
+                val images = queryImages()
+                _images.postValue(images)
+            }
+
+            //register listener to update data whenever media store for uri changes
+            if (contentObserver == null) {
+                contentObserver = object : ContentObserver(Handler()) {
+                    override fun onChange(selfChange: Boolean) {
+                        loadImages()
+                    }
+                }
+                val uri = getExternalUri()
+                getApplication<Application>().contentResolver.registerContentObserver(uri, true, contentObserver!!)
+            }
+        }
     }
 
-    fun loadImages() {
-        viewModelScope.launch {
-            val images = queryImages()
-            _images.postValue(images)
+    fun saveImages(bitmaps: List<Bitmap>) {
+        //TODO: images save complete at random as of now, should perform subsequently asynchronous save images
+        bitmaps.forEach {
+//            Log.i(TAG, "Perform save for bitmap: ${it.}")
+            saveMediaToStorage(it)
         }
+    }
+
+     private fun saveMediaToStorage(bitmap: Bitmap) {
+         viewModelScope.launch(Dispatchers.IO) {
+            val filename = "${PictureFragment.PICTURE_PREFIX}${System.currentTimeMillis()}.jpg"
+
+            var fos: OutputStream? = null
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // getting the contentResolver
+                getApplication<Application>().contentResolver?.also { resolver ->
+                    val contentValues = ContentValues().apply {
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + PictureFragment.PICTURES_FOLDER_NAME)
+                        put(MediaStore.Images.Media.WIDTH, bitmap.width)
+                        put(MediaStore.Images.Media.HEIGHT, bitmap.height)
+                    }
+
+                    val imageUri: Uri? = resolver.insert(getExternalUri(), contentValues)
+
+                    fos = imageUri?.let { resolver.openOutputStream(it) }
+                }
+            } else {
+                val imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES+ File.separator + PictureFragment.PICTURES_FOLDER_NAME)
+                val image = File(imagesDir, filename)
+                fos = FileOutputStream(image)
+            }
+
+            fos?.use {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+    //            Toast.makeText(this, "saved the image", Toast.LENGTH_SHORT).show()
+            }
+         }
     }
 
     private suspend fun queryImages(): List<Image> {
         val images = mutableListOf<Image>()
 
         withContext(Dispatchers.IO) {
-
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DISPLAY_NAME
@@ -65,20 +122,13 @@ class PictureViewModel(application: Application) : AndroidViewModel(application)
 
             val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
-            val collection =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    MediaStore.Images.Media.getContentUri(
-                        MediaStore.VOLUME_EXTERNAL
-                    )
-                } else {
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                }
+            val collection = getExternalUri()
 
             getApplication<Application>().contentResolver.query(
                 collection,
                 projection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 sortOrder
             )?.use { cursor ->
                 val displayNameColumn =
@@ -112,7 +162,19 @@ class PictureViewModel(application: Application) : AndroidViewModel(application)
         return images
     }
 
-//    fun insert
+    private fun getExternalUri() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        MediaStore.Images.Media.getContentUri(
+            MediaStore.VOLUME_EXTERNAL
+        )
+    } else {
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    }
+
+    override fun onCleared() {
+        contentObserver?.let {
+            getApplication<Application>().contentResolver.unregisterContentObserver(it)
+        }
+    }
 
     companion object {
         private val TAG = PictureViewModel::class.java.simpleName
