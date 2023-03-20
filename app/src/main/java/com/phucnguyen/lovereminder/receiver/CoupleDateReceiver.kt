@@ -10,7 +10,7 @@ import android.content.Context
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.phucnguyen.lovereminder.ui.activity.MainActivity
-import com.phucnguyen.lovereminder.BaseApplication
+import com.phucnguyen.lovereminder.MyApplication
 import com.phucnguyen.lovereminder.R
 import androidx.core.app.NotificationManagerCompat
 import com.phucnguyen.lovereminder.PREF_COUPLE_DATE
@@ -106,7 +106,7 @@ class CoupleDateReceiver : BroadcastReceiver() {
         val pendingIntent = PendingIntent.getActivity(context, 0, intentActivity, 0)
         val builder = NotificationCompat.Builder(
             context,
-            BaseApplication.CHANNEL_ID
+            MyApplication.CHANNEL_ID
         )
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(getRandomString(_titles))

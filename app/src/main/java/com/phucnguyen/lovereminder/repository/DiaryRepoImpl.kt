@@ -3,8 +3,9 @@ package com.phucnguyen.lovereminder.repository
 import com.phucnguyen.lovereminder.database.DiaryDao
 import com.phucnguyen.lovereminder.model.Diary
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class DiaryRepoImpl(private val diaryDao: DiaryDao) : DiaryRepo {
+class DiaryRepoImpl @Inject constructor(private val diaryDao: DiaryDao) : DiaryRepo {
     override fun findAllDiaries(): Flow<List<Diary>> {
         return diaryDao.findAllDiaries()
     }

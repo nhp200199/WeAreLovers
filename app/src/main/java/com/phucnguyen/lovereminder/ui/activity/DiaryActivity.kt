@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Lifecycle
@@ -17,14 +18,17 @@ import com.phucnguyen.lovereminder.databinding.ActivityDiaryBinding
 import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.viewmodel.DiaryViewModel
 import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class DiaryActivity : BaseActivity() {
     private var menu: Menu? = null
     private var diaryId = 0
-    private lateinit var viewModel: DiaryViewModel
+    private val viewModel: DiaryViewModel by viewModels()
     private lateinit var binding: ActivityDiaryBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +36,6 @@ class DiaryActivity : BaseActivity() {
         setTheme()
         binding = ActivityDiaryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        viewModel = ViewModelProvider(this, ViewModelFactory(application)).get(DiaryViewModel::class.java)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         val supportActionBar = supportActionBar

@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import com.phucnguyen.lovereminder.repository.UserRepoImpl
 
 class ViewModelFactory(val application: Application) : ViewModelProvider.AndroidViewModelFactory(application) {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return if (modelClass.isAssignableFrom(CreateDiaryViewModel::class.java)) {
             return CreateDiaryViewModel(application, DiaryRepoImpl(AppDatabase.getInstance(application).diaryDao)) as T
         } else if (modelClass.isAssignableFrom(IniActivityViewModel::class.java)) {
@@ -24,8 +24,6 @@ class ViewModelFactory(val application: Application) : ViewModelProvider.Android
             return MainFragmentViewModel(application,
                 UserRepoImpl(application.getSharedPreferences(SHARE_PREF_USER_INFO, AppCompatActivity.MODE_PRIVATE))
             ) as T
-        } else if (modelClass.isAssignableFrom(DiaryViewModel::class.java)) {
-            return DiaryViewModel(application, DiaryRepoImpl(AppDatabase.getInstance(application).diaryDao)) as T
         } else {
             throw IllegalArgumentException("Cannot find the view model")
         }
