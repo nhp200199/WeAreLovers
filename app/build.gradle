@@ -69,6 +69,7 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
 
     implementation 'androidx.activity:activity-ktx:1.6.1'
+    implementation 'androidx.fragment:fragment-ktx:1.5.5'
 
     //DI
     implementation "com.google.dagger:hilt-android:2.44.2"

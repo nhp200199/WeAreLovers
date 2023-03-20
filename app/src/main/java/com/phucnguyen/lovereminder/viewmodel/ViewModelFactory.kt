@@ -14,9 +14,7 @@ import com.phucnguyen.lovereminder.repository.UserRepoImpl
 
 class ViewModelFactory(val application: Application) : ViewModelProvider.AndroidViewModelFactory(application) {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return if (modelClass.isAssignableFrom(CreateDiaryViewModel::class.java)) {
-            return CreateDiaryViewModel(application, DiaryRepoImpl(AppDatabase.getInstance(application).diaryDao)) as T
-        } else if (modelClass.isAssignableFrom(IniActivityViewModel::class.java)) {
+        return if (modelClass.isAssignableFrom(IniActivityViewModel::class.java)) {
             return IniActivityViewModel(application,
                 UserRepoImpl(application.getSharedPreferences(SHARE_PREF_USER_INFO, AppCompatActivity.MODE_PRIVATE))
             ) as T

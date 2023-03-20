@@ -26,8 +26,10 @@ import com.phucnguyen.lovereminder.ui.fragment.DiaryFragment
 import com.phucnguyen.lovereminder.ui.fragment.MainFragment
 import com.phucnguyen.lovereminder.ui.fragment.MainFragment.SettingsListener
 import com.phucnguyen.lovereminder.ui.fragment.PictureFragment
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.FileNotFoundException
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity(), SettingsListener {
     private var flag = 0 // used to check exit
     private lateinit var sharedPreferences: SharedPreferences

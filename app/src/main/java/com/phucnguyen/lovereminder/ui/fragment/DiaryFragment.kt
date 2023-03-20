@@ -13,7 +13,8 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
+    import androidx.fragment.app.viewModels
+    import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -33,11 +34,13 @@ import com.phucnguyen.lovereminder.ui.activity.CreateDiaryActivity
 import com.phucnguyen.lovereminder.ui.activity.DiaryActivity
 import com.phucnguyen.lovereminder.ui.adapter.DiaryAdapter
 import com.phucnguyen.lovereminder.viewmodel.DiaryFragmentViewModel
-import kotlinx.coroutines.launch
+    import dagger.hilt.android.AndroidEntryPoint
+    import kotlinx.coroutines.launch
 
 /**
  * A simple [Fragment] subclass.
  */
+@AndroidEntryPoint
 class DiaryFragment : Fragment() {
     private lateinit var adapter: DiaryAdapter
     private lateinit var rcvDiaries: RecyclerView
@@ -46,7 +49,7 @@ class DiaryFragment : Fragment() {
     private lateinit var fabAddDiary: FloatingActionButton
     private var binding: FragmentDiaryBinding? = null
     private var interstitialAd: InterstitialAd? = null
-    private lateinit var viewModel: DiaryFragmentViewModel
+    private val viewModel: DiaryFragmentViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
         Log.d("Tag", "Dia Frag created")
@@ -66,11 +69,10 @@ class DiaryFragment : Fragment() {
         // Inflate the layout for this fragment
         val v = inflater.inflate(R.layout.fragment_diary, container, false)
         binding = FragmentDiaryBinding.bind(v)
-        viewModel = ViewModelProvider(requireActivity()).get(DiaryFragmentViewModel::class.java)
         loadAd()
         connectViews(binding!!)
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 loadDiaries()
             }
         }
@@ -138,7 +140,7 @@ class DiaryFragment : Fragment() {
         rcvDiaries = binding.rcvDiaries
         tvNothing = binding.tvNothing
         fabAddDiary = binding.fabAddDiary
-        adapter = DiaryAdapter(activity!!)
+        adapter = DiaryAdapter(requireActivity())
         adapter.setListener(object : DiaryAdapter.Listener {
             override fun onDiaryLongClickListener(diary: Diary, v: View) {
                 val popupMenu = PopupMenu(

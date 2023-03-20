@@ -5,6 +5,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
@@ -16,12 +17,14 @@ import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.utils.hideKeyboard
 import com.phucnguyen.lovereminder.viewmodel.CreateDiaryViewModel
 import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.*
 
+@AndroidEntryPoint
 class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
     private lateinit var binding: ActivityCreateDiaryBinding
-    private lateinit var viewModel: CreateDiaryViewModel
+    private val viewModel: CreateDiaryViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme()
@@ -36,7 +39,6 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
         actionBar.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { view: View? -> onBackPressed() }
 
-        viewModel = ViewModelProvider(this, ViewModelFactory(application)).get(CreateDiaryViewModel::class.java)
         viewModel.getBackgroundImage()?.apply {
             Glide.with(this@CreateDiaryActivity)
                 .load(this@apply)
