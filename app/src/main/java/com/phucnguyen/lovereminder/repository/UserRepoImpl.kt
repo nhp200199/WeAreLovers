@@ -2,13 +2,19 @@ package com.phucnguyen.lovereminder.repository
 
 import android.content.SharedPreferences
 import com.phucnguyen.lovereminder.*
+import com.phucnguyen.lovereminder.di.PrefUserInfo
+import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class UserRepoImpl(private val userSharePref: SharedPreferences) : UserRepo {
+@Singleton
+class UserRepoImpl @Inject constructor(@PrefUserInfo private val userSharePref: SharedPreferences) : UserRepo {
     private val _yourNameFlow = MutableSharedFlow<String>(replay = 1)
     private val _yourFrNameFlow = MutableSharedFlow<String>(replay = 1)
     private val _yourImageFlow = MutableSharedFlow<String>(replay = 1)

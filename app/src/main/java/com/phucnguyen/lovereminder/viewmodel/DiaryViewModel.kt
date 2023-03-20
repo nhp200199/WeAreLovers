@@ -2,16 +2,20 @@ package com.phucnguyen.lovereminder.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import com.phucnguyen.lovereminder.database.AppDatabase.Companion.getInstance
 import com.phucnguyen.lovereminder.database.DiaryDao
 import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.repository.DiaryRepo
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
-class DiaryViewModel(application: Application, private val diaryRepo: DiaryRepo) : AndroidViewModel(application) {
+@HiltViewModel
+class DiaryViewModel @Inject constructor(private val diaryRepo: DiaryRepo) : ViewModel() {
     private val _isEditingFlow = MutableStateFlow(false)
     val isEditingFlow = _isEditingFlow.asStateFlow()
     var originalText: String? = null

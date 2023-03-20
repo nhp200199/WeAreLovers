@@ -1,15 +1,10 @@
 package com.phucnguyen.lovereminder.ui.activity
 
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.EditText
-import android.widget.TextView
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.TextWatcher
 import android.text.Editable
-import androidx.annotation.RequiresApi
 import android.os.Build
-import com.phucnguyen.lovereminder.ui.activity.IniActivity
 import android.content.Intent
 import com.phucnguyen.lovereminder.receiver.CoupleDateReceiver
 import android.app.PendingIntent
@@ -17,30 +12,26 @@ import android.app.AlarmManager
 import android.content.ComponentName
 import com.phucnguyen.lovereminder.receiver.SystemBootReceiver
 import android.content.pm.PackageManager
-import com.phucnguyen.lovereminder.ui.activity.MainActivity
 import android.app.DatePickerDialog
-import android.app.DatePickerDialog.OnDateSetListener
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.ViewModelProvider
+import androidx.activity.viewModels
 import com.phucnguyen.lovereminder.*
 import com.phucnguyen.lovereminder.databinding.ActivityIniBinding
 import com.phucnguyen.lovereminder.viewmodel.IniActivityViewModel
-import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class IniActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivityIniBinding
-    private lateinit var viewModel: IniActivityViewModel
+    private val viewModel: IniActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityIniBinding.inflate(layoutInflater)
         setContentView(binding.root)
         connectViews(binding)
-        viewModel = ViewModelProvider(this, ViewModelFactory(application)).get(IniActivityViewModel::class.java)
         val textWatcher: TextWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
