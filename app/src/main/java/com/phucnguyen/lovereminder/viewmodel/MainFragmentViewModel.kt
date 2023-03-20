@@ -2,13 +2,18 @@ package com.phucnguyen.lovereminder.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import com.phucnguyen.lovereminder.repository.UserRepo
 import com.phucnguyen.lovereminder.ui.uiState.UserInfoUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import javax.inject.Inject
 
-class MainFragmentViewModel(application: Application, private val userRepo: UserRepo) : AndroidViewModel(application) {
+@HiltViewModel
+class MainFragmentViewModel @Inject constructor(private val userRepo: UserRepo) : ViewModel() {
     private val defaultImageUri = Uri.parse("android.resource://com.phucnguyen.lovereminder/drawable/couple")
     val userInfoUiStateFlow: Flow<UserInfoUiState>
     var flag = 0 // to distinguish you from your friend

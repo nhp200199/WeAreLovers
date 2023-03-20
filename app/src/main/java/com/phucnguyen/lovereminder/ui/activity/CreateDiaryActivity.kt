@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.phucnguyen.lovereminder.R
@@ -16,7 +15,6 @@ import com.phucnguyen.lovereminder.databinding.ActivityCreateDiaryBinding
 import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.utils.hideKeyboard
 import com.phucnguyen.lovereminder.viewmodel.CreateDiaryViewModel
-import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.*

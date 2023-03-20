@@ -17,6 +17,7 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import com.bumptech.glide.Glide
 import com.phucnguyen.lovereminder.*
@@ -28,9 +29,9 @@ import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog.ThemeDia
 import com.phucnguyen.lovereminder.ui.fragment.dialog.DialogFragment
 import com.phucnguyen.lovereminder.ui.uiState.UserInfoUiState
 import com.phucnguyen.lovereminder.viewmodel.MainFragmentViewModel
-import com.phucnguyen.lovereminder.viewmodel.ViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
@@ -40,13 +41,14 @@ import java.util.concurrent.TimeUnit
 /**
  * A simple [Fragment] subclass.
  */
+@AndroidEntryPoint
 class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, ThemeDialogListener {
     interface SettingsListener {
         fun onBackgroundImageChanged(uri: Uri)
     }
 
     private var binding: FragmentMainBinding? = null
-    private lateinit var viewModel: MainFragmentViewModel
+    private val viewModel: MainFragmentViewModel by viewModels()
     var height = 0
     var width = 0
     private var listener: SettingsListener? = null
@@ -80,7 +82,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as SettingsListener
-        viewModel = ViewModelProvider(this, ViewModelFactory(requireActivity().application)).get(MainFragmentViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -92,7 +93,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
         binding = FragmentMainBinding.bind(v)
         connectViews(binding!!)
         val displayMetrics = DisplayMetrics()
-        activity!!.windowManager.defaultDisplay.getMetrics(displayMetrics)
+        requireActivity() .windowManager.defaultDisplay.getMetrics(displayMetrics)
         height = displayMetrics.heightPixels
         width = displayMetrics.widthPixels
         setHasOptionsMenu(true)
@@ -128,7 +129,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
     private fun showPopupChangeTheme() {
         val changeDateDialog = ChangeThemeDialog()
         changeDateDialog.setTargetFragment(this, 123)
-        changeDateDialog.show(fragmentManager!!, "ChangeThemeDialog")
+        changeDateDialog.show(requireFragmentManager(), "ChangeThemeDialog")
     }
 
     private fun connectViews(binding: FragmentMainBinding) {
@@ -155,10 +156,10 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
             TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS)
                 .toString()
 
-        Glide.with(activity!!)
+        Glide.with(requireActivity()  )
             .load(userInfoState.yourImage)
             .into(binding!!.profileImage)
-        Glide.with(activity!!)
+        Glide.with(requireActivity()  )
             .load(userInfoState.yourFrImage)
             .into(binding!!.friendProfileImage)
     }
@@ -228,7 +229,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
             binding!!.tvYourFrName.text.toString().trim { it <= ' ' })
         dialogFragment.arguments = bundle
         dialogFragment.setTargetFragment(this@MainFragment, 1)
-        dialogFragment.show(fragmentManager!!, "custom dialog")
+        dialogFragment.show(requireFragmentManager(), "custom dialog")
     }
 
     private fun changePicture() {
@@ -246,7 +247,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
                 height - actionBarHeight,
                 CropImageView.RequestSizeOptions.RESIZE_EXACT
             )
-            .start(context!!, this)
+            .start(requireContext(), this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -264,7 +265,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
                     options.inJustDecodeBounds = true
                     try {
                         BitmapFactory.decodeStream(
-                            activity!!.contentResolver.openInputStream(result.uri),
+                            requireActivity() .contentResolver.openInputStream(result.uri),
                             null,
                             options
                         )
@@ -339,7 +340,7 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
             R.color.amaranth -> newThemeId = R.style.AppThemeBase_Rose
             R.color.royal_blue -> newThemeId = R.style.AppThemeBase_Blue
         }
-        val editor = activity!!.getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
+        val editor = requireActivity().getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
             .edit()
         editor.putInt("theme_color", themeId).apply()
         (activity as BaseActivity?)!!.switchTheme(newThemeId)
