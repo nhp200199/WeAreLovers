@@ -25,6 +25,20 @@ import kotlinx.coroutines.launch
 class FullScreenPicActivity : BaseActivity() {
     private lateinit var viewModel: PictureDetailViewModel
     private var picturePos = 0
+    private val listener = object : ViewPager.OnPageChangeListener {
+        override fun onPageScrolled(
+            position: Int,
+            positionOffset: Float,
+            positionOffsetPixels: Int
+        ) {}
+
+        override fun onPageSelected(position: Int) {
+            viewModel.currentImagePos = position
+        }
+
+        override fun onPageScrollStateChanged(state: Int) {}
+    }
+    private lateinit var viewPager: ViewPager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +56,7 @@ class FullScreenPicActivity : BaseActivity() {
             picturePos = intent.getIntExtra(EXTRA_PICTURE_POS, 0)
         }
 
-        val viewPager = findViewById<View>(R.id.photo_view) as ViewPager
+        viewPager = findViewById<View>(R.id.photo_view) as ViewPager
         val adapter = ViewPagerAdapter(this)
         viewPager.adapter = adapter
 
@@ -51,25 +65,22 @@ class FullScreenPicActivity : BaseActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.images.observe(this@FullScreenPicActivity) {
-                    adapter.images = it
-                    viewPager.setCurrentItem(picturePos, false)
+                    if (it.isNotEmpty()) {
+                        adapter.images = it
+                        viewPager.setCurrentItem(picturePos, false)
+                    } else {
+                        finish()
+                    }
                 }
             }
         }
 
-        viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {}
+        viewPager.addOnPageChangeListener(listener)
+    }
 
-            override fun onPageSelected(position: Int) {
-                viewModel.currentImagePos = position
-            }
-
-            override fun onPageScrollStateChanged(state: Int) {}
-        })
+    override fun onDestroy() {
+        super.onDestroy()
+        viewPager.removeOnPageChangeListener(listener)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
