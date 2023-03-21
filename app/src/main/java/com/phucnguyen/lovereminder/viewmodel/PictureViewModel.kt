@@ -65,16 +65,16 @@ class PictureViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun saveImages(bitmaps: List<Bitmap>) {
-        //TODO: images save complete at random as of now, should perform subsequently asynchronous save images
+    suspend fun saveImages(bitmaps: List<Bitmap>) {
+        Log.v(TAG, "There is ${bitmaps.size} image(s) to save")
         bitmaps.forEach {
-//            Log.i(TAG, "Perform save for bitmap: ${it.}")
+            Log.i(TAG, "Perform save for bitmap: $it")
             saveMediaToStorage(it)
         }
     }
 
-     private fun saveMediaToStorage(bitmap: Bitmap) {
-         viewModelScope.launch(Dispatchers.IO) {
+     private suspend fun saveMediaToStorage(bitmap: Bitmap) {
+         withContext(Dispatchers.IO) {
             val filename = "${PictureFragment.PICTURE_PREFIX}${System.currentTimeMillis()}.jpg"
 
             var fos: OutputStream? = null
@@ -102,7 +102,7 @@ class PictureViewModel(application: Application) : AndroidViewModel(application)
 
             fos?.use {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
-    //            Toast.makeText(this, "saved the image", Toast.LENGTH_SHORT).show()
+                Log.d(TAG, "saved bitmap: $bitmap")
             }
          }
     }

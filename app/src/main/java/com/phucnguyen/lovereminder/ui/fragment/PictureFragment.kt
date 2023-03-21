@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.databinding.FragmentPictureBinding
@@ -27,6 +28,7 @@ import com.phucnguyen.lovereminder.viewmodel.PictureViewModel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import java.io.*
 import java.util.*
 
@@ -274,7 +276,9 @@ class PictureFragment : Fragment(), View.OnClickListener {
                     Toast.makeText(requireContext(), "Error when getting image", Toast.LENGTH_SHORT).show()
                 }
             }
-            viewModel.saveImages(bitmaps)
+            lifecycleScope.launch {
+                viewModel.saveImages(bitmaps)
+            }
         }
     }
 
