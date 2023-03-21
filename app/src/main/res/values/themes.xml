@@ -16,6 +16,7 @@
         <item name="android:textColorPrimary">@color/dove_gray_approx</item>
         <item name="android:textColorSecondary">@color/white</item>
         <item name="android:textColorHint">@color/dove_gray_approx</item>
+        <item name="iconTint">@color/white</item>
     </style>
 
     <style name="AppThemeBase.Rose">
