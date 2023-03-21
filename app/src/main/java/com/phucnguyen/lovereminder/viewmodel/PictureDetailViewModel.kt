@@ -3,6 +3,7 @@ package com.phucnguyen.lovereminder.viewmodel
 import android.app.Application
 import android.content.ContentUris
 import android.database.ContentObserver
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.provider.MediaStore
@@ -19,8 +20,9 @@ import kotlinx.coroutines.withContext
 
 class PictureDetailViewModel(application: Application) : AndroidViewModel(application) {
     private var _images = MutableLiveData<List<Image>>()
-    val images: LiveData<List<Image>> = _images
     private var contentObserver: ContentObserver? = null
+    var currentImagePos: Int = 0
+    val images: LiveData<List<Image>> = _images
 
     init {
         loadImages()
@@ -87,7 +89,7 @@ class PictureDetailViewModel(application: Application) : AndroidViewModel(applic
                         id
                     )
 
-                    val image = Image(contentUri, displayName)
+                    val image = Image(id, contentUri, displayName)
                     images += image
 
                     // For debugging, we'll output the image objects we create to logcat.
@@ -98,6 +100,38 @@ class PictureDetailViewModel(application: Application) : AndroidViewModel(applic
 
         Log.v(TAG, "Found ${images.size} images")
         return images
+    }
+
+    suspend fun deleteCurrentImage(): Int {
+        return deleteImage(_images.value!![currentImagePos].id)
+    }
+
+    private suspend fun deleteImage(id: Long): Int = withContext(Dispatchers.IO) {
+        Log.v(TAG, "Deleting image with id: $id")
+
+        val selection = "${MediaStore.Images.Media._ID} = ?"
+
+        val selectionArgs = arrayOf("$id")
+
+        val contentUri = ContentUris.withAppendedId(
+            getExternalUri(),
+            id
+        )
+
+        val affectedRows = getApplication<Application>().contentResolver.delete(
+            contentUri,
+            selection,
+            selectionArgs
+        )
+
+        Log.v(TAG, "Affected row(s): $affectedRows")
+
+        if (affectedRows == 1) {
+            Log.v(TAG, "Deleted successfully")
+        } else {
+            Log.v(TAG, "Fail to delete image")
+        }
+        affectedRows
     }
 
     private fun getExternalUri() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

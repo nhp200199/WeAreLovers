@@ -149,7 +149,7 @@ class PictureViewModel(application: Application) : AndroidViewModel(application)
                         id
                     )
 
-                    val image = Image(contentUri, displayName)
+                    val image = Image(id, contentUri, displayName)
                     images += image
 
                     // For debugging, we'll output the image objects we create to logcat.
