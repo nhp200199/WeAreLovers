@@ -11,11 +11,7 @@ import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import com.google.android.material.tabs.TabLayout.TabGravity
+import androidx.lifecycle.*
 import com.phucnguyen.lovereminder.model.Image
 import com.phucnguyen.lovereminder.ui.fragment.PictureFragment
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +25,17 @@ class PictureViewModel(application: Application) : AndroidViewModel(application)
     private var _images = MutableLiveData<List<Image>>()
     val images: LiveData<List<Image>> = _images
     private var contentObserver: ContentObserver? = null
+    private var _pendingDeleteImage = Transformations.map(_images) {
+        it.filter { image -> image.isPendingDelete }
+    }
+    val isChoosingImageToDeleteStream = Transformations.map(_pendingDeleteImage) {
+        it.isNotEmpty()
+    }
+
+    fun isChoosingImageToDelete() = isChoosingImageToDeleteStream.value!!
+
+    fun numberOfPendingImages() = _pendingDeleteImage.value?.size ?: 0
+
 //    init {
 //        val imagesList: MutableList<Image> = ArrayList()
 //        val file = File(application.getExternalFilesDir(
@@ -107,6 +114,40 @@ class PictureViewModel(application: Application) : AndroidViewModel(application)
          }
     }
 
+    suspend fun deletePendingImages() {
+        _pendingDeleteImage.value!!
+            .map { it.id }
+            .forEach { deleteImage(it) }
+    }
+
+    private suspend fun deleteImage(id: Long): Int = withContext(Dispatchers.IO) {
+        Log.v(TAG, "Deleting image with id: $id")
+
+        val selection = "${MediaStore.Images.Media._ID} = ?"
+
+        val selectionArgs = arrayOf("$id")
+
+        val contentUri = ContentUris.withAppendedId(
+            getExternalUri(),
+            id
+        )
+
+        val affectedRows = getApplication<Application>().contentResolver.delete(
+            contentUri,
+            selection,
+            selectionArgs
+        )
+
+        Log.v(TAG, "Affected row(s): $affectedRows")
+
+        if (affectedRows == 1) {
+            Log.v(TAG, "Deleted successfully")
+        } else {
+            Log.v(TAG, "Fail to delete image")
+        }
+        affectedRows
+    }
+
     private suspend fun queryImages(): List<Image> {
         val images = mutableListOf<Image>()
 
@@ -174,6 +215,20 @@ class PictureViewModel(application: Application) : AndroidViewModel(application)
         contentObserver?.let {
             getApplication<Application>().contentResolver.unregisterContentObserver(it)
         }
+    }
+
+    fun togglePictureDeleteStatus(position: Int) {
+        val currentImages = _images.value!!
+        currentImages[position].toggleCheck()
+        _images.value = currentImages
+    }
+
+    fun clearAllPendingDeletePicture() {
+        val currentImages = _images.value!!
+        currentImages.forEach {
+            it.isPendingDelete = false
+        }
+        _images.value = currentImages
     }
 
     companion object {

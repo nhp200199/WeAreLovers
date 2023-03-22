@@ -39,7 +39,6 @@ class PictureFragment : Fragment(), View.OnClickListener {
     private var adapter: ImageAdapter? = null
     private var binding: FragmentPictureBinding? = null
     private lateinit var viewModel: PictureViewModel
-    private var numOfPicturesTobeDeleted = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -66,10 +65,15 @@ class PictureFragment : Fragment(), View.OnClickListener {
 
         adapter?.listener = object : ImageAdapter.Listener {
             override fun onItemClicked(position: Int) {
-                val intent = Intent(requireActivity(), FullScreenPicActivity::class.java).apply {
-                    putExtra(FullScreenPicActivity.EXTRA_PICTURE_POS, position)
+                if (!viewModel.isChoosingImageToDelete()) {
+                    viewFullScreenPicture(position)
+                } else {
+                    viewModel.togglePictureDeleteStatus(position)
                 }
-                startActivity(intent)
+            }
+
+            override fun onItemLongClicked(position: Int) {
+                viewModel.togglePictureDeleteStatus(position)
             }
         }
         binding!!.rcvPictures.apply {
@@ -87,39 +91,11 @@ class PictureFragment : Fragment(), View.OnClickListener {
                 adapter!!.images = images
             }
         }
-//        val onItemClickListener = OnItemClickListener { parent, view, position, id ->
-//            if (numOfPicturesTobeDeleted == 0) {
-//                val intent = Intent(activity, FullScreenPicActivity::class.java)
-//                intent.putExtra("position", position)
-//                intent.putExtra("uri", images[position].uri)
-//                startActivity(intent)
-//            } else {
-//                if (adapter!!.toggleImagePositionToDelete(position)) numOfPicturesTobeDeleted++ else {
-//                    numOfPicturesTobeDeleted--
-//                    //if numOfPicturesTobeDeleted ==0 -> hide menu action
-//                    if (numOfPicturesTobeDeleted == 0) requireActivity().invalidateOptionsMenu()
-//                }
-//            }
-//        }
-//        gvPictures!!.onItemClickListener = onItemClickListener
-//        gvPictures!!.onItemLongClickListener =
-//            OnItemLongClickListener { parent, view, position, id ->
-//                if (numOfPicturesTobeDeleted == 0) {
-//                    numOfPicturesTobeDeleted++
-//                    adapter!!.toggleImagePositionToDelete(position)
-//                    requireActivity().invalidateOptionsMenu()
-//                } else {
-//                    //toggle image selection for each long click event
-//                    if (adapter!!.toggleImagePositionToDelete(position)) numOfPicturesTobeDeleted++ else {
-//                        numOfPicturesTobeDeleted--
-//                        //if numOfPicturesTobeDeleted ==0 -> hide menu action
-//                        if (numOfPicturesTobeDeleted == 0) {
-//                            requireActivity().invalidateOptionsMenu()
-//                        }
-//                    }
-//                }
-//                true
-//            }
+
+        viewModel.isChoosingImageToDeleteStream.observe(viewLifecycleOwner) {
+            requireActivity().invalidateOptionsMenu()
+        }
+
         binding!!.fabAddImage.setOnClickListener(this)
         if (!haveReadStoragePermission()) {
             requestReadStoragePermission()
@@ -127,6 +103,13 @@ class PictureFragment : Fragment(), View.OnClickListener {
             viewModel.loadImages()
         }
         return v
+    }
+
+    private fun viewFullScreenPicture(position: Int) {
+        val intent = Intent(requireActivity(), FullScreenPicActivity::class.java).apply {
+            putExtra(FullScreenPicActivity.EXTRA_PICTURE_POS, position)
+        }
+        startActivity(intent)
     }
 
     private fun haveWriteStoragePermission(): Boolean {
@@ -167,13 +150,6 @@ class PictureFragment : Fragment(), View.OnClickListener {
         requestPermissions(permissions.toTypedArray(), READ_AND_WRITE_EXTERNAL_STORAGE_REQUEST)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        if (numOfPicturesTobeDeleted > 0) {
-            outState.putInt("num_of_pictures_to_be_deleted", numOfPicturesTobeDeleted)
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_remove, menu)
         super.onCreateOptionsMenu(menu, inflater)
@@ -183,13 +159,8 @@ class PictureFragment : Fragment(), View.OnClickListener {
         val deleteMenuItem = menu.findItem(R.id.action_delete_picture)
         val cancelMenuItem = menu.findItem(R.id.action_cancel)
         super.onPrepareOptionsMenu(menu)
-        if (numOfPicturesTobeDeleted == 0) {
-            deleteMenuItem.isVisible = false
-            cancelMenuItem.isVisible = false
-        } else {
-            deleteMenuItem.isVisible = true
-            cancelMenuItem.isVisible = true
-        }
+        deleteMenuItem.isVisible = viewModel.isChoosingImageToDelete()
+        cancelMenuItem.isVisible = viewModel.isChoosingImageToDelete()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -199,11 +170,7 @@ class PictureFragment : Fragment(), View.OnClickListener {
                 true
             }
             R.id.action_cancel -> {
-                numOfPicturesTobeDeleted = 0
-                activity!!.invalidateOptionsMenu()
-                //remove selection's effect on selected items
-                adapter!!.resetTracker()
-                adapter!!.notifyDataSetChanged()
+                viewModel.clearAllPendingDeletePicture()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -214,37 +181,14 @@ class PictureFragment : Fragment(), View.OnClickListener {
         val builder = AlertDialog.Builder(
             activity!!
         )
-        builder.setMessage(String.format("Bạn muốn xóa %d ảnh đã chọn?", numOfPicturesTobeDeleted))
+        builder.setMessage(String.format("Bạn muốn xóa %d ảnh đã chọn?", viewModel.numberOfPendingImages()))
             .setPositiveButton("Có", object : DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface, which: Int) {
-                    dialog.cancel()
-                    //delete the selected pictures
-//                    removePic()
-                    //reset deletion-related things and update menu actions
-                    numOfPicturesTobeDeleted = 0
-                    adapter!!.resetTracker()
-                    activity!!.invalidateOptionsMenu()
+                    dialog.dismiss()
+                    lifecycleScope.launch {
+                        viewModel.deletePendingImages()
+                    }
                 }
-
-//                private fun removePic() {
-//                    val indexesOfImagesToDelete = adapter!!.imagesToDelete
-//                    val pictureFolder = File(
-//                        context!!.getExternalFilesDir(
-//                            Environment.DIRECTORY_PICTURES
-//                        ), PICTURES_FOLDER_NAME
-//                    )
-//                    for (i in indexesOfImagesToDelete.size() - 1 downTo 0) {
-//                        //To handle ArrayIndexOutOfBound, we delete the image with higher index first
-//                        val indexInImageList = indexesOfImagesToDelete.keyAt(i)
-//                        val filePathName = images[indexInImageList].uri!!.lastPathSegment
-//                        images.removeAt(indexInImageList)
-//                        //delete file in external dir
-//                        val fileToBeDeleted = File(pictureFolder, filePathName)
-//                        fileToBeDeleted.delete()
-//                    }
-//                    Toast.makeText(context, "Đã xóa", Toast.LENGTH_SHORT).show()
-//                    pictureViewModel!!.setImages(images)
-//                }
             })
             .setNegativeButton("Không") { dialog, which -> dialog.cancel() }
         val alertDialog = builder.create()
@@ -298,52 +242,9 @@ class PictureFragment : Fragment(), View.OnClickListener {
         return bitmap
     }
 
-    private fun saveImageToExternalDir(uri: Uri?) {
-        Observable.create<Boolean> { emitter ->
-            try {
-                //saved the selected picture to external app-specific files
-                val calendar = Calendar.getInstance()
-                val createdTime = calendar.timeInMillis //make each file unique
-                val file = File(
-                    context!!.getExternalFilesDir(
-                        Environment.DIRECTORY_PICTURES
-                    ), PICTURES_FOLDER_NAME
-                )
-                if (!file.exists() && !file.mkdir()) {
-                    Log.e(LOG_TAG, "Directory not created")
-                    emitter.onError(Throwable("ERROR"))
-                } else {
-                    val imageFileToSave = File(file, "$createdTime.png")
-                    try {
-                        if (imageFileToSave.createNewFile()) {
-                            val outputStream: OutputStream = FileOutputStream(imageFileToSave)
-                            val bitmap =
-                                MediaStore.Images.Media.getBitmap(context!!.contentResolver, uri)
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                            outputStream.close()
-                            emitter.onComplete()
-                        }
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                        emitter.onError(e)
-                    }
-                }
-            } catch (e: Exception) {
-                emitter.onError(e)
-            }
-        }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { result: Boolean -> Log.d(LOG_TAG, result.toString()) }
-    }
-
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.fabAddImage -> if (numOfPicturesTobeDeleted == 0) chooseImagesFromGallery() else Toast.makeText(
-                requireContext(),
-                "Vui lòng hoàn thành thao tác khác trước",
-                Toast.LENGTH_SHORT
-            ).show()
+            R.id.fabAddImage -> chooseImagesFromGallery()
         }
     }
 

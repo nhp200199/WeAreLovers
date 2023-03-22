@@ -6,12 +6,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.databinding.ItemPictureBinding
 import com.phucnguyen.lovereminder.model.Image
 
 class ImageAdapter(var context: Context) : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
     interface Listener {
         fun onItemClicked(position: Int)
+        fun onItemLongClicked(position: Int)
     }
 
      var images: List<Image>? = null
@@ -34,6 +36,12 @@ class ImageAdapter(var context: Context) : RecyclerView.Adapter<ImageAdapter.Vie
 
         holder.itemView.setOnClickListener {
             listener?.onItemClicked(position)
+        }
+        holder.itemView.setOnLongClickListener {
+            listener?.let {
+                it.onItemLongClicked(position)
+                true
+            } ?: false
         }
     }
 
@@ -84,6 +92,12 @@ class ImageAdapter(var context: Context) : RecyclerView.Adapter<ImageAdapter.Vie
             Glide.with(binding.root.context)
                 .load(image.uri)
                 .into(binding.ivPicture)
+
+            if (image.isPendingDelete) {
+                binding.ivPicture.setBackgroundResource(R.drawable.view_border)
+            } else {
+                binding.ivPicture.setBackgroundResource(android.R.color.transparent)
+            }
         }
     }
 }

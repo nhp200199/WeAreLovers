@@ -27,6 +27,7 @@ class PictureDetailViewModel(application: Application) : AndroidViewModel(applic
     init {
         loadImages()
     }
+
     fun loadImages() {
         viewModelScope.launch() {
             withContext(Dispatchers.IO) {
