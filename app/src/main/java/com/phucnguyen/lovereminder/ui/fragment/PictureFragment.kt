@@ -92,7 +92,12 @@ class PictureFragment : Fragment(), View.OnClickListener {
             }
         }
 
-        viewModel.isChoosingImageToDeleteStream.observe(viewLifecycleOwner) {
+        viewModel.isChoosingImageToDeleteStream.observe(viewLifecycleOwner) {isChoosing ->
+            if (isChoosing) {
+                binding!!.fabAddImage.hide()
+            } else {
+                binding!!.fabAddImage.show()
+            }
             requireActivity().invalidateOptionsMenu()
         }
 

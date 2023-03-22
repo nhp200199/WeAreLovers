@@ -3,6 +3,7 @@ package com.phucnguyen.lovereminder.ui.adapter
 import android.content.Context
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -89,14 +90,17 @@ class ImageAdapter(var context: Context) : RecyclerView.Adapter<ImageAdapter.Vie
 
     class ViewHolder(private val binding: ItemPictureBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(image: Image) {
-            Glide.with(binding.root.context)
+            Glide.with(binding.ivPicture)
                 .load(image.uri)
+                .centerCrop()
                 .into(binding.ivPicture)
 
             if (image.isPendingDelete) {
-                binding.ivPicture.setBackgroundResource(R.drawable.view_border)
+                binding.ivPendingTrack.visibility = View.VISIBLE
+                binding.ivPicture.alpha = 0.8f
             } else {
-                binding.ivPicture.setBackgroundResource(android.R.color.transparent)
+                binding.ivPendingTrack.visibility = View.GONE
+                binding.ivPicture.alpha = 1f
             }
         }
     }
