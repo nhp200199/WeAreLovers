@@ -10,15 +10,18 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.DisplayMetrics
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.bumptech.glide.Glide
-import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.*
 import com.phucnguyen.lovereminder.PREF_BACKGROUND_PICTURE
+import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.SHARE_PREF_BACKGROUND
 import com.phucnguyen.lovereminder.SHARE_PREF_USER_INFO
 import com.phucnguyen.lovereminder.databinding.ActivityMainBinding
@@ -29,12 +32,34 @@ import com.phucnguyen.lovereminder.ui.fragment.PictureFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.FileNotFoundException
 
+
 @AndroidEntryPoint
 class MainActivity : BaseActivity(), SettingsListener {
     private var flag = 0 // used to check exit
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var timer: CountDownTimer
     private lateinit var mBinding: ActivityMainBinding
+
+    private lateinit var adView: AdView
+    private var initialLayoutComplete = false
+    // Determine the screen width (less decorations) to use for the ad width.
+    // If the ad hasn't been laid out, default to the full screen width.
+    private val myAdSize: AdSize
+        get() {
+            val display = windowManager.defaultDisplay
+            val outMetrics = DisplayMetrics()
+            display.getMetrics(outMetrics)
+
+            val density = outMetrics.density
+
+            var adWidthPixels = mBinding.adViewContainer.width.toFloat()
+            if (adWidthPixels == 0f) {
+                adWidthPixels = outMetrics.widthPixels.toFloat()
+            }
+
+            val adWidth = (adWidthPixels / density).toInt()
+            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,12 +78,68 @@ class MainActivity : BaseActivity(), SettingsListener {
     }
 
     private fun setupAdView() {
+        // Initialize the Mobile Ads SDK with an AdMob App ID.
+        MobileAds.initialize(this) {}
+
+        // Set your test devices. Check your logcat output for the hashed device ID to
+        // get test ads on a physical device. e.g.
+        // "Use RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
+        // to get test ads on this device."
+        MobileAds.setRequestConfiguration(
+            RequestConfiguration.Builder().setTestDeviceIds(listOf("AC2FDCECBCC0ADA1D187ED08618252FD")).build()
+        )
+
+        adView = AdView(this)
+        adView.adListener = object : AdListener() {
+            override fun onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            override fun onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                // Code to be executed when an ad request fails.
+            }
+
+            override fun onAdImpression() {
+                // Code to be executed when an impression is recorded
+                // for an ad.
+            }
+
+            override fun onAdLoaded() {
+                mBinding.adViewContainer.visibility = View.VISIBLE
+            }
+
+            override fun onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+        }
+
+        mBinding.adViewContainer.addView(adView)
+        // Since we're loading the banner based on the adContainerView size, we need to wait until this
+        // view is laid out before we can get the width.
+        mBinding.adViewContainer.viewTreeObserver.addOnGlobalLayoutListener {
+            if (!initialLayoutComplete) {
+                initialLayoutComplete = true
+                loadBanner()
+            }
+        }
+    }
+
+    private fun loadBanner() {
+        adView.adUnitId = getString(R.string.banner_ad_unit_id)
+
+        adView.adSize = myAdSize
+
         // Create an ad request.
-        val adRequest = AdRequest.Builder()
-            .build()
+        val adRequest = AdRequest.Builder().build()
 
         // Start loading the ad in the background.
-        mBinding.adView.loadAd(adRequest)
+        adView.loadAd(adRequest)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -126,17 +207,17 @@ class MainActivity : BaseActivity(), SettingsListener {
     public override fun onResume() {
         super.onResume()
         if (intent.hasExtra("position")) swipeViewPager(intent.getIntExtra("position", 0))
-        mBinding.adView.resume()
+        adView.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        mBinding.adView.pause()
+        adView.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mBinding.adView.destroy()
+        adView.destroy()
     }
 
     override fun onBackgroundImageChanged(uri: Uri) {

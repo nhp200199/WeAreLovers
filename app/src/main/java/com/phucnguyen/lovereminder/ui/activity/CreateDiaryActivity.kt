@@ -3,6 +3,7 @@ package com.phucnguyen.lovereminder.ui.activity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -10,6 +11,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.databinding.ActivityCreateDiaryBinding
 import com.phucnguyen.lovereminder.model.Diary
@@ -23,6 +30,7 @@ import java.util.*
 class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
     private lateinit var binding: ActivityCreateDiaryBinding
     private val viewModel: CreateDiaryViewModel by viewModels()
+    private var interstitialAd: InterstitialAd? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme()
@@ -52,6 +60,8 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
 
             override fun afterTextChanged(s: Editable) {}
         })
+
+        loadAd()
     }
 
     override fun onClick(v: View) {
@@ -74,6 +84,8 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
             }
             binding.edtDiary.setText("")
             hideKeyboard(this@CreateDiaryActivity)
+
+            showInterstitial()
         }
     }
 
@@ -91,5 +103,53 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
             val alertDialog = builder.create()
             alertDialog.show()
         }
+    }
+
+    private fun loadAd() {
+        var adRequest = AdRequest.Builder().build()
+
+        InterstitialAd.load(
+            this,
+            getString(R.string.interstitial_ad_unit_id),
+            adRequest,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    Log.d(TAG, adError.message)
+                }
+
+                override fun onAdLoaded(ad: InterstitialAd) {
+                    Log.d(TAG, "Ad was loaded.")
+                    interstitialAd = ad
+                }
+            }
+        )
+    }
+
+    private fun showInterstitial() {
+        if (interstitialAd != null) {
+            interstitialAd?.fullScreenContentCallback =
+                object : FullScreenContentCallback() {
+                    override fun onAdDismissedFullScreenContent() {
+                        Log.d(TAG, "Ad was dismissed.")
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                        Log.e(TAG, "Ad failed to show.")
+
+                    }
+
+                    override fun onAdShowedFullScreenContent() {
+                        // Called when ad is dismissed.
+                        Log.d(TAG, "Ad showed fullscreen content.")
+                    }
+                }
+            interstitialAd?.show(this)
+        } else {
+            Log.e(TAG, "Ad wasn't loaded.")
+        }
+    }
+
+    companion object {
+        val TAG: String = CreateDiaryActivity::class.java.simpleName
     }
 }
