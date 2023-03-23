@@ -1,9 +1,6 @@
 package com.phucnguyen.lovereminder.di.viewmodel
 
-import com.phucnguyen.lovereminder.repository.DiaryRepo
-import com.phucnguyen.lovereminder.repository.DiaryRepoImpl
-import com.phucnguyen.lovereminder.repository.UserRepo
-import com.phucnguyen.lovereminder.repository.UserRepoImpl
+import com.phucnguyen.lovereminder.repository.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -21,4 +18,9 @@ abstract class ViewModelModule {
     abstract fun bindUserRepo(
         userRepoImpl: UserRepoImpl
     ): UserRepo
+
+    @Binds
+    abstract fun bindPictureRepo(
+        pictureRepoImpl: PictureRepoImpl
+    ): PictureRepo
 }

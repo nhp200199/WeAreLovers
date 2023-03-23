@@ -10,13 +10,12 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -25,20 +24,18 @@ import com.phucnguyen.lovereminder.databinding.FragmentPictureBinding
 import com.phucnguyen.lovereminder.ui.activity.FullScreenPicActivity
 import com.phucnguyen.lovereminder.ui.adapter.ImageAdapter
 import com.phucnguyen.lovereminder.viewmodel.PictureViewModel
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.*
-import java.util.*
 
 /**
  * A simple [Fragment] subclass.
  */
+@AndroidEntryPoint
 class PictureFragment : Fragment(), View.OnClickListener {
     private var adapter: ImageAdapter? = null
     private var binding: FragmentPictureBinding? = null
-    private lateinit var viewModel: PictureViewModel
+    private val viewModel: PictureViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -59,9 +56,6 @@ class PictureFragment : Fragment(), View.OnClickListener {
         // Inflate the layout for this fragment
         val v = inflater.inflate(R.layout.fragment_picture, container, false)
         binding = FragmentPictureBinding.bind(v)
-        viewModel = ViewModelProvider(requireActivity()).get(
-            PictureViewModel::class.java
-        )
 
         adapter?.listener = object : ImageAdapter.Listener {
             override fun onItemClicked(position: Int) {
@@ -81,7 +75,7 @@ class PictureFragment : Fragment(), View.OnClickListener {
             layoutManager = GridLayoutManager(context!!, 3)
         }
 
-        viewModel.images.observe(viewLifecycleOwner) { images ->
+        viewModel.pictures.observe(viewLifecycleOwner) { images ->
             if (images.isEmpty()) {
                 binding!!.linearLayout.visibility = View.VISIBLE
                 binding!!.rcvPictures.visibility = View.GONE
@@ -190,9 +184,7 @@ class PictureFragment : Fragment(), View.OnClickListener {
             .setPositiveButton("Có", object : DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface, which: Int) {
                     dialog.dismiss()
-                    lifecycleScope.launch {
-                        viewModel.deletePendingImages()
-                    }
+                    viewModel.deletePendingImages()
                 }
             })
             .setNegativeButton("Không") { dialog, which -> dialog.cancel() }

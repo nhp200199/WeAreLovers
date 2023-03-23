@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Lifecycle
@@ -20,10 +21,12 @@ import com.github.chrisbanes.photoview.PhotoView
 import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.model.Image
 import com.phucnguyen.lovereminder.viewmodel.PictureDetailViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class FullScreenPicActivity : BaseActivity() {
-    private lateinit var viewModel: PictureDetailViewModel
+    private val viewModel: PictureDetailViewModel by viewModels()
     private var picturePos = 0
     private val listener = object : ViewPager.OnPageChangeListener {
         override fun onPageScrolled(
@@ -59,8 +62,6 @@ class FullScreenPicActivity : BaseActivity() {
         viewPager = findViewById<View>(R.id.photo_view) as ViewPager
         val adapter = ViewPagerAdapter(this)
         viewPager.adapter = adapter
-
-        viewModel = ViewModelProvider(this).get(PictureDetailViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -98,9 +99,7 @@ class FullScreenPicActivity : BaseActivity() {
         builder.setMessage("Bạn muốn xóa ảnh này")
             .setPositiveButton("Có") { dialog, which ->
                 dialog.dismiss()
-                lifecycleScope.launch {
-                    viewModel.deleteCurrentImage()
-                }
+                viewModel.deleteCurrentImage()
             }
             .setNegativeButton("Không") { dialog, which -> dialog.dismiss() }
         val alertDialog = builder.create()
