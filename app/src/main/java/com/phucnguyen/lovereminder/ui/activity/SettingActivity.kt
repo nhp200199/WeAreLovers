@@ -156,6 +156,11 @@ class SettingActivity : BaseActivity() {
             viewModel.changeTarget = PreferenceViewModel.CHANGE_TARGET_YOUR_FRIEND
             chooseAndCropImage()
         }
+
+        binding.ivBackgroundPicture.setOnClickListener {
+            viewModel.changeTarget = PreferenceViewModel.CHANGE_TARGET_BACKGROUND_PICTURE
+            chooseAndCropImage()
+        }
     }
 
     private fun chooseAndCropImage() {
@@ -185,6 +190,8 @@ class SettingActivity : BaseActivity() {
                     viewModel.changeYourAvatar(result.uri.toString())
                 } else if (viewModel.changeTarget == PreferenceViewModel.CHANGE_TARGET_YOUR_FRIEND) {
                     viewModel.changeYourFriendAvatar(result.uri.toString())
+                } else if (viewModel.changeTarget == PreferenceViewModel.CHANGE_TARGET_BACKGROUND_PICTURE) {
+                    viewModel.changeBackgroundPicture(result.uri.toString())
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Toast.makeText(this, "Cropping failed: " + result.error, Toast.LENGTH_LONG)

@@ -67,9 +67,14 @@ class PreferenceViewModel @Inject constructor(
         userRepo.setYourFrImage(newPath)
     }
 
+    fun changeBackgroundPicture(newPath: String) {
+        preferenceRepo.changeBackgroundPicture(newPath)
+    }
+
     companion object {
         const val UNDEFINE_CHANGE_TARGET: Int = 0
         const val CHANGE_TARGET_YOU: Int = 1
         const val CHANGE_TARGET_YOUR_FRIEND: Int = 2
+        const val CHANGE_TARGET_BACKGROUND_PICTURE: Int = 3
     }
 }
