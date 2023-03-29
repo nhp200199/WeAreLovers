@@ -23,4 +23,9 @@ abstract class ViewModelModule {
     abstract fun bindPictureRepo(
         pictureRepoImpl: PictureRepoImpl
     ): PictureRepo
+
+    @Binds
+    abstract fun bindPreferenceSetting(
+        preferenceRepoImpl: PreferenceRepoImpl
+    ): PreferenceRepo
 }

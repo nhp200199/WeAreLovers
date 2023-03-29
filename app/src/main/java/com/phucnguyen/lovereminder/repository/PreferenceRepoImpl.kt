@@ -1,0 +1,37 @@
+package com.phucnguyen.lovereminder.repository
+
+import android.content.SharedPreferences
+import com.phucnguyen.lovereminder.PREF_BACKGROUND_PICTURE
+import com.phucnguyen.lovereminder.PREF_THEME_COLOR
+import com.phucnguyen.lovereminder.di.PrefPreferenceSetting
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import javax.inject.Inject
+
+class PreferenceRepoImpl @Inject constructor(@PrefPreferenceSetting private val settingPreference: SharedPreferences) : PreferenceRepo {
+    private val _backgroundPictureFlow = MutableSharedFlow<String?>(replay = 1)
+    private val _appThemeFlow = MutableSharedFlow<Int?>(replay = 1)
+
+    init {
+        val currentBackgroundPicture = settingPreference.getString(PREF_BACKGROUND_PICTURE, null)
+        _backgroundPictureFlow.tryEmit(currentBackgroundPicture)
+
+        val currentAppTheme = settingPreference.getInt(PREF_THEME_COLOR, 0)
+        _appThemeFlow.tryEmit(currentAppTheme)
+    }
+
+    override fun getBackgroundPictureFlow(): Flow<String?> = _backgroundPictureFlow.asSharedFlow()
+
+    override fun changeBackgroundPicture(newPicturePath: String) {
+        _backgroundPictureFlow.tryEmit(newPicturePath)
+        settingPreference.edit().putString(PREF_BACKGROUND_PICTURE, newPicturePath).apply()
+    }
+
+    override fun getAppThemeFlow(): Flow<Int?> = _appThemeFlow.asSharedFlow()
+
+    override fun changeAppTheme(newThemeId: Int) {
+        _appThemeFlow.tryEmit(newThemeId)
+        settingPreference.edit().putInt(PREF_THEME_COLOR, newThemeId).apply()
+    }
+}

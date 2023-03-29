@@ -24,6 +24,7 @@ import com.phucnguyen.lovereminder.*
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding
 import com.phucnguyen.lovereminder.receiver.CoupleDateReceiver
 import com.phucnguyen.lovereminder.ui.activity.BaseActivity
+import com.phucnguyen.lovereminder.ui.activity.SettingActivity
 import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog
 import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog.ThemeDialogListener
 import com.phucnguyen.lovereminder.ui.fragment.dialog.DialogFragment
@@ -109,21 +110,16 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_change_background -> {
-                viewModel.flag = 2
-                changePicture()
-                true
-            }
-            R.id.action_change_date -> {
-                showPopUpChangeDate()
-                true
-            }
-            R.id.action_change_theme -> {
-                showPopupChangeTheme()
+            R.id.action_settings -> {
+                navigateSettingScreen()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun navigateSettingScreen() {
+        startActivity(Intent(requireContext(), SettingActivity::class.java))
     }
 
     private fun showPopupChangeTheme() {

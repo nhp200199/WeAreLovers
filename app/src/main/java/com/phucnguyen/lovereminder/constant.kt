@@ -9,8 +9,8 @@ const val PREF_YOUR_IMAGE = "yourImg"
 const val PREF_YOUR_FRIEND_IMAGE = "yourFrImg"
 
 const val SHARE_PREF_BACKGROUND = "background"
-const val PREF_BACKGROUND_PICTURE = "picture"
 
 const val SHARE_PREF_USER_PREFERENCE = "user_preferences"
 const val PREF_THEME_COLOR = "theme_color"
+const val PREF_BACKGROUND_PICTURE = "picture"
 // shared preference

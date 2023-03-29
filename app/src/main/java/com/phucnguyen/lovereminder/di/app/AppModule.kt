@@ -5,9 +5,11 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import com.phucnguyen.lovereminder.SHARE_PREF_BACKGROUND
 import com.phucnguyen.lovereminder.SHARE_PREF_USER_INFO
+import com.phucnguyen.lovereminder.SHARE_PREF_USER_PREFERENCE
 import com.phucnguyen.lovereminder.database.AppDatabase
 import com.phucnguyen.lovereminder.database.DiaryDao
 import com.phucnguyen.lovereminder.di.PrefBackgroundPicture
+import com.phucnguyen.lovereminder.di.PrefPreferenceSetting
 import com.phucnguyen.lovereminder.di.PrefUserInfo
 import dagger.Module
 import dagger.Provides
@@ -34,6 +36,11 @@ class AppModule {
     @PrefUserInfo
     fun prefUserInfo(application: Application): SharedPreferences = application.getSharedPreferences(
         SHARE_PREF_USER_INFO, AppCompatActivity.MODE_PRIVATE)
+
+    @Provides
+    @PrefPreferenceSetting
+    fun prefPreferenceSetting(application: Application): SharedPreferences = application.getSharedPreferences(
+        SHARE_PREF_USER_PREFERENCE, AppCompatActivity.MODE_PRIVATE)
 
     @Singleton
     @Provides

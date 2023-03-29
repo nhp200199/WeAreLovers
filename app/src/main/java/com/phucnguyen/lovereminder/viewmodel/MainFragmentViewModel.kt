@@ -26,8 +26,8 @@ class MainFragmentViewModel @Inject constructor(private val userRepo: UserRepo) 
             userRepo.getCoupleDateFlow()
         ) {
                 yourName, yourFrName, yourImage, yourFrImage, coupleDate ->
-            val yourImageUri = if (yourImage.isEmpty()) defaultImageUri else Uri.parse(yourImage)
-            val yourFrImageUri = if (yourFrImage.isEmpty()) defaultImageUri else Uri.parse(yourFrImage)
+            val yourImageUri = if (yourImage == null) defaultImageUri else Uri.parse(yourImage)
+            val yourFrImageUri = if (yourFrImage == null) defaultImageUri else Uri.parse(yourFrImage)
             UserInfoUiState(yourName, yourFrName, yourImageUri, yourFrImageUri, coupleDate)
         }
     }
