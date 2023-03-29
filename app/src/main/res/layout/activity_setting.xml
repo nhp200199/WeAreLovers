@@ -277,8 +277,8 @@
 
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/civ_your_avatar"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
                             android:layout_marginStart="8dp" />
 
                     </LinearLayout>
@@ -304,8 +304,8 @@
 
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/civ_your_friend_avatar"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
                             android:layout_marginStart="8dp" />
 
                     </LinearLayout>

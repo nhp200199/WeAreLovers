@@ -33,6 +33,8 @@ class PreferenceViewModel @Inject constructor(
     val yourFriendAvatarFlow = userRepo.getYourFrImageFlow()
         .map { picturePath ->  if (picturePath != null) Uri.parse(picturePath) else defaultImageUri }
 
+    var changeTarget: Int = UNDEFINE_CHANGE_TARGET
+
     fun startEditYourName() {
         _isEditingYourName.tryEmit(true)
     }
@@ -55,5 +57,19 @@ class PreferenceViewModel @Inject constructor(
 
     fun changeYourFriendName(newName: String) {
         userRepo.setYourFrName(newName)
+    }
+
+    fun changeYourAvatar(newPath: String) {
+        userRepo.setYourImage(newPath)
+    }
+
+    fun changeYourFriendAvatar(newPath: String) {
+        userRepo.setYourFrImage(newPath)
+    }
+
+    companion object {
+        const val UNDEFINE_CHANGE_TARGET: Int = 0
+        const val CHANGE_TARGET_YOU: Int = 1
+        const val CHANGE_TARGET_YOUR_FRIEND: Int = 2
     }
 }

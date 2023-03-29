@@ -1,7 +1,10 @@
 package com.phucnguyen.lovereminder.ui.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -11,6 +14,8 @@ import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.databinding.ActivitySettingBinding
 import com.phucnguyen.lovereminder.utils.hideKeyboard
 import com.phucnguyen.lovereminder.viewmodel.PreferenceViewModel
+import com.theartofdev.edmodo.cropper.CropImage
+import com.theartofdev.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -139,6 +144,51 @@ class SettingActivity : BaseActivity() {
                 hideKeyboard(this)
                 viewModel.stopEditYourFriendName()
                 viewModel.changeYourFriendName(binding.edtEditYourFriendName.text.toString())
+            }
+        }
+
+        binding.civYourAvatar.setOnClickListener {
+            viewModel.changeTarget = PreferenceViewModel.CHANGE_TARGET_YOU
+            chooseAndCropImage()
+        }
+
+        binding.civYourFriendAvatar.setOnClickListener {
+            viewModel.changeTarget = PreferenceViewModel.CHANGE_TARGET_YOUR_FRIEND
+            chooseAndCropImage()
+        }
+    }
+
+    private fun chooseAndCropImage() {
+        val actionBarHeight = supportActionBar!!.height
+        CropImage.activity()
+            .setGuidelines(CropImageView.Guidelines.ON)
+            .setActivityTitle("My Crop")
+            .setCropShape(CropImageView.CropShape.RECTANGLE)
+            .setCropMenuCropButtonTitle("Done")
+//            .setAspectRatio(width, height - actionBarHeight)
+//            .setFixAspectRatio(true)
+//            .setRequestedSize(
+//                width,
+//                height - actionBarHeight,
+//                CropImageView.RequestSizeOptions.RESIZE_EXACT
+//            )
+            .start(this)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // handle result of CropImageActivity
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            val result = CropImage.getActivityResult(data)
+            if (resultCode == Activity.RESULT_OK) {
+                if (viewModel.changeTarget == PreferenceViewModel.CHANGE_TARGET_YOU) {
+                    viewModel.changeYourAvatar(result.uri.toString())
+                } else if (viewModel.changeTarget == PreferenceViewModel.CHANGE_TARGET_YOUR_FRIEND) {
+                    viewModel.changeYourFriendAvatar(result.uri.toString())
+                }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Toast.makeText(this, "Cropping failed: " + result.error, Toast.LENGTH_LONG)
+                    .show()
             }
         }
     }
