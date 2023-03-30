@@ -2,6 +2,8 @@ package com.phucnguyen.lovereminder.viewmodel
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.model.ColorTheme
 import com.phucnguyen.lovereminder.repository.PreferenceRepo
 import com.phucnguyen.lovereminder.repository.UserRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +16,30 @@ class PreferenceViewModel @Inject constructor(
     private val preferenceRepo: PreferenceRepo
 ): ViewModel() {
     private val defaultImageUri = Uri.parse("android.resource://com.phucnguyen.lovereminder/drawable/couple")
+
+    private val defaultColorThemes = flowOf(
+        listOf(
+            ColorTheme(R.color.amaranth, false),
+            ColorTheme(R.color.royal_blue, false),
+        )
+    )
+    private val _selectedColorTheme = MutableStateFlow<Int>(R.color.amaranth)
+    val previewColorThemesFlow = _selectedColorTheme.flatMapLatest { id ->
+        defaultColorThemes.map { theme ->
+            theme.forEach { item ->
+                item.isSelected = item.colorThemeResId == id
+            }
+            theme
+        }
+    }
+
+    val selectedThemeFlow = _selectedColorTheme.map {
+        when(it) {
+            R.color.amaranth -> R.style.AppThemeBase_Rose
+            R.color.royal_blue -> R.style.AppThemeBase_Blue
+            else -> throw IllegalStateException()
+        }
+    }
 
     private val _isEditingYourName = MutableStateFlow<Boolean>(false)
     val isEditingYourNameFlow = _isEditingYourName.asStateFlow()
@@ -34,6 +60,23 @@ class PreferenceViewModel @Inject constructor(
         .map { picturePath ->  if (picturePath != null) Uri.parse(picturePath) else defaultImageUri }
 
     var changeTarget: Int = UNDEFINE_CHANGE_TARGET
+
+    init {
+        val currentColorThemeId = when (preferenceRepo.getCurrentTheme()) {
+            R.style.AppThemeBase_Rose -> R.color.amaranth
+            R.style.AppThemeBase_Blue -> R.color.royal_blue
+            else -> throw java.lang.IllegalStateException("Cannot identify current theme value")
+        }
+        _selectedColorTheme.tryEmit(currentColorThemeId)
+    }
+
+    fun changeColorTheme(newColorThemeResId: Int) {
+        _selectedColorTheme.tryEmit(newColorThemeResId)
+    }
+
+    fun changeAppTheme(newThemeResId: Int) {
+        preferenceRepo.changeAppTheme(newThemeResId)
+    }
 
     fun startEditYourName() {
         _isEditingYourName.tryEmit(true)

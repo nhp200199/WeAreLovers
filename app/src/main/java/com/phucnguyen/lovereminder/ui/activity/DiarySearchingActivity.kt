@@ -29,7 +29,6 @@ class DiarySearchingActivity : BaseActivity() {
     private var mDiaryDao: DiaryDao? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme()
         setContentView(R.layout.activity_diary_searching)
         mDiaryDao = getInstance(this).diaryDao
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar

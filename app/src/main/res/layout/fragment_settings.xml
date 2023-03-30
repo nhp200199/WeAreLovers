@@ -66,7 +66,6 @@
                                 android:orientation="vertical">
 
                                 <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-                                    android:id="@+id/profile_image"
                                     android:layout_width="48dp"
                                     android:layout_height="48dp"
                                     android:src="@drawable/couple"
@@ -100,7 +99,6 @@
                                 android:orientation="vertical">
 
                                 <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-                                    android:id="@+id/friend_profile_image"
                                     android:layout_width="48dp"
                                     android:layout_height="48dp"
                                     android:src="@drawable/couple"
@@ -258,7 +256,6 @@
                             android:text="@string/txt_your_avatar_image"/>
 
                         <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/civ_your_avatar"
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:layout_marginStart="8dp"/>
@@ -285,7 +282,6 @@
                             android:text="@string/txt_your_friend_avatar_image"/>
 
                         <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/civ_your_friend_avatar"
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:layout_marginStart="8dp"/>

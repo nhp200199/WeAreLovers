@@ -25,7 +25,6 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
     private val viewModel: CreateDiaryViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme()
         binding = ActivityCreateDiaryBinding.inflate(
             layoutInflater
         )

@@ -38,7 +38,6 @@ class MainActivity : BaseActivity(), SettingsListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme()
         Log.d("Tag", "Created")
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)

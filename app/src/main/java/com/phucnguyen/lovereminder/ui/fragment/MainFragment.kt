@@ -23,10 +23,7 @@ import com.bumptech.glide.Glide
 import com.phucnguyen.lovereminder.*
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding
 import com.phucnguyen.lovereminder.receiver.CoupleDateReceiver
-import com.phucnguyen.lovereminder.ui.activity.BaseActivity
 import com.phucnguyen.lovereminder.ui.activity.SettingActivity
-import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog
-import com.phucnguyen.lovereminder.ui.fragment.dialog.ChangeThemeDialog.ThemeDialogListener
 import com.phucnguyen.lovereminder.ui.fragment.dialog.DialogFragment
 import com.phucnguyen.lovereminder.ui.uiState.UserInfoUiState
 import com.phucnguyen.lovereminder.viewmodel.MainFragmentViewModel
@@ -43,7 +40,7 @@ import java.util.concurrent.TimeUnit
  * A simple [Fragment] subclass.
  */
 @AndroidEntryPoint
-class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, ThemeDialogListener {
+class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener {
     interface SettingsListener {
         fun onBackgroundImageChanged(uri: Uri)
     }
@@ -120,12 +117,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
 
     private fun navigateSettingScreen() {
         startActivity(Intent(requireContext(), SettingActivity::class.java))
-    }
-
-    private fun showPopupChangeTheme() {
-        val changeDateDialog = ChangeThemeDialog()
-        changeDateDialog.setTargetFragment(this, 123)
-        changeDateDialog.show(requireFragmentManager(), "ChangeThemeDialog")
     }
 
     private fun connectViews(binding: FragmentMainBinding) {
@@ -328,18 +319,6 @@ class MainFragment : Fragment(), DialogFragment.Listener, View.OnClickListener, 
                 pendingIntent
             )
         }
-    }
-
-    override fun onThemeDialogChanged(themeId: Int) {
-        var newThemeId = 0
-        when (themeId) {
-            R.color.amaranth -> newThemeId = R.style.AppThemeBase_Rose
-            R.color.royal_blue -> newThemeId = R.style.AppThemeBase_Blue
-        }
-        val editor = requireActivity().getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
-            .edit()
-        editor.putInt("theme_color", themeId).apply()
-        (activity as BaseActivity?)!!.switchTheme(newThemeId)
     }
 
     companion object {
