@@ -11,5 +11,5 @@ Store image of each other
 - [x] Migrate codebase to Kotlin
 - [x] Apply MVVM architecture
 - [ ] Support advertising
-- [ ] Create a screen for settings.
+- [x] Create a screen for settings.
 
