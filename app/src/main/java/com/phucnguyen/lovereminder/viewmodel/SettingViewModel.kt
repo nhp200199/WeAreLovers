@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
-class PreferenceViewModel @Inject constructor(
+class SettingViewModel @Inject constructor(
     private val userRepo: UserRepo,
     private val preferenceRepo: PreferenceRepo
 ): ViewModel() {
@@ -58,6 +58,8 @@ class PreferenceViewModel @Inject constructor(
         .map { picturePath ->  if (picturePath != null) Uri.parse(picturePath) else defaultImageUri }
     val yourFriendAvatarFlow = userRepo.getYourFrImageFlow()
         .map { picturePath ->  if (picturePath != null) Uri.parse(picturePath) else defaultImageUri }
+
+    val coupleDateFlow = userRepo.getCoupleDateFlow()
 
     var changeTarget: Int = UNDEFINE_CHANGE_TARGET
 
@@ -112,6 +114,10 @@ class PreferenceViewModel @Inject constructor(
 
     fun changeBackgroundPicture(newPath: String) {
         preferenceRepo.changeBackgroundPicture(newPath)
+    }
+
+    fun updateCoupleDate(newCoupleDate: String) {
+        userRepo.setCoupleDate(newCoupleDate)
     }
 
     companion object {

@@ -41,4 +41,5 @@
     <string name="txt_your_friend_avatar_image">Ảnh của người ấy</string>
     <string name="txt_your_avatar_image">Ảnh của bạn</string>
     <string name="txt_action_done_edit_name">Xong</string>
+    <string name="txt_couple_start_date_in_setting">Ngày bắt đầu</string>
 </resources>

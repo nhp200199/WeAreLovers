@@ -11,14 +11,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.databinding.FragmentSettingsBinding
-import com.phucnguyen.lovereminder.viewmodel.PreferenceViewModel
+import com.phucnguyen.lovereminder.viewmodel.SettingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
     private var binding: FragmentSettingsBinding? = null
-    private val viewModel: PreferenceViewModel by viewModels()
+    private val viewModel: SettingViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

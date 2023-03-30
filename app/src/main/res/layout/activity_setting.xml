@@ -38,6 +38,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/txt_title_theme"
+                        android:textColor="?attr/colorPrimary"
                         android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <LinearLayout
@@ -133,6 +134,12 @@
 
                 </LinearLayout>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="8dp"
+                    android:background="?attr/colorPrimary"/>
+
                 <LinearLayout
                     android:id="@+id/ll_background_setting_container"
                     android:layout_width="match_parent"
@@ -145,6 +152,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/txt_title_background_picture"
+                        android:textColor="?attr/colorPrimary"
                         android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <ImageView
@@ -157,11 +165,16 @@
 
                 </LinearLayout>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="8dp"
+                    android:background="?attr/colorPrimary"/>
+
                 <LinearLayout
                     android:id="@+id/ll_information_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
                     android:orientation="vertical">
 
                     <LinearLayout
@@ -176,6 +189,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/txt_title_your_name"
+                            android:textColor="?attr/colorPrimary"
                             android:textAppearance="?attr/textAppearanceHeadline6" />
 
                         <LinearLayout
@@ -228,6 +242,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/txt_title_your_friend_name"
+                            android:textColor="?attr/colorPrimary"
                             android:textAppearance="?attr/textAppearanceHeadline6" />
 
                         <LinearLayout
@@ -269,6 +284,35 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/ll_couple_date_setting"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_title_couple_date"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:marqueeRepeatLimit="marquee_forever"
+                            android:maxLines="1"
+                            android:text="@string/txt_couple_start_date_in_setting"
+                            android:textColor="?attr/colorPrimary"
+                            android:textAppearance="?attr/textAppearanceHeadline6" />
+
+                        <TextView
+                            android:id="@+id/tv_action_couple_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceHeadline6"
+                            android:textColor="?attr/colorPrimary"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:id="@+id/ll_your_avatar_image"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -285,6 +329,7 @@
                             android:marqueeRepeatLimit="marquee_forever"
                             android:maxLines="1"
                             android:text="@string/txt_your_avatar_image"
+                            android:textColor="?attr/colorPrimary"
                             android:textAppearance="?attr/textAppearanceHeadline6" />
 
                         <de.hdodenhof.circleimageview.CircleImageView
@@ -312,6 +357,7 @@
                             android:marqueeRepeatLimit="marquee_forever"
                             android:maxLines="1"
                             android:text="@string/txt_your_friend_avatar_image"
+                            android:textColor="?attr/colorPrimary"
                             android:textAppearance="?attr/textAppearanceHeadline6" />
 
                         <de.hdodenhof.circleimageview.CircleImageView
