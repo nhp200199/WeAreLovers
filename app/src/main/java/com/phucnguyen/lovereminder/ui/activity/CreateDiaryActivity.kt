@@ -1,5 +1,6 @@
 package com.phucnguyen.lovereminder.ui.activity
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,6 +9,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -17,7 +19,10 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.phucnguyen.lovereminder.INITIAL_AD_COUNTDOWN
+import com.phucnguyen.lovereminder.PREF_COUNT_DOWN_TO_SHOW_AD
 import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.SHARE_PREF_ADMOB
 import com.phucnguyen.lovereminder.databinding.ActivityCreateDiaryBinding
 import com.phucnguyen.lovereminder.model.Diary
 import com.phucnguyen.lovereminder.utils.hideKeyboard
@@ -31,6 +36,7 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
     private lateinit var binding: ActivityCreateDiaryBinding
     private val viewModel: CreateDiaryViewModel by viewModels()
     private var interstitialAd: InterstitialAd? = null
+    private lateinit var admobSharedPref: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCreateDiaryBinding.inflate(
@@ -43,6 +49,8 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
         actionBar!!.setDisplayShowTitleEnabled(false)
         actionBar.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { view: View? -> onBackPressed() }
+
+        admobSharedPref = getSharedPreferences(SHARE_PREF_ADMOB, AppCompatActivity.MODE_PRIVATE)
 
         viewModel.getBackgroundImage()?.apply {
             Glide.with(this@CreateDiaryActivity)
@@ -84,6 +92,15 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
             binding.edtDiary.setText("")
             hideKeyboard(this@CreateDiaryActivity)
 
+            decreaseCountdownAndCheckShowAd()
+        }
+    }
+
+    private fun decreaseCountdownAndCheckShowAd() {
+        var countdown = admobSharedPref.getInt(PREF_COUNT_DOWN_TO_SHOW_AD, INITIAL_AD_COUNTDOWN)
+        admobSharedPref.edit().putInt(PREF_COUNT_DOWN_TO_SHOW_AD, --countdown).apply()
+
+        if (countdown <= 0) {
             showInterstitial()
         }
     }
@@ -130,6 +147,7 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
                 object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         Log.d(TAG, "Ad was dismissed.")
+                        resetAdmobCountdown()
                     }
 
                     override fun onAdFailedToShowFullScreenContent(adError: AdError) {
@@ -138,14 +156,25 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
                     }
 
                     override fun onAdShowedFullScreenContent() {
-                        // Called when ad is dismissed.
                         Log.d(TAG, "Ad showed fullscreen content.")
+                        loadAd()
                     }
                 }
             interstitialAd?.show(this)
         } else {
             Log.e(TAG, "Ad wasn't loaded.")
         }
+    }
+
+    private fun resetAdmobCountdown() {
+        val newCountdown = randomCountdown()
+        admobSharedPref.edit().putInt(PREF_COUNT_DOWN_TO_SHOW_AD, newCountdown).apply()
+    }
+
+    private fun randomCountdown(): Int {
+        val nextCountdown = Random().nextInt(3)
+        Log.d(TAG, "Ad will be showed again after " + nextCountdown + " times create diary")
+        return nextCountdown
     }
 
     companion object {
