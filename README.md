@@ -10,6 +10,6 @@ This app create a beautiful and memorable space for couples. Here couples can ex
 - [x] Update UI base on Material guideline.
 - [x] Migrate codebase to Kotlin
 - [x] Apply MVVM architecture
-- [ ] Support advertising
+- [x] Support advertising
 - [x] Create a screen for settings.
 
