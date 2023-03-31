@@ -12,4 +12,8 @@ This app create a beautiful and memorable space for couples. Here couples can ex
 - [x] Apply MVVM architecture
 - [x] Support advertising
 - [x] Create a screen for settings.
+- [ ] Log information
+- [ ] Migrate to DataBinding
+- [ ] Write Unit test, UI test
+- [ ] Use navigation component
 
