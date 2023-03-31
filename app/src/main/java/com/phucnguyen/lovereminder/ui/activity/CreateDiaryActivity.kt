@@ -33,7 +33,6 @@ class CreateDiaryActivity : BaseActivity(), View.OnClickListener {
     private var interstitialAd: InterstitialAd? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme()
         binding = ActivityCreateDiaryBinding.inflate(
             layoutInflater
         )

@@ -1,32 +1,56 @@
 package com.phucnguyen.lovereminder.ui.activity
 
-import androidx.appcompat.app.AppCompatActivity
-import com.phucnguyen.lovereminder.R
-import android.content.SharedPreferences
 import android.os.Bundle
-import com.phucnguyen.lovereminder.ui.activity.BaseActivity
+import android.util.TypedValue
+import android.view.Window
+import android.view.WindowManager
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.viewmodel.BaseActivityViewModel
+import kotlinx.coroutines.launch
+
 
 open class BaseActivity : AppCompatActivity() {
-    private var mCurrentThemeId = R.style.AppThemeBase_Rose
-    private lateinit var mSharedPref: SharedPreferences
+    private val viewModel: BaseActivityViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mSharedPref = getSharedPreferences(PREF_USER_SETTINGS, MODE_PRIVATE)
-        mCurrentThemeId = mSharedPref.getInt(FIELD_THEME, mCurrentThemeId)
+        setTheme(viewModel.getCurrentTheme())
+
+        setStatusBarColor()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.themeFlow.collect {
+                    if (viewModel.isThemeChanged()) {
+                        viewModel.updatePreviousTheme()
+                        //call recreate to apply the new theme
+                        recreate()
+                    }
+                }
+            }
+        }
     }
 
-    protected fun setTheme() {
-        setTheme(mCurrentThemeId)
-    }
+    private fun setStatusBarColor() {
+        val currentTheme = resources.newTheme()
+        currentTheme.applyStyle(viewModel.getCurrentTheme(), true)
+        val typedValue = TypedValue()
+        currentTheme.resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+        val colorPrimaryDark = typedValue.data
 
-    fun switchTheme(themeId: Int) {
-        mCurrentThemeId = themeId
-        mSharedPref.edit().putInt(FIELD_THEME, mCurrentThemeId).apply()
-        recreate()
-    }
+        val window: Window = window
 
-    companion object {
-        private const val PREF_USER_SETTINGS = "user_prefs"
-        const val FIELD_THEME = "theme_id"
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+
+        // finally change the color
+        window.statusBarColor = colorPrimaryDark
     }
 }

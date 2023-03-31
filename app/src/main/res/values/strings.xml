@@ -34,4 +34,13 @@
     <string name="hint_create_diary">Hãy viết điều bạn đang suy nghĩ nhé</string>
     <string name="toast_msg_deleted_diary">Nhật kí đã được xóa</string>
     <string name="toast_msg_fail_delete_diary">Có lỗi khi xóa nhật kí</string>
+    <string name="txt_title_theme">Chủ đề</string>
+    <string name="txt_title_background_picture">Ảnh nền</string>
+    <string name="txt_title_your_name">Tên bạn</string>
+    <string name="txt_action_edit_name">Sửa</string>
+    <string name="txt_title_your_friend_name">Tên người ấy</string>
+    <string name="txt_your_friend_avatar_image">Ảnh của người ấy</string>
+    <string name="txt_your_avatar_image">Ảnh của bạn</string>
+    <string name="txt_action_done_edit_name">Xong</string>
+    <string name="txt_couple_start_date_in_setting">Ngày bắt đầu</string>
 </resources>

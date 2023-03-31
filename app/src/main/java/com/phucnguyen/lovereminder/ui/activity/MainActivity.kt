@@ -27,14 +27,13 @@ import com.phucnguyen.lovereminder.SHARE_PREF_USER_INFO
 import com.phucnguyen.lovereminder.databinding.ActivityMainBinding
 import com.phucnguyen.lovereminder.ui.fragment.DiaryFragment
 import com.phucnguyen.lovereminder.ui.fragment.MainFragment
-import com.phucnguyen.lovereminder.ui.fragment.MainFragment.SettingsListener
 import com.phucnguyen.lovereminder.ui.fragment.PictureFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.FileNotFoundException
 
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity(), SettingsListener {
+class MainActivity : BaseActivity() {
     private var flag = 0 // used to check exit
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var timer: CountDownTimer
@@ -63,7 +62,6 @@ class MainActivity : BaseActivity(), SettingsListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme()
         Log.d("Tag", "Created")
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
@@ -218,15 +216,6 @@ class MainActivity : BaseActivity(), SettingsListener {
     override fun onDestroy() {
         super.onDestroy()
         adView.destroy()
-    }
-
-    override fun onBackgroundImageChanged(uri: Uri) {
-        Glide.with(this)
-            .load(uri)
-            .into(mBinding.imgBackground)
-        val editor = sharedPreferences.edit()
-        editor.putString("picture", uri.toString())
-        editor.apply()
     }
 
     private class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(

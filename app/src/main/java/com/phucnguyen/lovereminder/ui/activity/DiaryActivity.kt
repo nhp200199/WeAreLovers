@@ -30,7 +30,6 @@ class DiaryActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme()
         binding = ActivityDiaryBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)

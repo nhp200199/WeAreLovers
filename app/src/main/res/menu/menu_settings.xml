@@ -7,13 +7,5 @@
         app:showAsAction="always"
         android:iconTint="#FFFFFF"
         android:title="Cài đặt">
-        <menu>
-            <item android:id="@+id/action_change_background"
-                android:title="Đổi hình nền"/>
-            <item android:id="@+id/action_change_date"
-                android:title="Sửa ngày tháng hẹn hò"/>
-            <item android:id="@+id/action_change_theme"
-                android:title="Đổi theme"/>
-        </menu>
     </item>
 </menu>
