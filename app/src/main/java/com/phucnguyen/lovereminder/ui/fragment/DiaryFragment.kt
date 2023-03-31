@@ -48,7 +48,6 @@ class DiaryFragment : Fragment() {
     private lateinit var svDiary: SearchView
     private lateinit var fabAddDiary: FloatingActionButton
     private var binding: FragmentDiaryBinding? = null
-    private var interstitialAd: InterstitialAd? = null
     private val viewModel: DiaryFragmentViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
@@ -69,7 +68,6 @@ class DiaryFragment : Fragment() {
         // Inflate the layout for this fragment
         val v = inflater.inflate(R.layout.fragment_diary, container, false)
         binding = FragmentDiaryBinding.bind(v)
-        loadAd()
         connectViews(binding!!)
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -77,63 +75,6 @@ class DiaryFragment : Fragment() {
             }
         }
         return v
-    }
-
-    private fun loadAd() {
-        val adRequest = AdRequest.Builder().build()
-        activity?.let {
-            InterstitialAd.load(
-                it,
-                AD_UNIT_ID,
-                adRequest,
-                object : InterstitialAdLoadCallback() {
-                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                        // The mInterstitialAd reference will be null until
-                        // an ad is loaded.
-                        this@DiaryFragment.interstitialAd = interstitialAd
-                        Log.i(TAG, "onAdLoaded")
-                        Toast.makeText(activity, "onAdLoaded()", Toast.LENGTH_SHORT).show()
-                        interstitialAd.fullScreenContentCallback =
-                            object : FullScreenContentCallback() {
-                                override fun onAdDismissedFullScreenContent() {
-                                    // Called when fullscreen content is dismissed.
-                                    // Make sure to set your reference to null so you don't
-                                    // show it a second time.
-                                    this@DiaryFragment.interstitialAd = null
-                                    Log.d("TAG", "The ad was dismissed.")
-                                }
-
-                                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                    // Called when fullscreen content failed to show.
-                                    // Make sure to set your reference to null so you don't
-                                    // show it a second time.
-                                    this@DiaryFragment.interstitialAd = null
-                                    Log.d("TAG", "The ad failed to show.")
-                                }
-
-                                override fun onAdShowedFullScreenContent() {
-                                    // Called when fullscreen content is shown.
-                                    this@DiaryFragment.interstitialAd = null
-                                    Log.d("TAG", "The ad was shown.")
-                                }
-                            }
-                    }
-
-                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                        // Handle the error
-                        Log.i(TAG, loadAdError.message)
-                        interstitialAd = null
-                        val error = String.format(
-                            "domain: %s, code: %d, message: %s",
-                            loadAdError.domain, loadAdError.code, loadAdError.message
-                        )
-                        Toast.makeText(
-                            activity, "onAdFailedToLoad() with error: $error", Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                })
-        }
     }
 
     private fun connectViews(binding: FragmentDiaryBinding) {
@@ -217,6 +158,5 @@ class DiaryFragment : Fragment() {
 
     companion object {
         val TAG = DiaryFragment::class.java.simpleName
-        private const val AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
     }
 }
