@@ -66,7 +66,7 @@ class DiaryAdapter(private val mContext: Context) : ListAdapter<Diary, DiaryView
                 }
 
                 override fun areContentsTheSame(oldItem: Diary, newItem: Diary): Boolean {
-                    return oldItem.content == newItem.content
+                    return oldItem.content.equals(newItem.content, false)
                 }
             }
     }
