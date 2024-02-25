@@ -25,7 +25,6 @@ import com.phucnguyen.lovereminder.databinding.ActivityMainBinding
 import com.phucnguyen.lovereminder.ui.fragment.DiaryFragment
 import com.phucnguyen.lovereminder.ui.fragment.MainFragment
 import com.phucnguyen.lovereminder.ui.fragment.MainFragment.SettingsListener
-import com.phucnguyen.lovereminder.ui.fragment.PictureFragment
 import java.io.FileNotFoundException
 
 class MainActivity : BaseActivity(), SettingsListener {

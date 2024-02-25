@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.phucnguyen.lovereminder">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:name="com.phucnguyen.lovereminder.BaseApplication"
@@ -17,6 +18,7 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>
         <activity android:name="com.phucnguyen.lovereminder.ui.activity.DiarySearchingActivity"
+            android:exported="false"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
@@ -31,7 +33,8 @@
             android:exported="false" />
         <receiver
             android:name="com.phucnguyen.lovereminder.receiver.SystemBootReceiver"
-            android:enabled="false">
+            android:enabled="false"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -64,6 +67,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name="com.phucnguyen.lovereminder.ui.activity.SplashActivity"
+            android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,23 +1,27 @@
 package com.phucnguyen.lovereminder.receiver
 
-import android.content.SharedPreferences
-import android.os.Build
-import android.content.Intent
-import android.app.PendingIntent
+import android.Manifest
 import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.phucnguyen.lovereminder.ui.activity.MainActivity
-import com.phucnguyen.lovereminder.BaseApplication
-import com.phucnguyen.lovereminder.R
 import androidx.core.app.NotificationManagerCompat
+import com.phucnguyen.lovereminder.BaseApplication
 import com.phucnguyen.lovereminder.PREF_COUPLE_DATE
+import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.SHARE_PREF_USER_INFO
+import com.phucnguyen.lovereminder.ui.activity.MainActivity
+import com.phucnguyen.lovereminder.utils.PermissionHelperImpl
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Random
 
 class CoupleDateReceiver : BroadcastReceiver() {
     private val _tag = CoupleDateReceiver::class.java.simpleName
@@ -35,7 +39,10 @@ class CoupleDateReceiver : BroadcastReceiver() {
       override fun onReceive(context: Context, intent: Intent) {
         Log.i(_tag, "RECEIVED MESSAGE SCHEDULED FROM ALARM")
         rescheduleAlarm(context)
-        checkShowNotification(context)
+        val permissionHelper = PermissionHelperImpl()
+        if (permissionHelper.isPermissionGranted(context, Manifest.permission.POST_NOTIFICATIONS)) {
+            checkShowNotification(context)
+        }
     }
 
     private fun checkShowNotification(context: Context) {
@@ -86,24 +93,32 @@ class CoupleDateReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT
         )
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                nextAlarm.timeInMillis,
-                pendingIntent
-            )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    nextAlarm.timeInMillis,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    nextAlarm.timeInMillis,
+                    pendingIntent
+                )
+            }
         } else {
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                nextAlarm.timeInMillis,
-                pendingIntent
+            alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    nextAlarm.timeInMillis,
+                    pendingIntent
             )
         }
     }
 
     private fun showNotification(context: Context, testing: Boolean) {
         val intentActivity = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(context, 0, intentActivity, 0)
+        val pendingIntent = PendingIntent.getActivity(context, 0, intentActivity, PendingIntent.FLAG_IMMUTABLE)
         val builder = NotificationCompat.Builder(
             context,
             BaseApplication.CHANNEL_ID
@@ -117,8 +132,12 @@ class CoupleDateReceiver : BroadcastReceiver() {
         val notificationManager = NotificationManagerCompat.from(context)
 
         // notificationId is a unique int for each notification that you must define
-        notificationManager.notify(notificationId, builder.build())
-        Log.i("Receiver", "NOTIFICATION CREATED")
+        try {
+            Log.i("Receiver", "NOTIFICATION CREATED")
+            notificationManager.notify(notificationId, builder.build())
+        } catch (e: SecurityException) {
+            Log.i("Receiver", "NOTIFICATION FAILED")
+        }
     }
 
     private fun getRandomString(listOfStrings: Array<String>): String {
