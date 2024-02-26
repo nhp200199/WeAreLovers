@@ -8,13 +8,13 @@ import android.content.Intent
 import android.view.animation.AnimationUtils
 import com.phucnguyen.lovereminder.PREF_YOUR_NAME
 import com.phucnguyen.lovereminder.SHARE_PREF_USER_INFO
-import com.phucnguyen.lovereminder.databinding.ActivityWelcomeScreenBinding
+import com.phucnguyen.lovereminder.databinding.ActivitySplashBinding
 
 class SplashActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityWelcomeScreenBinding.inflate(layoutInflater)
+        val binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
         sharedPreferences = getSharedPreferences(SHARE_PREF_USER_INFO, MODE_PRIVATE)
         val tvWelcome = binding.tvWelcome

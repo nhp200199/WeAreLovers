@@ -22,7 +22,6 @@ import com.phucnguyen.lovereminder.PREF_BACKGROUND_PICTURE
 import com.phucnguyen.lovereminder.SHARE_PREF_BACKGROUND
 import com.phucnguyen.lovereminder.SHARE_PREF_USER_INFO
 import com.phucnguyen.lovereminder.databinding.ActivityMainBinding
-import com.phucnguyen.lovereminder.ui.fragment.DiaryFragment
 import com.phucnguyen.lovereminder.ui.fragment.MainFragment
 import com.phucnguyen.lovereminder.ui.fragment.MainFragment.SettingsListener
 import java.io.FileNotFoundException
@@ -153,15 +152,11 @@ class MainActivity : BaseActivity(), SettingsListener {
         }
 
         override fun getItem(position: Int): Fragment {
-            return when (position) {
-                1 -> DiaryFragment()
-//                2 -> PictureFragment()
-                else -> MainFragment()
-            }
+            return MainFragment()
         }
 
         companion object {
-            private const val NUMBER_OF_PAGES = 2
+            private const val NUMBER_OF_PAGES = 1
         }
     }
 
