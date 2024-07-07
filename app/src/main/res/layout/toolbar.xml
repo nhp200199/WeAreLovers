@@ -16,4 +16,3 @@
         android:textAppearance="?attr/textAppearanceHeadline6"
         android:textColor="?android:attr/textColor"/>
 </androidx.appcompat.widget.Toolbar>
-

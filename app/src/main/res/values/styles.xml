@@ -10,6 +10,13 @@
         <item name="android:textAppearance">?attr/textAppearanceButton</item>
     </style>
 
+    <style name="RoundButton" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/btn_round</item>
+        <item name="android:backgroundTint">@color/gray</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:padding">4dp</item>
+    </style>
+
     <style name="MyEditText" parent="Widget.AppCompat.EditText">
         <item name="fontFamily">sans-serif</item>
         <item name="android:padding">10dp</item>
@@ -30,7 +37,7 @@
     </style>
 
 <!--    Text View-->
-    
+
     <style name="MyHeadline5" parent="TextAppearance.MaterialComponents.Headline5"/>
     <style name="MyHeadline5.Bold">
         <item name="android:textStyle">bold</item>

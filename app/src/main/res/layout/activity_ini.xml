@@ -8,7 +8,7 @@
     android:gravity="center_vertical"
     android:paddingHorizontal="@dimen/default_screen_horizontal_padding"
     android:paddingVertical="@dimen/default_screen_vertical_padding"
-    tools:context=".ui.activity.IniActivity">
+    tools:context=".feature.couple.coupleInstantiation.presentation.IniActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_logo_container"

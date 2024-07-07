@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".ui.fragment.MainFragment">
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
@@ -37,6 +36,15 @@
             android:text="@string/main_frag_days_txt"
             android:textAppearance="?attr/textAppearanceHeadline5" />
 
+        <ImageButton
+            android:id="@+id/ib_edit_couple_date"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end"
+            style="@style/RoundButton"
+            android:src="@drawable/ic_create_24px"
+            android:visibility="gone"/>
+
     </LinearLayout>
 
     <LinearLayout
@@ -52,21 +60,52 @@
             android:maxWidth="135dp"
             android:orientation="vertical">
 
-            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/profile_image"
+            <FrameLayout
                 android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:src="@drawable/couple"
-                app:civ_border_color="?attr/colorPrimary"
-                app:civ_border_width="2dp" />
+                android:layout_height="96dp">
 
-            <TextView
-                android:id="@id/tv_yourName"
-                style="@style/SingleLineRoundBackgroundTextView"
+                <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/profile_image"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:src="@drawable/couple"
+                    app:civ_border_color="?attr/colorPrimary"
+                    app:civ_border_width="2dp" />
+
+                <ImageButton
+                    android:id="@+id/ib_edit_your_image"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="end"
+                    style="@style/RoundButton"
+                    android:src="@drawable/ic_create_24px"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
+
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="sample Text" />
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:id="@id/tv_yourName"
+                    style="@style/SingleLineRoundBackgroundTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="sample Text" />
+
+                <ImageButton
+                    android:id="@+id/ib_edit_your_name"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="end"
+                    style="@style/RoundButton"
+                    android:src="@drawable/ic_create_24px"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -93,21 +132,51 @@
             android:maxWidth="135dp"
             android:orientation="vertical">
 
-            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/friend_profile_image"
+            <FrameLayout
                 android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:src="@drawable/couple"
-                app:civ_border_color="?attr/colorPrimary"
-                app:civ_border_width="2dp" />
+                android:layout_height="96dp">
 
-            <TextView
-                android:id="@id/tv_yourFrName"
-                style="@style/SingleLineRoundBackgroundTextView"
+                <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/friend_profile_image"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:src="@drawable/couple"
+                    app:civ_border_color="?attr/colorPrimary"
+                    app:civ_border_width="2dp" />
+
+                <ImageButton
+                    android:id="@+id/ib_edit_your_partner_image"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="end"
+                    style="@style/RoundButton"
+                    android:src="@drawable/ic_create_24px"
+                    android:visibility="gone"/>
+            </FrameLayout>
+
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="sample Text" />
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:id="@id/tv_yourFrName"
+                    style="@style/SingleLineRoundBackgroundTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="sample Text" />
+
+                <ImageButton
+                    android:id="@+id/ib_edit_your_partner_name"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="end"
+                    style="@style/RoundButton"
+                    android:src="@drawable/ic_create_24px"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
         </LinearLayout>
     </LinearLayout>
 

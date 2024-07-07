@@ -6,6 +6,17 @@
         android:icon="@drawable/ic_settings"
         app:showAsAction="always"
         android:iconTint="#FFFFFF"
-        android:title="Cài đặt">
+        android:title="@string/settings">
+
+        <menu>
+            <item android:id="@+id/menu_action_edit_couple_data" android:title="@string/couple_data"/>
+            <item android:id="@+id/menu_action_edit_background" android:title="@string/couple_image"/>
+        </menu>
     </item>
+
+    <item android:id="@+id/action_save_couple_data"
+        android:icon="@drawable/ic_check_24px"
+        app:showAsAction="always"
+        android:iconTint="#FFFFFF"
+        android:title="@string/settings"/>
 </menu>

@@ -46,4 +46,7 @@
     <string name="admob_app_id">ca-app-pub-1908558152638152~5472997612</string>
     <string name="banner_ad_unit_id">ca-app-pub-1908558152638152/7144365333</string>
     <string name="interstitial_ad_unit_id">ca-app-pub-3940256099942544/3637484725</string>
+    <string name="couple_data">Thông tin cặp đôi</string>
+    <string name="couple_image">Hình nền</string>
+    <string name="settings">Cài đặt</string>
 </resources>
