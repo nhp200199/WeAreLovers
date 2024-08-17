@@ -29,7 +29,7 @@ import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_FRIEND_NAME
 import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_NAME
 import com.phucnguyen.lovereminder.core.base.presentation.BaseFragment
 import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.UserInfoUiState
-import com.phucnguyen.lovereminder.core.common.IPermissionHelper
+import com.phucnguyen.lovereminder.core.common.permission.IPermissionHelper
 import com.phucnguyen.lovereminder.core.utils.parseDateTimestamps
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding
 import com.theartofdev.edmodo.cropper.CropImage

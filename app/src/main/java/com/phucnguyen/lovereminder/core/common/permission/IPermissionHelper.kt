@@ -1,4 +1,4 @@
-package com.phucnguyen.lovereminder.core.common
+package com.phucnguyen.lovereminder.core.common.permission
 
 import android.content.Context
 

@@ -1,4 +1,4 @@
-package com.phucnguyen.lovereminder.feature.couple.data.datasource
+package com.phucnguyen.lovereminder.feature.couple.common.data.datasource
 
 import android.content.SharedPreferences
 import com.phucnguyen.lovereminder.core.common.constant.PREF_COUPLE_DATE
@@ -7,7 +7,7 @@ import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_FRIEND_IMAGE
 import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_FRIEND_NAME
 import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_IMAGE
 import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_NAME
-import com.phucnguyen.lovereminder.feature.couple.domain.datasource.ICoupleDataStore
+import com.phucnguyen.lovereminder.feature.couple.common.domain.datasource.ICoupleDataStore
 import com.phucnguyen.lovereminder.di.PrefUserInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

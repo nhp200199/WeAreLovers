@@ -3,8 +3,8 @@ package com.phucnguyen.lovereminder.di
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
-import com.phucnguyen.lovereminder.feature.couple.data.datasource.CoupleDataStoreImpl
-import com.phucnguyen.lovereminder.feature.couple.domain.datasource.ICoupleDataStore
+import com.phucnguyen.lovereminder.feature.couple.common.data.datasource.CoupleDataStoreImpl
+import com.phucnguyen.lovereminder.feature.couple.common.domain.datasource.ICoupleDataStore
 import com.phucnguyen.lovereminder.core.common.constant.SHARE_PREF_USER_INFO
 import com.phucnguyen.lovereminder.core.common.constant.SHARE_PREF_USER_PREFERENCE
 import dagger.Binds

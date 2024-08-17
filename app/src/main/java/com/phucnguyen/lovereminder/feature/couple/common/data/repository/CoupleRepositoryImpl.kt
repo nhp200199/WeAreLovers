@@ -1,8 +1,8 @@
-package com.phucnguyen.lovereminder.feature.couple.data.repository
+package com.phucnguyen.lovereminder.feature.couple.common.data.repository
 
 import com.phucnguyen.lovereminder.core.common.constant.DEFAULT_IMAGE_PATH
-import com.phucnguyen.lovereminder.feature.couple.domain.datasource.ICoupleDataStore
-import com.phucnguyen.lovereminder.feature.couple.domain.repository.ICoupleRepository
+import com.phucnguyen.lovereminder.feature.couple.common.domain.datasource.ICoupleDataStore
+import com.phucnguyen.lovereminder.feature.couple.common.domain.repository.ICoupleRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

@@ -1,7 +1,7 @@
 package com.phucnguyen.lovereminder.feature.couple.coupleInstantiation.presentation
 
 import androidx.lifecycle.ViewModel
-import com.phucnguyen.lovereminder.feature.couple.domain.repository.ICoupleRepository
+import com.phucnguyen.lovereminder.feature.couple.common.domain.repository.ICoupleRepository
 import com.phucnguyen.lovereminder.core.utils.formatDate
 import com.phucnguyen.lovereminder.core.utils.parseDateTimestamps
 import com.phucnguyen.lovereminder.feature.couple.coupleInstantiation.presentation.state.CoupleInstantiationFormUIState

@@ -1,7 +1,7 @@
 package com.phucnguyen.lovereminder.di
 
-import com.phucnguyen.lovereminder.core.common.IPermissionHelper
-import com.phucnguyen.lovereminder.core.common.PermissionHelperImpl
+import com.phucnguyen.lovereminder.core.common.permission.IPermissionHelper
+import com.phucnguyen.lovereminder.core.common.permission.PermissionHelperImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

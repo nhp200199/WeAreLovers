@@ -1,4 +1,4 @@
-package com.phucnguyen.lovereminder.feature.couple.domain.repository
+package com.phucnguyen.lovereminder.feature.couple.common.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 

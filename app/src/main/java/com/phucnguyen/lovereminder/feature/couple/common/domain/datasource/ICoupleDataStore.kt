@@ -1,4 +1,4 @@
-package com.phucnguyen.lovereminder.feature.couple.domain.datasource
+package com.phucnguyen.lovereminder.feature.couple.common.domain.datasource
 
 import kotlinx.coroutines.flow.Flow
 

@@ -3,7 +3,7 @@ package com.phucnguyen.lovereminder.feature.couple.viewer.presentation
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.phucnguyen.lovereminder.feature.couple.domain.repository.ICoupleRepository
+import com.phucnguyen.lovereminder.feature.couple.common.domain.repository.ICoupleRepository
 import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.DEFAULT_USER_INFO_UI_STATE
 import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.UserInfoUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
