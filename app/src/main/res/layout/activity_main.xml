@@ -38,11 +38,10 @@
             app:tabIndicatorHeight="0dp" />
     </FrameLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/adViewContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"
-        android:orientation="vertical" />
+        android:visibility="gone" />
 </LinearLayout>
