@@ -1,6 +1,10 @@
-name: GitHub Actions Demo
+name: CI
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+on: 
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -16,3 +20,11 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      - name: Run lint
+        run: ./gradlew lintDebug
