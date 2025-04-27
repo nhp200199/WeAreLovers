@@ -1,6 +1,5 @@
 package com.phucnguyen.lovereminder.feature.couple.viewer.presentation
 
-import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
@@ -24,16 +23,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
+import com.canhub.cropper.CropImageView
 import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.core.base.presentation.BaseFragment
 import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_FRIEND_NAME
 import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_NAME
-import com.phucnguyen.lovereminder.core.base.presentation.BaseFragment
-import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.UserInfoUiState
 import com.phucnguyen.lovereminder.core.common.permission.IPermissionHelper
 import com.phucnguyen.lovereminder.core.utils.parseDateTimestamps
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
+import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.UserInfoUiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -45,6 +46,14 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
     private val viewModel: MainFragmentViewModel by viewModels()
     @Inject lateinit var permissionHelper: IPermissionHelper
     private lateinit var imagePermissionListener: IPermissionHelper.PermissionListener
+
+    private val cropBackgroundImage = registerForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+            viewModel.onChangeImage(result.uriContent.toString())
+        } else {
+            Toast.makeText(requireContext(), "Error when getting image", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_settings, menu)
@@ -146,12 +155,19 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
     }
 
     private fun showBackgroundImagePicker() {
-        CropImage.activity()
-            .setGuidelines(CropImageView.Guidelines.ON)
-            .setActivityTitle("My Crop")
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .setCropMenuCropButtonTitle("Done")
-            .start(requireContext(), this)
+        cropBackgroundImage.launch(
+            CropImageContractOptions(
+                uri = null,
+                cropImageOptions = CropImageOptions().apply {
+                    guidelines = CropImageView.Guidelines.ON
+                    activityTitle = "My Crop"
+                    cropShape = CropImageView.CropShape.RECTANGLE
+                    cropMenuCropButtonTitle = "Done"
+                    aspectRatioX = 1
+                    aspectRatioY = 2
+                }
+            )
+        )
     }
 
     private fun navigateAppSettings() {
@@ -218,12 +234,17 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
     }
 
     private fun showCoupleAvatarPicker() {
-        CropImage.activity()
-            .setGuidelines(CropImageView.Guidelines.ON)
-            .setActivityTitle("My Crop")
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .setCropMenuCropButtonTitle("Done")
-            .start(requireContext(), this)
+        cropBackgroundImage.launch(
+            CropImageContractOptions(
+                uri = null,
+                cropImageOptions = CropImageOptions().apply {
+                    guidelines = CropImageView.Guidelines.ON
+                    activityTitle = "My Crop"
+                    cropShape = CropImageView.CropShape.RECTANGLE
+                    cropMenuCropButtonTitle = "Done"
+                }
+            )
+        )
     }
 
     private fun getImagePermission(): String {
@@ -283,18 +304,6 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
                     invalidateOptionsMenu(requireActivity())
                     enableCoupleDataEditor(it)
                 }
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            val result = CropImage.getActivityResult(data)
-            if (resultCode == RESULT_OK) {
-                viewModel.onChangeImage(result.uri.toString())
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Toast.makeText(requireContext(), "Error when getting image", Toast.LENGTH_SHORT).show()
             }
         }
     }
