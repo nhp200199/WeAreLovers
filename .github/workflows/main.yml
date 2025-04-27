@@ -26,5 +26,12 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@v2
 
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
       - name: Run lint
         run: ./gradlew lintDebug
+      - name: Upload html test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: index.html
+          path: app/build/reports/lint-results-debug.html
