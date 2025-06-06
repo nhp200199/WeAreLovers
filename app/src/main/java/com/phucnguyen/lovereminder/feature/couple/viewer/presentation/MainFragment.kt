@@ -1,6 +1,5 @@
 package com.phucnguyen.lovereminder.feature.couple.viewer.presentation
 
-import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
@@ -15,8 +14,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -25,26 +24,28 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.core.base.presentation.BaseFragment
 import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_FRIEND_NAME
 import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_NAME
-import com.phucnguyen.lovereminder.core.base.presentation.BaseFragment
-import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.UserInfoUiState
-import com.phucnguyen.lovereminder.core.common.permission.IPermissionHelper
 import com.phucnguyen.lovereminder.core.utils.parseDateTimestamps
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
+import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.UserInfoUiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment : BaseFragment<FragmentMainBinding>() {
     private val viewModel: MainFragmentViewModel by viewModels()
-    @Inject lateinit var permissionHelper: IPermissionHelper
-    private lateinit var imagePermissionListener: IPermissionHelper.PermissionListener
+
+    private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            Log.d("PhotoPicker", "Selected URI: $uri")
+        } else {
+            Log.d("PhotoPicker", "No media selected")
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_settings, menu)
@@ -60,7 +61,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
             }
             R.id.menu_action_edit_background -> {
                 viewModel.targetChanged(ChangeTarget.BACKGROUND)
-                checkImagePermission()
+                checkAndShowImagePicker()
                 true
             }
             R.id.action_save_couple_data -> {
@@ -110,35 +111,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
         return FragmentMainBinding.inflate(inflater, container, false)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        permissionHelper.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
     override fun setupView() {
-        imagePermissionListener = object : IPermissionHelper.PermissionListener {
-            override fun onPermissionGranted() {
-                Log.d(getClassTag(), "onPermissionGranted: ")
-                checkAndShowImagePicker()
-            }
-
-            override fun onPermissionDenied(deniedPermissions: List<String>) {
-                Log.d(getClassTag(), "onPermissionDenied: ")
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Permission Denied")
-                    .setMessage("You have chosen to deny permission for image picker. Please grant permission in device settings to use this feature")
-                    .setPositiveButton("Go to Settings") { dialog, _ ->
-                        dialog.dismiss()
-                        navigateAppSettings()
-                    }
-                    .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-                    .show()
-            }
-        }
-
         setHasOptionsMenu(true)
 
         val zoomin = AnimationUtils.loadAnimation(activity, R.anim.zoom_in)
@@ -146,32 +119,23 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
     }
 
     private fun showBackgroundImagePicker() {
-        CropImage.activity()
-            .setGuidelines(CropImageView.Guidelines.ON)
-            .setActivityTitle("My Crop")
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .setCropMenuCropButtonTitle("Done")
-            .start(requireContext(), this)
-    }
-
-    private fun navigateAppSettings() {
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-        intent.data = Uri.parse("package:" + requireContext().packageName)
-        startActivity(intent)
-        //TODO: navigate to permission page, not general page
+//        CropImage.activity()
+//            .setGuidelines(CropImageView.Guidelines.ON)
+//            .setActivityTitle("My Crop")
+//            .setCropShape(CropImageView.CropShape.RECTANGLE)
+//            .setCropMenuCropButtonTitle("Done")
+//            .start(requireContext(), this)
     }
 
     override fun setViewListener() {
-        permissionHelper.registerPermissionListener(REQ_PERMISSION_IMAGE, imagePermissionListener)
-
         binding.ibEditYourPartnerImage.setOnClickListener {
             viewModel.targetChanged(ChangeTarget.YOUR_PARTNER)
-            checkImagePermission()
+            checkAndShowImagePicker()
         }
 
         binding.ibEditYourImage.setOnClickListener {
             viewModel.targetChanged(ChangeTarget.YOU)
-            checkImagePermission()
+            checkAndShowImagePicker()
         }
 
         binding.ibEditYourName.setOnClickListener {
@@ -184,24 +148,6 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
 
         binding.ibEditCoupleDate.setOnClickListener {
             showDatePicker()
-        }
-    }
-
-    private fun checkImagePermission() {
-        when {
-            permissionHelper.isPermissionGranted(requireContext(), getImagePermission()) -> {
-                Log.d(getClassTag(), "setViewListener: permission granted")
-                checkAndShowImagePicker()
-            }
-
-            shouldShowRequestPermissionRationale(getImagePermission()) -> {
-                Log.d(getClassTag(), "setViewListener: show rationale")
-                requestPermissions(arrayOf(getImagePermission()), REQ_PERMISSION_IMAGE)
-            }
-
-            else -> {
-                requestPermissions(arrayOf(getImagePermission()), REQ_PERMISSION_IMAGE)
-            }
         }
     }
 
@@ -218,12 +164,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
     }
 
     private fun showCoupleAvatarPicker() {
-        CropImage.activity()
-            .setGuidelines(CropImageView.Guidelines.ON)
-            .setActivityTitle("My Crop")
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .setCropMenuCropButtonTitle("Done")
-            .start(requireContext(), this)
+        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
     private fun getImagePermission(): String {
@@ -262,11 +203,6 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
         dialogFragment.show(parentFragmentManager, "ChangeNameDialogFragment")
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        permissionHelper.unregisterPermissionListener(REQ_PERMISSION_IMAGE, imagePermissionListener)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {
@@ -283,18 +219,6 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
                     invalidateOptionsMenu(requireActivity())
                     enableCoupleDataEditor(it)
                 }
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            val result = CropImage.getActivityResult(data)
-            if (resultCode == RESULT_OK) {
-                viewModel.onChangeImage(result.uri.toString())
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Toast.makeText(requireContext(), "Error when getting image", Toast.LENGTH_SHORT).show()
             }
         }
     }
