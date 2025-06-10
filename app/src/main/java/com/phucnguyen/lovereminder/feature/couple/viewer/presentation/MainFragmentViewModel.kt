@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.phucnguyen.lovereminder.feature.couple.common.domain.repository.ICoupleRepository
+import com.phucnguyen.lovereminder.feature.couple.common.presentation.enums.ChangeTarget
 import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.DEFAULT_USER_INFO_UI_STATE
 import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.UserInfoUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,12 +19,6 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-
-enum class ChangeTarget {
-    YOU,
-    YOUR_PARTNER,
-    BACKGROUND
-}
 
 @HiltViewModel
 class MainFragmentViewModel @Inject constructor(private val coupleRepository: ICoupleRepository) : ViewModel() {

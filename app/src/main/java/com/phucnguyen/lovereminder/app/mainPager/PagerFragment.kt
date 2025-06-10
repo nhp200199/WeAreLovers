@@ -1,4 +1,4 @@
-package com.phucnguyen.lovereminder.app.mainContainer
+package com.phucnguyen.lovereminder.app.mainPager
 
 import android.os.Build
 import android.os.Bundle
@@ -6,13 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowMetrics
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.bumptech.glide.Glide
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -23,14 +24,15 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.phucnguyen.lovereminder.R
 import com.phucnguyen.lovereminder.core.base.presentation.BaseFragment
-import com.phucnguyen.lovereminder.databinding.FragmentContainerBinding
+import com.phucnguyen.lovereminder.databinding.FragmentPagerBinding
 import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.MainFragment
+import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.imageCropping.ImageCroppingFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ContainerFragment : BaseFragment<FragmentContainerBinding>() {
-    private val viewModel: ContainerViewModel by viewModels()
+class PagerFragment : BaseFragment<FragmentPagerBinding>() {
+    private val viewModel: PagerViewModel by viewModels()
 
     private val adSize: AdSize
         get() {
@@ -72,17 +74,21 @@ class ContainerFragment : BaseFragment<FragmentContainerBinding>() {
     }
 
     override fun getClassTag(): String {
-        return ContainerFragment::class.java.simpleName
+        return PagerFragment::class.java.simpleName
     }
 
     override fun getViewBindingClass(
         inflater: LayoutInflater,
         container: ViewGroup?
-    ): FragmentContainerBinding {
-        return FragmentContainerBinding.inflate(inflater, container, false)
+    ): FragmentPagerBinding {
+        return FragmentPagerBinding.inflate(inflater, container, false)
     }
 
     override fun setupView() {
+        (activity as? AppCompatActivity)?.apply {
+            setSupportActionBar(binding.toolbar.tb)
+            this.supportActionBar?.setDisplayShowTitleEnabled(false)
+        }
         setupAdView()
         setUpViewPager()
 
@@ -174,24 +180,23 @@ class ContainerFragment : BaseFragment<FragmentContainerBinding>() {
     }
 
     private fun setUpViewPager() {
-        val sectionsPagerAdapter = SectionsPagerAdapter(parentFragmentManager)
+        val sectionsPagerAdapter = SectionsPagerAdapter(requireActivity())
         binding.pager.adapter = sectionsPagerAdapter
-        binding.tlSwipe.setupWithViewPager(binding.pager)
-
-        //disable click on tab layout
-        for (v in binding.tlSwipe.touchables) {
-            v.isEnabled = false
-        }
+//        binding.tlSwipe.setupWithViewPager(binding.pager)
+//
+//        //disable click on tab layout
+//        for (v in binding.tlSwipe.touchables) {
+//            v.isEnabled = false
+//        }
     }
 
-    private class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(
-        fm!!
+    private class SectionsPagerAdapter(fm: FragmentActivity) : FragmentStateAdapter(
+        fm,
     ) {
-        override fun getCount(): Int {
+        override fun getItemCount(): Int {
             return NUMBER_OF_PAGES
         }
-
-        override fun getItem(position: Int): Fragment {
+        override fun createFragment(position: Int): Fragment {
             return MainFragment()
         }
 

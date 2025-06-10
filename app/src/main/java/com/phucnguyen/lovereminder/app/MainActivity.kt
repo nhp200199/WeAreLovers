@@ -13,7 +13,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentTransaction
 import com.phucnguyen.lovereminder.R
-import com.phucnguyen.lovereminder.app.mainContainer.ContainerFragment
+import com.phucnguyen.lovereminder.app.mainPager.PagerFragment
 import com.phucnguyen.lovereminder.core.base.presentation.BaseActivity
 import com.phucnguyen.lovereminder.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,7 +38,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 //        }
 
         if (savedInstanceState == null) {
-            val fragment = ContainerFragment()
+            val fragment = PagerFragment()
 
             val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
             transaction.replace(R.id.fragment_container, fragment)
@@ -55,21 +55,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     override fun setupView() {
-        setSupportActionBar(binding.toolbar.tb)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
     override fun setViewListener() {
-        onBackPressedDispatcher.addCallback(this, onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (closeAppFlag == 0) {
-                    configureTimerToExitApp()
-                    Toast.makeText(this@MainActivity, "Nhấn lần nữa để thoát", Toast.LENGTH_SHORT).show()
-                }
-                closeAppFlag++
-            }
-
-        })
+//        onBackPressedDispatcher.addCallback(this, onBackPressedCallback = object : OnBackPressedCallback(true) {
+//            override fun handleOnBackPressed() {
+//                if (closeAppFlag == 0) {
+//                    configureTimerToExitApp()
+//                    Toast.makeText(this@MainActivity, "Nhấn lần nữa để thoát", Toast.LENGTH_SHORT).show()
+//                }
+//                closeAppFlag++
+//            }
+//
+//        })
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -124,22 +122,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 //        if (intent.hasExtra("position")) swipeViewPager(intent.getIntExtra("position", 0))
     }
 
-    private fun configureTimerToExitApp() {
-        timer = object :
-            CountDownTimer(TIME_TO_ACCEPT_CLOSE_APP.toLong(), COUNT_DOWN_INTERVAL.toLong()) {
-            override fun onTick(millisUntilFinished: Long) {
-                if (closeAppFlag == 2) {
-                    cancel()
-                    finish()
-                }
-            }
-
-            override fun onFinish() {
-                closeAppFlag = 0
-            }
-        }
-        timer.start()
-    }
+//    private fun configureTimerToExitApp() {
+//        timer = object :
+//            CountDownTimer(TIME_TO_ACCEPT_CLOSE_APP.toLong(), COUNT_DOWN_INTERVAL.toLong()) {
+//            override fun onTick(millisUntilFinished: Long) {
+//                if (closeAppFlag == 2) {
+//                    cancel()
+//                    finish()
+//                }
+//            }
+//
+//            override fun onFinish() {
+//                closeAppFlag = 0
+//            }
+//        }
+//        timer.start()
+//    }
 
     companion object {
         private const val TIME_TO_ACCEPT_CLOSE_APP = 5 * 1000

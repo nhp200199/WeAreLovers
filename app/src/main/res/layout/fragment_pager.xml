@@ -6,7 +6,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:baselineAligned="false"
     android:orientation="vertical"
-    tools:context=".app.mainContainer.ContainerFragment">
+    tools:context=".app.mainPager.PagerFragment">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar" />
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -20,7 +24,7 @@
                 android:scaleType="fitXY"
                 android:src="@drawable/couple" />
 
-            <androidx.viewpager.widget.ViewPager
+            <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/pager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />

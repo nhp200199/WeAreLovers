@@ -1,11 +1,8 @@
 package com.phucnguyen.lovereminder.feature.couple.viewer.presentation
 
 import android.app.DatePickerDialog
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -29,6 +26,8 @@ import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_FRIEND_NAME
 import com.phucnguyen.lovereminder.core.common.constant.PREF_YOUR_NAME
 import com.phucnguyen.lovereminder.core.utils.parseDateTimestamps
 import com.phucnguyen.lovereminder.databinding.FragmentMainBinding
+import com.phucnguyen.lovereminder.feature.couple.common.presentation.enums.ChangeTarget
+import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.imageCropping.ImageCroppingFragment
 import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.state.UserInfoUiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -42,6 +41,19 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             Log.d("PhotoPicker", "Selected URI: $uri")
+            if (viewModel.getTarget() != null) {
+                requireActivity().supportFragmentManager.beginTransaction().apply {
+                    replace(
+                        R.id.fragment_container,
+                        ImageCroppingFragment.newInstance(
+                            viewModel.getTarget()!!,
+                            uri.toString())
+                    )
+                    addToBackStack(null)
+
+                    commit()
+                }
+            }
         } else {
             Log.d("PhotoPicker", "No media selected")
         }
