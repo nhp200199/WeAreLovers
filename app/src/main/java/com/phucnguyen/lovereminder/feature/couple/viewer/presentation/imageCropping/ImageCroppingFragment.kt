@@ -45,18 +45,24 @@ class ImageCroppingFragment :
 
     override fun setupView() {
         binding.toolbar.tb.apply {
-            title = "Crop Image"
             inflateMenu(R.menu.menu_image_cropping)
         }
+        binding.toolbar.tvTitle.text = "Crop Image"
 
-        imageURI?.let {
+        imageURI.let {
             val uri = Uri.parse(it)
             binding.cropImageView.setImageUriAsync(uri)
         }
 
         binding.cropImageView.apply {
-            cropShape = CropImageView.CropShape.OVAL
-            setAspectRatio(1, 1)
+            if (changeTarget == ChangeTarget.BACKGROUND) {
+                //TODO: calculate aspect ratio base on screen size
+                cropShape = CropImageView.CropShape.RECTANGLE
+                guidelines = CropImageView.Guidelines.ON
+            } else {
+                cropShape = CropImageView.CropShape.OVAL
+                setAspectRatio(1, 1)
+            }
         }
     }
 
@@ -76,6 +82,8 @@ class ImageCroppingFragment :
 
     override fun onCropImageComplete(view: CropImageView, result: CropImageView.CropResult) {
         viewModel.onImageCropped(changeTarget, result.uriContent!!.toString())
+
+        parentFragmentManager.popBackStack()
     }
 
     override fun onDestroyView() {

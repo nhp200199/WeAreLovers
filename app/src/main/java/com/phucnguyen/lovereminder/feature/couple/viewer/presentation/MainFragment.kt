@@ -1,7 +1,6 @@
 package com.phucnguyen.lovereminder.feature.couple.viewer.presentation
 
 import android.app.DatePickerDialog
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -73,7 +72,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
             }
             R.id.menu_action_edit_background -> {
                 viewModel.targetChanged(ChangeTarget.BACKGROUND)
-                checkAndShowImagePicker()
+                openImagePicker()
                 true
             }
             R.id.action_save_couple_data -> {
@@ -91,11 +90,6 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
         binding.ibEditYourImage.isVisible = visible
         binding.ibEditYourPartnerName.isVisible = visible
         binding.ibEditYourPartnerImage.isVisible = visible
-    }
-
-    private fun navigateSettingScreen() {
-//        startActivity(Intent(requireContext(), SettingActivity::class.java))
-        //TODO: implement settings screen
     }
 
     private fun setUserInfo(userInfoState: UserInfoUiState) {
@@ -130,24 +124,15 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
         binding.imgHeart.startAnimation(zoomin)
     }
 
-    private fun showBackgroundImagePicker() {
-//        CropImage.activity()
-//            .setGuidelines(CropImageView.Guidelines.ON)
-//            .setActivityTitle("My Crop")
-//            .setCropShape(CropImageView.CropShape.RECTANGLE)
-//            .setCropMenuCropButtonTitle("Done")
-//            .start(requireContext(), this)
-    }
-
     override fun setViewListener() {
         binding.ibEditYourPartnerImage.setOnClickListener {
             viewModel.targetChanged(ChangeTarget.YOUR_PARTNER)
-            checkAndShowImagePicker()
+            openImagePicker()
         }
 
         binding.ibEditYourImage.setOnClickListener {
             viewModel.targetChanged(ChangeTarget.YOU)
-            checkAndShowImagePicker()
+            openImagePicker()
         }
 
         binding.ibEditYourName.setOnClickListener {
@@ -163,27 +148,9 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
         }
     }
 
-    private fun checkAndShowImagePicker() {
+    private fun openImagePicker() {
         if (viewModel.getTarget() != null) {
-            if (viewModel.getTarget() == ChangeTarget.YOUR_PARTNER
-                || viewModel.getTarget() == ChangeTarget.YOU
-            ) {
-                showCoupleAvatarPicker()
-            } else {
-                showBackgroundImagePicker()
-            }
-        }
-    }
-
-    private fun showCoupleAvatarPicker() {
-        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-    }
-
-    private fun getImagePermission(): String {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            android.Manifest.permission.READ_MEDIA_IMAGES
-        } else {
-            android.Manifest.permission.READ_EXTERNAL_STORAGE
+            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
     }
 
@@ -244,9 +211,5 @@ class MainFragment : BaseFragment<FragmentMainBinding>() {
         menu.findItem(R.id.action_settings).isVisible = !viewModel.isEditingCoupleData()
         menu.findItem(R.id.action_save_couple_data).isVisible = viewModel.isEditingCoupleData()
         super.onPrepareOptionsMenu(menu)
-    }
-
-    companion object {
-        const val REQ_PERMISSION_IMAGE = 1
     }
 }

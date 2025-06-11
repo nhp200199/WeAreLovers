@@ -18,7 +18,9 @@ class ImageCroppingViewModel @Inject constructor(
             ChangeTarget.YOUR_PARTNER -> {
                 coupleRepository.setYourPartnerImage(imageUri)
             }
-            ChangeTarget.BACKGROUND -> TODO()
+            ChangeTarget.BACKGROUND -> {
+                coupleRepository.saveCoupleImage(imageUri)
+            }
             else -> throw NotImplementedError()
         }
     }
