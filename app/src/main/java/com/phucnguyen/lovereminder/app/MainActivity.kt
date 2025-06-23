@@ -1,6 +1,5 @@
 package com.phucnguyen.lovereminder.app
 
-import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.MainFragment
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -9,53 +8,21 @@ import android.os.CountDownTimer
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowMetrics
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import com.bumptech.glide.Glide
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
+import androidx.fragment.app.FragmentTransaction
 import com.phucnguyen.lovereminder.R
+import com.phucnguyen.lovereminder.app.mainPager.PagerFragment
 import com.phucnguyen.lovereminder.core.base.presentation.BaseActivity
 import com.phucnguyen.lovereminder.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>() {
-    private val viewModel: MainActivityViewModel by viewModels()
     private var closeAppFlag = 0 // used to check exit
     private lateinit var timer: CountDownTimer
-    // Get the ad size with screen width.
-    private val adSize: AdSize
-        get() {
-            val displayMetrics = resources.displayMetrics
-            val adWidthPixels =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    val windowMetrics: WindowMetrics = this.windowManager.currentWindowMetrics
-                    windowMetrics.bounds.width()
-                } else {
-                    displayMetrics.widthPixels
-                }
-            val density = displayMetrics.density
-            val adWidth = (adWidthPixels / density).toInt()
-            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,26 +37,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 //            openIgnoreBatteryOptimizationSettings()
 //        }
 
-        initializeMobileAdsSdk()
-        setupAdView()
-    }
+        if (savedInstanceState == null) {
+            val fragment = PagerFragment()
 
-    private fun initializeMobileAdsSdk() {
-        // Initialize the Mobile Ads SDK with an AdMob App ID.
-        MobileAds.initialize(this) {}
-
-        // Set your test devices. Check your logcat output for the hashed device ID to
-        // get test ads on a physical device. e.g.
-        // "Use RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
-        // to get test ads on this device."
-        MobileAds.setRequestConfiguration(
-            RequestConfiguration.Builder().setTestDeviceIds(
-                listOf(
-                    "AC2FDCECBCC0ADA1D187ED08618252FD",
-                    "41C49D16BFE9FC2EF7D54549D51BCB47" //pixel 5
-                )
-            ).build()
-        )
+            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragment_container, fragment)
+            transaction.commit()
+        }
     }
 
     override fun getClassTag(): String {
@@ -101,91 +55,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     override fun setupView() {
-        setSupportActionBar(binding.toolbar.tb)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
-
-        setUpViewPager()
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.backgroundImageFlow.collect {
-                    Glide.with(this@MainActivity)
-                        .load(it)
-                        .into(binding.imgBackground)
-                }
-            }
-        }
     }
 
     override fun setViewListener() {
-        onBackPressedDispatcher.addCallback(this, onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (closeAppFlag == 0) {
-                    configureTimerToExitApp()
-                    Toast.makeText(this@MainActivity, "Nhấn lần nữa để thoát", Toast.LENGTH_SHORT).show()
-                }
-                closeAppFlag++
-            }
-
-        })
-    }
-    private lateinit var adView: AdView
-    private var initialLayoutComplete = false
-
-
-    private fun setupAdView() {
-        adView = AdView(this)
-        adView.adListener = object : AdListener() {
-            override fun onAdClicked() {
-                // Code to be executed when the user clicks on an ad.
-            }
-
-            override fun onAdClosed() {
-                // Code to be executed when the user is about to return
-                // to the app after tapping on an ad.
-            }
-
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                // Code to be executed when an ad request fails.
-            }
-
-            override fun onAdImpression() {
-                // Code to be executed when an impression is recorded
-                // for an ad.
-            }
-
-            override fun onAdLoaded() {
-                binding.adViewContainer.visibility = View.VISIBLE
-            }
-
-            override fun onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
-            }
-        }
-
-        binding.adViewContainer.removeAllViews()
-        binding.adViewContainer.addView(adView)
-        // Since we're loading the banner based on the adContainerView size, we need to wait until this
-        // view is laid out before we can get the width.
-        binding.adViewContainer.viewTreeObserver.addOnGlobalLayoutListener {
-            if (!initialLayoutComplete) {
-                initialLayoutComplete = true
-                loadBanner()
-            }
-        }
-    }
-
-    private fun loadBanner() {
-        adView.adUnitId = getString(R.string.banner_ad_unit_id)
-
-        adView.setAdSize(adSize)
-
-        // Create an ad request.
-        val adRequest = AdRequest.Builder().build()
-
-        // Start loading the ad in the background.
-        adView.loadAd(adRequest)
+//        onBackPressedDispatcher.addCallback(this, onBackPressedCallback = object : OnBackPressedCallback(true) {
+//            override fun handleOnBackPressed() {
+//                if (closeAppFlag == 0) {
+//                    configureTimerToExitApp()
+//                    Toast.makeText(this@MainActivity, "Nhấn lần nữa để thoát", Toast.LENGTH_SHORT).show()
+//                }
+//                closeAppFlag++
+//            }
+//
+//        })
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -207,10 +89,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }
-
-    private fun swipeViewPager(position: Int) {
-        binding.pager.currentItem = position
     }
 
 //    private fun retrieveUserInfor() {
@@ -239,65 +117,27 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 //        }
 //    }
 
-    private fun setUpViewPager() {
-        val sectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
-        binding.pager.adapter = sectionsPagerAdapter
-        binding.tlSwipe.setupWithViewPager(binding.pager)
-
-        //disable click on tab layout
-        for (v in binding.tlSwipe.touchables) {
-            v.isEnabled = false
-        }
-    }
-
     public override fun onResume() {
         super.onResume()
 //        if (intent.hasExtra("position")) swipeViewPager(intent.getIntExtra("position", 0))
-        adView.resume()
     }
 
-    override fun onPause() {
-        super.onPause()
-        adView.pause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        adView.destroy()
-    }
-
-    private class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(
-        fm!!
-    ) {
-        override fun getCount(): Int {
-            return NUMBER_OF_PAGES
-        }
-
-        override fun getItem(position: Int): Fragment {
-            return MainFragment()
-        }
-
-        companion object {
-            private const val NUMBER_OF_PAGES = 1
-        }
-    }
-
-    private fun configureTimerToExitApp() {
-        timer = object :
-            CountDownTimer(TIME_TO_ACCEPT_CLOSE_APP.toLong(), COUNT_DOWN_INTERVAL.toLong()) {
-            override fun onTick(millisUntilFinished: Long) {
-                if (closeAppFlag == 2) {
-                    cancel()
-                    finish()
-                }
-            }
-
-            override fun onFinish() {
-                closeAppFlag = 0
-            }
-        }
-        timer.start()
-    }
+//    private fun configureTimerToExitApp() {
+//        timer = object :
+//            CountDownTimer(TIME_TO_ACCEPT_CLOSE_APP.toLong(), COUNT_DOWN_INTERVAL.toLong()) {
+//            override fun onTick(millisUntilFinished: Long) {
+//                if (closeAppFlag == 2) {
+//                    cancel()
+//                    finish()
+//                }
+//            }
+//
+//            override fun onFinish() {
+//                closeAppFlag = 0
+//            }
+//        }
+//        timer.start()
+//    }
 
     companion object {
         private const val TIME_TO_ACCEPT_CLOSE_APP = 5 * 1000
