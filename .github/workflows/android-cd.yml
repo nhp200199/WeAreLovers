@@ -44,7 +44,20 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew bundleRelease
 
-      # 6. Create a GitHub Release and upload the AAB as an artifact
+      # 6. Upload the AAB to the Google Play Store
+      - name: Upload AAB to Play Store
+        uses: r0adkll/upload-google-play@v1.1.3
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          packageName: com.phucnguyen.lovereminder
+          # The AAB file to upload
+          releaseFile: app/build/outputs/bundle/release/app-release.aab
+          # The track to upload to (e.g., internal, alpha, beta, production)
+          track: production
+          status: 'completed'
+          whatsNewDirectory: whatsNew/
+
+      # 7. Create a GitHub Release and upload the AAB as an artifact
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
