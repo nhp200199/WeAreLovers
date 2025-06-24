@@ -51,7 +51,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.phucnguyen.lovereminder
           # The AAB file to upload
-          releaseFile: app/build/outputs/bundle/release/app-release.aab
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
           # The track to upload to (e.g., internal, alpha, beta, production)
           track: internal
           status: 'completed'
