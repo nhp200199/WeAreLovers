@@ -34,29 +34,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-  # --- START: NEW DEBUGGING STEP ---
-      - name: Verify Signing Credentials
-        run: |
-         echo "Verifying that the keystore file exists and is not empty..."
-         ls -l ${{ github.workspace }}/release.jks
-         
-         echo "Verifying that the KEY_ALIAS is passed..."
-         # We echo the alias because it's safe. NEVER echo passwords or secrets.
-         if [ -n "${{ secrets.KEY_ALIAS }}" ]; then
-           echo "KEY_ALIAS is available."
-         else
-           echo "ERROR: KEY_ALIAS is MISSING or empty!"
-           exit 1
-         fi
-         
-         # Check other secrets to make sure they are not empty
-         if [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ] || [ -z "${{ secrets.KEY_PASSWORD }}" ]; then
-           echo "ERROR: One of the password secrets is MISSING or empty!"
-           exit 1
-         fi
-         echo "All signing credentials seem to be present."
-  # --- END: NEW DEBUGGING STEP ---
-
       # 5. Build and sign the Android App Bundle (AAB)
       - name: Build Release AAB
         env:
@@ -67,18 +44,18 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew bundleRelease
 
-#      # 6. Upload the AAB to the Google Play Store
-#      - name: Upload AAB to Play Store
-#        uses: r0adkll/upload-google-play@v1.1.3
-#        with:
-#          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
-#          packageName: com.phucnguyen.lovereminder
-#          # The AAB file to upload
-#          releaseFile: app/build/outputs/bundle/release/app-release.aab
-#          # The track to upload to (e.g., internal, alpha, beta, production)
-#          track: production
-#          status: 'completed'
-#          whatsNewDirectory: whatsNew/
+      # 6. Upload the AAB to the Google Play Store
+      - name: Upload AAB to Play Store
+        uses: r0adkll/upload-google-play@v1.1.3
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          packageName: com.phucnguyen.lovereminder
+          # The AAB file to upload
+          releaseFile: app/build/outputs/bundle/release/app-release.aab
+          # The track to upload to (e.g., internal, alpha, beta, production)
+          track: internal
+          status: 'completed'
+          whatsNewDirectory: whatsNew/
 
       # 7. Create a GitHub Release and upload the AAB as an artifact
       - name: Create GitHub Release
