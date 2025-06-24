@@ -18,11 +18,32 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    signingConfigs {
+        release {
+            // Read signing credentials from environment variables set by GitHub Actions
+            def storeFileEnv = System.getenv("KEYSTORE_FILE")
+            def storePasswordEnv = System.getenv("KEYSTORE_PASSWORD")
+            def keyAliasEnv = System.getenv("KEY_ALIAS")
+            def keyPasswordEnv = System.getenv("KEY_PASSWORD")
+
+            // Only configure signing if all environment variables are present
+            if (storeFileEnv != null && new File(storeFileEnv).exists()) {
+                storeFile file(storeFileEnv)
+                storePassword storePasswordEnv
+                keyAlias keyAliasEnv
+                keyPassword keyPasswordEnv
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             multiDexEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
