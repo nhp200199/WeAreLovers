@@ -7,6 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowMetrics
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
@@ -23,15 +26,14 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.phucnguyen.lovereminder.R
-import com.phucnguyen.lovereminder.core.base.presentation.BaseFragment
+import com.phucnguyen.lovereminder.core.base.presentation.ToolbarFragment
 import com.phucnguyen.lovereminder.databinding.FragmentPagerBinding
 import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.MainFragment
-import com.phucnguyen.lovereminder.feature.couple.viewer.presentation.imageCropping.ImageCroppingFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class PagerFragment : BaseFragment<FragmentPagerBinding>() {
+class PagerFragment : ToolbarFragment<FragmentPagerBinding>() {
     private val viewModel: PagerViewModel by viewModels()
 
     private val adSize: AdSize
@@ -85,6 +87,8 @@ class PagerFragment : BaseFragment<FragmentPagerBinding>() {
     }
 
     override fun setupView() {
+        applyWindowInsets()
+
         (activity as? AppCompatActivity)?.apply {
             setSupportActionBar(binding.toolbar.tb)
             this.supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -100,6 +104,16 @@ class PagerFragment : BaseFragment<FragmentPagerBinding>() {
                         .into(binding.imgBackground)
                 }
             }
+        }
+    }
+
+    private fun applyWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.adViewContainer) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = insets.bottom
+            }
+            windowInsets
         }
     }
 
