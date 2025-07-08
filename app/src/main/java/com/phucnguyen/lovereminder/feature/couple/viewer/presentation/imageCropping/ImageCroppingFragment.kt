@@ -8,7 +8,7 @@ import androidx.fragment.app.viewModels
 import com.canhub.cropper.CropImageView
 import com.canhub.cropper.CropImageView.OnCropImageCompleteListener
 import com.phucnguyen.lovereminder.R
-import com.phucnguyen.lovereminder.core.base.presentation.BaseFragment
+import com.phucnguyen.lovereminder.core.base.presentation.ToolbarFragment
 import com.phucnguyen.lovereminder.databinding.FragmentImageCroppingBinding
 import com.phucnguyen.lovereminder.feature.couple.common.presentation.enums.ChangeTarget
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,7 +18,7 @@ private const val ARG_CHANGE_TARGET = "changeTarget"
 
 @AndroidEntryPoint
 class ImageCroppingFragment :
-    BaseFragment<FragmentImageCroppingBinding>(),
+    ToolbarFragment<FragmentImageCroppingBinding>(),
     OnCropImageCompleteListener {
     private lateinit var imageURI: String
     private lateinit var changeTarget: ChangeTarget

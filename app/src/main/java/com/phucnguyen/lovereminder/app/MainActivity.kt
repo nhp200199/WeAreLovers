@@ -9,7 +9,6 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentTransaction
 import com.phucnguyen.lovereminder.R
@@ -26,16 +25,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        Log.d("Tag", "Created")
-//        binding = ActivityMainBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
-//        setSupportActionBar(binding.toolbar.tb)
-//        supportActionBar!!.setDisplayShowTitleEnabled(false)
-////        retrieveUserInfor()
-//        setUpViewPager()
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isIgnoringBatteryOptimizations(this)) {
-//            openIgnoreBatteryOptimizationSettings()
-//        }
 
         if (savedInstanceState == null) {
             val fragment = PagerFragment()
