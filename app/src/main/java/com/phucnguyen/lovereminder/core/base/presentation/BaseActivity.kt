@@ -3,6 +3,7 @@ package com.phucnguyen.lovereminder.core.base.presentation
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
 
@@ -19,6 +20,8 @@ abstract class BaseActivity<T: ViewBinding>: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
         Log.i(getClassTag(), "onCreate()")
         binding = getViewBindingClass(layoutInflater)
         setContentView(binding.root)
